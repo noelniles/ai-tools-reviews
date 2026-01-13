@@ -1,0 +1,27 @@
+---
+interface Props {
+  score: number
+  outOf?: number
+}
+const { score, outOf = 10 } = Astro.props
+const fraction = Math.max(0, Math.min(score / outOf, 1))
+const fullStars = Math.floor(fraction * 5)
+const halfStar = fraction * 5 - fullStars >= 0.5
+const emptyStars = 5 - fullStars - (halfStar ? 1 : 0)
+
+const fullArray = Array.from({ length: fullStars })
+const emptyArray = Array.from({ length: emptyStars })
+---
+
+<div class="flex items-center gap-2 text-sm">
+  <div class="flex">
+    {fullArray.map((_, i) => (
+      <span aria-hidden="true" class="text-yellow-400" key={`full-${i}`}>★</span>
+    ))}
+    {halfStar && <span aria-hidden="true" class="text-yellow-400">☆</span>}
+    {emptyArray.map((_, i) => (
+      <span aria-hidden="true" class="text-slate-500" key={`empty-${i}`}>☆</span>
+    ))}
+  </div>
+  <span class="text-slate-300">{score.toFixed(1)} / {outOf}</span>
+</div>
