@@ -1,18 +1,32 @@
 ---
-import type { GetStaticPaths } from 'astro'
-import { getCollection, getEntry } from 'astro:content'
-import ReviewLayout from '../../layouts/ReviewLayout.astro'
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import Nav from '../../components/Nav.astro'
+import ReviewCard from '../../components/ReviewCard.astro'
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const reviews = await getCollection('reviews')
-  return reviews.map((entry) => ({
-    params: { slug: entry.slug },
-    props: { entry }
-  }))
-}
-
-const { entry } = Astro.props
-const { Content } = await entry.render()
+const reviews = await getCollection('reviews')
+const sorted = reviews.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+)
 ---
 
-<ReviewLayout entry={entry} Content={Content} />
+<BaseLayout title="AI Tool Reviews" description="Browse all AI tool reviews and comparisons">
+  <Nav />
+
+  <section class="space-y-8">
+    <header class="space-y-3">
+      <h1 class="text-3xl font-bold tracking-tight">
+        All AI Tool Reviews
+      </h1>
+      <p class="text-slate-300 max-w-2xl text-sm">
+        Comprehensive reviews and benchmarks of the latest AI tools for developers, creators, and teams.
+      </p>
+    </header>
+
+    <section class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {sorted.map((review) => (
+        <ReviewCard review={review} />
+      ))}
+    </section>
+  </section>
+</BaseLayout>
