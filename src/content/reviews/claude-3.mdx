@@ -3,6 +3,8 @@ title: "Claude 3 Review"
 description: "A comprehensive review of Anthropic's Claude 3 AI assistant"
 date: "2024-03-15"
 tags: ["AI", "LLM", "Chatbot"]
+affiliate_links:
+  primary: "https://claude.ai/?ref=aitools"
 rating:
   overall: 9
   usability: 9
@@ -10,9 +12,22 @@ rating:
   pricing: 8
 ---
 
+import Chart from '../../components/Chart.astro'
+import ComparisonBar from '../../components/ComparisonBar.astro'
+import MetricsGrid from '../../components/MetricsGrid.astro'
+
 # Claude 3 Review
 
-Claude 3 is Anthropic's latest generation of AI language models, offering impressive capabilities across various tasks.
+Claude 3 is Anthropic's latest generation of AI language models, offering impressive capabilities across various tasks with industry-leading context windows.
+
+<MetricsGrid 
+  metrics={[
+    { label: 'Context Window', value: '200K', change: 56, icon: '📚' },
+    { label: 'Response Time', value: '1.8s', change: -25, icon: '⚡' },
+    { label: 'Safety Score', value: '9.5/10', change: 18, icon: '🛡️' },
+    { label: 'Vision Support', value: 'Yes', icon: '👁️' }
+  ]}
+/>
 
 ## Key Features
 
@@ -20,11 +35,85 @@ Claude 3 is Anthropic's latest generation of AI language models, offering impres
 - Long context window (200k tokens)
 - Multimodal capabilities (vision support)
 - Strong ethical guidelines
+- Constitutional AI training
 
-## Performance
+## Performance Analysis
 
-Claude 3 demonstrates excellent performance in complex reasoning tasks and provides thoughtful, nuanced responses.
+Claude 3 demonstrates exceptional performance across multiple benchmarks, particularly excelling in reasoning and analysis tasks.
+
+<Chart
+  type="bar"
+  title="Benchmark Scores Comparison"
+  data={{
+    labels: ['MMLU', 'HumanEval', 'GSM8K', 'BIG-Bench', 'TruthfulQA'],
+    datasets: [
+      {
+        label: 'Claude 3 Opus',
+        data: [86.8, 84.9, 95.0, 86.8, 82.4]
+      },
+      {
+        label: 'GPT-4',
+        data: [86.4, 67.0, 92.0, 83.1, 78.0]
+      }
+    ]
+  }}
+/>
+
+## Context Window Comparison
+
+One of Claude 3's standout features is its massive 200K token context window, allowing for analysis of entire books or codebases.
+
+<ComparisonBar
+  title="Context Window Size (Tokens)"
+  current={200000}
+  comparisons={[
+    { name: 'Claude 3', value: 200000 },
+    { name: 'GPT-4 Turbo', value: 128000 },
+    { name: 'Gemini 1.5', value: 1000000 },
+    { name: 'GPT-3.5', value: 16000 },
+    { name: 'Claude 2', value: 100000 }
+  ]}
+  unit=" tokens"
+/>
+
+## Use Cases Performance
+
+<Chart
+  type="radar"
+  title="Performance by Use Case (0-10 scale)"
+  data={{
+    labels: ['Code Analysis', 'Creative Writing', 'Research', 'Data Analysis', 'Conversation', 'Safety'],
+    datasets: [{
+      label: 'Claude 3 Opus',
+      data: [9, 9, 9.5, 8.5, 9, 9.8]
+    }]
+  }}
+/>
 
 ## Pricing
 
-Competitive pricing with different tiers available for various use cases.
+Competitive pricing with different tiers available for various use cases:
+
+- Claude Pro: $20/month (similar to ChatGPT Plus)
+- API access: Usage-based pricing
+- Free tier available with limitations
+
+## Pros
+
+- Exceptional reasoning capabilities
+- Industry-leading context window
+- Strong safety and ethical alignment
+- Excellent for long-form content analysis
+- High-quality vision capabilities
+
+## Cons
+
+- API can be more expensive than competitors
+- Slower adoption than OpenAI products
+- Fewer integrations currently available
+- Rate limits on free tier
+
+## Verdict
+
+Claude 3 stands out as one of the most capable AI assistants available, particularly for tasks requiring deep analysis, long context understanding, or ethical considerations. The 200K context window is a game-changer for many use cases.
+

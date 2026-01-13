@@ -1,0 +1,29 @@
+---
+interface Props {
+  metrics: {
+    label: string
+    value: string | number
+    change?: number
+    icon?: string
+  }[]
+}
+
+const { metrics } = Astro.props
+---
+
+<div class="metrics-grid grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
+  {metrics.map((metric) => (
+    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-4">
+      <div class="flex items-start justify-between mb-2">
+        <p class="text-xs text-slate-400 uppercase tracking-wide">{metric.label}</p>
+        {metric.icon && <span class="text-lg">{metric.icon}</span>}
+      </div>
+      <p class="text-2xl font-bold text-slate-100">{metric.value}</p>
+      {metric.change !== undefined && (
+        <p class={`text-xs mt-1 ${metric.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+          {metric.change >= 0 ? '↑' : '↓'} {Math.abs(metric.change)}% vs avg
+        </p>
+      )}
+    </div>
+  ))}
+</div>

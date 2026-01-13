@@ -1,0 +1,155 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import BaseLayout from './BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+import RatingStars from '../components/RatingStars.astro'
+
+interface Props {
+  entry: CollectionEntry<'reviews'>
+  Content: any
+}
+
+const { entry, Content } = Astro.props
+const { title, description, date, rating, affiliate_links, tags } = entry.data
+---
+
+<BaseLayout title={title} description={description}>
+  <Nav />
+
+  <article class="max-w-3xl mx-auto">
+    <!-- Header -->
+    <header class="mb-8 space-y-4">
+      <div class="flex flex-wrap gap-2 mb-3">
+        {tags?.map((tag) => (
+          <span class="text-xs px-2 py-1 rounded-full bg-slate-800 text-slate-300">
+            {tag}
+          </span>
+        ))}
+      </div>
+      
+      <h1 class="text-4xl font-bold tracking-tight">{title}</h1>
+      
+      <div class="flex items-center gap-4 text-sm text-slate-400">
+        <time datetime={date}>
+          {new Date(date).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}
+        </time>
+        <span>•</span>
+        <div class="flex items-center gap-2">
+          <RatingStars score={rating.overall} />
+          <span class="font-semibold text-brand">{rating.overall}/10</span>
+        </div>
+      </div>
+
+      <!-- Affiliate CTA -->
+      {affiliate_links?.primary && (
+        <div class="mt-6 p-4 rounded-xl bg-gradient-to-r from-brand/20 to-purple-500/20 border border-brand/30">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="font-semibold text-white mb-1">Try {title.replace(' Review', '')}</p>
+              <p class="text-xs text-slate-300">Click below to get started</p>
+            </div>
+            <a 
+              href={affiliate_links.primary}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="px-6 py-2.5 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors whitespace-nowrap"
+            >
+              Visit Site →
+            </a>
+          </div>
+        </div>
+      )}
+    </header>
+
+    <!-- Rating Breakdown -->
+    {(rating.usability || rating.quality || rating.pricing) && (
+      <div class="mb-8 p-6 rounded-xl bg-slate-900/40 border border-slate-800">
+        <h3 class="text-sm font-semibold mb-4 text-slate-400 uppercase tracking-wide">Rating Breakdown</h3>
+        <div class="grid gap-3">
+          {rating.usability && (
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-slate-300">Usability</span>
+              <div class="flex items-center gap-2">
+                <RatingStars score={rating.usability} size="sm" />
+                <span class="text-sm font-semibold w-8">{rating.usability}/10</span>
+              </div>
+            </div>
+          )}
+          {rating.quality && (
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-slate-300">Quality</span>
+              <div class="flex items-center gap-2">
+                <RatingStars score={rating.quality} size="sm" />
+                <span class="text-sm font-semibold w-8">{rating.quality}/10</span>
+              </div>
+            </div>
+          )}
+          {rating.pricing && (
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-slate-300">Pricing</span>
+              <div class="flex items-center gap-2">
+                <RatingStars score={rating.pricing} size="sm" />
+                <span class="text-sm font-semibold w-8">{rating.pricing}/10</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
+    <!-- Content -->
+    <div class="prose prose-invert prose-slate max-w-none">
+      <Content />
+    </div>
+
+    <!-- Bottom Affiliate CTA -->
+    {affiliate_links?.primary && (
+      <div class="mt-12 p-6 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+        <p class="text-lg font-semibold mb-3">Ready to try {title.replace(' Review', '')}?</p>
+        <a 
+          href={affiliate_links.primary}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          class="inline-block px-8 py-3 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors"
+        >
+          Get Started →
+        </a>
+        <p class="text-xs text-slate-500 mt-3">This is an affiliate link. We may earn a commission.</p>
+      </div>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .prose {
+    @apply text-slate-300;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    @apply text-slate-100 font-bold;
+  }
+  .prose h2 {
+    @apply text-2xl mt-8 mb-4;
+  }
+  .prose h3 {
+    @apply text-xl mt-6 mb-3;
+  }
+  .prose p {
+    @apply mb-4 leading-relaxed;
+  }
+  .prose ul, .prose ol {
+    @apply my-4 ml-6;
+  }
+  .prose li {
+    @apply mb-2;
+  }
+  .prose strong {
+    @apply text-slate-100 font-semibold;
+  }
+  .prose a {
+    @apply text-brand hover:underline;
+  }
+</style>
