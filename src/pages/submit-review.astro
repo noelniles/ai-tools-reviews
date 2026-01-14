@@ -375,7 +375,11 @@ import Nav from '../components/Nav.astro';
     try {
       // TODO: Replace with actual backend endpoint
       // For now, this will send to a form service like Formspree, Basin, or custom backend
-      const response = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      const formEndpoint = import.meta.env.PUBLIC_FORMSPREE_REVIEW_ID 
+        ? `https://formspree.io/f/${import.meta.env.PUBLIC_FORMSPREE_REVIEW_ID}`
+        : 'https://formspree.io/f/YOUR_FORM_ID';
+      
+      const response = await fetch(formEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

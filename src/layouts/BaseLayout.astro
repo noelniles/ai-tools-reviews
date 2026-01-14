@@ -1,5 +1,8 @@
 ---
+import { ANALYTICS_CONFIG } from '../lib/analytics';
+
 const { title = 'AI Tools Reviews', description = 'Independent reviews and benchmarks of AI tools.' } = Astro.props
+const currentPath = Astro.url.pathname;
 ---
 
 <html lang="en" class="h-full">
@@ -14,14 +17,31 @@ const { title = 'AI Tools Reviews', description = 'Independent reviews and bench
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX'); // Replace with your GA4 ID
-    </script>
+    <!-- Google Analytics 4 -->
+    {ANALYTICS_CONFIG.googleAnalyticsId && ANALYTICS_CONFIG.googleAnalyticsId !== 'G-XXXXXXXXXX' && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_CONFIG.googleAnalyticsId}`}></script>
+        <script is:inline define:vars={{ gaId: ANALYTICS_CONFIG.googleAnalyticsId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId, {
+            send_page_view: true,
+            anonymize_ip: true,
+          });
+        </script>
+      </>
+    )}
+    
+    <!-- Plausible Analytics (Privacy-focused alternative) -->
+    {ANALYTICS_CONFIG.plausibleDomain && (
+      <script defer data-domain={ANALYTICS_CONFIG.plausibleDomain} src="https://plausible.io/js/script.js"></script>
+    )}
+    
+    <!-- Fathom Analytics (Privacy-focused alternative) -->
+    {ANALYTICS_CONFIG.fathomSiteId && (
+      <script src="https://cdn.usefathom.com/script.js" data-site={ANALYTICS_CONFIG.fathomSiteId} defer></script>
+    )}
   </head>
   <body class="min-h-full bg-slate-950 text-slate-100">
     <main class="max-w-5xl mx-auto px-4 py-6">
@@ -51,9 +71,10 @@ const { title = 'AI Tools Reviews', description = 'Independent reviews and bench
           <h4 class="font-semibold mb-3 text-slate-100">Newsletter</h4>
           <p class="text-sm text-slate-400 mb-3">Get weekly AI tool reviews and comparisons.</p>
           <form 
-            action="https://formspree.io/f/YOUR_FORM_ID" 
+            action={import.meta.env.PUBLIC_FORMSPREE_NEWSLETTER_ID ? `https://formspree.io/f/${import.meta.env.PUBLIC_FORMSPREE_NEWSLETTER_ID}` : 'https://formspree.io/f/YOUR_FORM_ID'}
             method="POST"
             class="flex gap-2"
+            id="newsletter-form"
           >
             <input 
               type="email" 
@@ -75,5 +96,85 @@ const { title = 'AI Tools Reviews', description = 'Independent reviews and bench
         <p>© {new Date().getFullYear()} AI Tools Reviews. We may earn commissions from affiliate links.</p>
       </div>
     </footer>
+    
+    <!-- Engagement Tracking -->
+    <script>
+      // Track time on page
+      let startTime = Date.now();
+      let maxScrollDepth = 0;
+      
+      // Scroll depth tracking
+      function updateScrollDepth() {
+        const scrollPercentage = Math.round(
+          (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+        );
+        if (scrollPercentage > maxScrollDepth) {
+          maxScrollDepth = scrollPercentage;
+        }
+      }
+      
+      window.addEventListener('scroll', () => {
+        updateScrollDepth();
+      });
+      
+      // Track when user leaves
+      window.addEventListener('beforeunload', () => {
+        const timeOnPage = Math.round((Date.now() - startTime) / 1000);
+        
+        // Send analytics
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'engagement', {
+            time_on_page: timeOnPage,
+            scroll_depth: maxScrollDepth,
+            page_path: window.location.pathname,
+          });
+        }
+      });
+      
+      // Track affiliate link clicks
+      document.addEventListener('click', (e) => {
+        const target = e.target.closest('a');
+        if (!target) return;
+        
+        const href = target.getAttribute('href');
+        if (!href) return;
+        
+        // Check if it's an affiliate link
+        if (target.dataset.affiliate === 'true' || target.classList.contains('affiliate-link')) {
+          const toolName = target.dataset.tool || 'unknown';
+          
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'affiliate_click', {
+              tool_name: toolName,
+              link_url: href,
+              link_text: target.textContent?.trim() || '',
+            });
+          }
+        }
+        
+        // Track outbound links
+        if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'outbound_link', {
+              url: href,
+              text: target.textContent?.trim() || '',
+            });
+          }
+        }
+      });
+      
+      // Track newsletter signups
+      const newsletterForm = document.getElementById('newsletter-form');
+      if (newsletterForm) {
+        newsletterForm.addEventListener('submit', () => {
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'newsletter_signup', {
+              location: 'footer',
+              value: 5,
+            });
+          }
+        });
+      }
+    </script>
   </body>
 </html>
