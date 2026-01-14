@@ -1,0 +1,290 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+
+const amazonId = 'noelniles-20';
+
+// Helper to create Amazon affiliate link
+const amazonLink = (asin: string, title: string) => {
+  return `https://www.amazon.com/dp/${asin}?tag=${amazonId}`;
+};
+---
+
+<BaseLayout 
+  title="AI Tools & Resources" 
+  description="Recommended books, courses, and hardware for AI enthusiasts and professionals"
+>
+  <Nav />
+  
+  <div class="max-w-4xl mx-auto">
+    <header class="mb-12">
+      <h1 class="text-4xl font-bold mb-4">AI Resources & Recommendations</h1>
+      <p class="text-xl text-slate-400">
+        Curated tools, books, courses, and hardware to help you get the most out of AI.
+      </p>
+    </header>
+
+    <!-- Books Section -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+        📚 Essential AI Books
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Book 1 -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0">
+              <div class="w-24 h-32 bg-slate-800 rounded flex items-center justify-center text-4xl">
+                📖
+              </div>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg mb-2">The AI Revolution</h3>
+              <p class="text-sm text-slate-400 mb-3">Understanding how AI is transforming industries and what it means for the future of work.</p>
+              <a 
+                href={amazonLink('B0CKRR4G8F', 'The AI Revolution')}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                class="affiliate-link inline-block px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+                data-affiliate="true"
+                data-tool="Amazon - AI Books"
+              >
+                View on Amazon →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Book 2 -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0">
+              <div class="w-24 h-32 bg-slate-800 rounded flex items-center justify-center text-4xl">
+                📖
+              </div>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg mb-2">Prompt Engineering Guide</h3>
+              <p class="text-sm text-slate-400 mb-3">Master the art of crafting effective prompts for ChatGPT, Claude, and other AI models.</p>
+              <a 
+                href={amazonLink('B0D4HDXQXN', 'Prompt Engineering')}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                class="affiliate-link inline-block px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+                data-affiliate="true"
+                data-tool="Amazon - AI Books"
+              >
+                View on Amazon →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Book 3 -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0">
+              <div class="w-24 h-32 bg-slate-800 rounded flex items-center justify-center text-4xl">
+                📖
+              </div>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg mb-2">AI for Business Leaders</h3>
+              <p class="text-sm text-slate-400 mb-3">Strategic insights on implementing AI in your organization and measuring ROI.</p>
+              <a 
+                href={amazonLink('B0CQT1JT8M', 'AI for Business')}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                class="affiliate-link inline-block px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+                data-affiliate="true"
+                data-tool="Amazon - AI Books"
+              >
+                View on Amazon →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Book 4 -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0">
+              <div class="w-24 h-32 bg-slate-800 rounded flex items-center justify-center text-4xl">
+                📖
+              </div>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg mb-2">Building AI Applications</h3>
+              <p class="text-sm text-slate-400 mb-3">Hands-on guide to developing applications using OpenAI, Anthropic, and other AI APIs.</p>
+              <a 
+                href={amazonLink('B0D1XJ3VVR', 'Building AI Apps')}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                class="affiliate-link inline-block px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+                data-affiliate="true"
+                data-tool="Amazon - AI Books"
+              >
+                View on Amazon →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hardware Section -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+        🖥️ Hardware for AI Development
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- GPU -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <h3 class="font-bold text-lg mb-2">🎮 NVIDIA RTX 4090</h3>
+          <p class="text-sm text-slate-400 mb-3">Top-tier GPU for running local AI models, training, and intensive workloads.</p>
+          <div class="mb-3">
+            <span class="text-xs text-slate-500">Best for: Local LLMs, Stable Diffusion, ML training</span>
+          </div>
+          <a 
+            href={amazonLink('B0BGP8FGNV', 'RTX 4090')}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="affiliate-link inline-block px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+            data-affiliate="true"
+            data-tool="Amazon - Hardware"
+          >
+            View on Amazon →
+          </a>
+        </div>
+
+        <!-- Microphone -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <h3 class="font-bold text-lg mb-2">🎙️ Blue Yeti USB Microphone</h3>
+          <p class="text-sm text-slate-400 mb-3">Professional audio quality for voice AI tools like ElevenLabs and transcription services.</p>
+          <div class="mb-3">
+            <span class="text-xs text-slate-500">Best for: Voice cloning, podcasts, transcription</span>
+          </div>
+          <a 
+            href={amazonLink('B00N1YPXW2', 'Blue Yeti')}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="affiliate-link inline-block px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+            data-affiliate="true"
+            data-tool="Amazon - Hardware"
+          >
+            View on Amazon →
+          </a>
+        </div>
+
+        <!-- Webcam -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <h3 class="font-bold text-lg mb-2">📹 Logitech C920 HD Webcam</h3>
+          <p class="text-sm text-slate-400 mb-3">High-quality video for AI video tools, virtual meetings, and content creation.</p>
+          <div class="mb-3">
+            <span class="text-xs text-slate-500">Best for: Video AI tools, streaming, meetings</span>
+          </div>
+          <a 
+            href={amazonLink('B006JH8T3S', 'Logitech C920')}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="affiliate-link inline-block px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+            data-affiliate="true"
+            data-tool="Amazon - Hardware"
+          >
+            View on Amazon →
+          </a>
+        </div>
+
+        <!-- External SSD -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <h3 class="font-bold text-lg mb-2">💾 Samsung T7 Portable SSD</h3>
+          <p class="text-sm text-slate-400 mb-3">Fast storage for AI model files, datasets, and generated content.</p>
+          <div class="mb-3">
+            <span class="text-xs text-slate-500">Best for: Model storage, datasets, backups</span>
+          </div>
+          <a 
+            href={amazonLink('B0874XN4D8', 'Samsung T7')}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="affiliate-link inline-block px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+            data-affiliate="true"
+            data-tool="Amazon - Hardware"
+          >
+            View on Amazon →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+        🎓 Online Courses & Training
+      </h2>
+      
+      <div class="space-y-4">
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <div class="flex justify-between items-start gap-4">
+            <div class="flex-1">
+              <h3 class="font-bold text-lg mb-2">ChatGPT Masterclass: Complete Guide</h3>
+              <p class="text-sm text-slate-400 mb-3">Learn advanced prompt engineering, automation, and business applications of ChatGPT.</p>
+              <div class="flex gap-4 text-xs text-slate-500 mb-3">
+                <span>⏱️ 12 hours</span>
+                <span>📊 Beginner to Advanced</span>
+                <span>⭐ 4.7/5</span>
+              </div>
+            </div>
+            <a 
+              href={amazonLink('B0CXQY8KXQ', 'ChatGPT Course')}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="affiliate-link flex-shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+              data-affiliate="true"
+              data-tool="Amazon - Courses"
+            >
+              View Course →
+            </a>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+          <div class="flex justify-between items-start gap-4">
+            <div class="flex-1">
+              <h3 class="font-bold text-lg mb-2">Midjourney & AI Art Complete Course</h3>
+              <p class="text-sm text-slate-400 mb-3">Master AI image generation with Midjourney, DALL-E, and Stable Diffusion.</p>
+              <div class="flex gap-4 text-xs text-slate-500 mb-3">
+                <span>⏱️ 8 hours</span>
+                <span>📊 All levels</span>
+                <span>⭐ 4.8/5</span>
+              </div>
+            </div>
+            <a 
+              href={amazonLink('B0D2VXHW3M', 'AI Art Course')}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="affiliate-link flex-shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm font-semibold transition-colors"
+              data-affiliate="true"
+              data-tool="Amazon - Courses"
+            >
+              View Course →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Disclosure -->
+    <div class="bg-slate-800/30 border border-slate-700 rounded-xl p-6 text-sm text-slate-400">
+      <p class="mb-2">
+        <strong class="text-slate-300">Affiliate Disclosure:</strong> This page contains Amazon affiliate links. 
+        We earn a small commission when you purchase through these links at no additional cost to you.
+      </p>
+      <p>
+        We only recommend products we believe are valuable for AI enthusiasts and professionals. 
+        Our reviews and recommendations remain independent and unbiased.
+      </p>
+    </div>
+  </div>
+</BaseLayout>
