@@ -14,6 +14,12 @@ const reviews = defineCollection({
         secondary: z.array(z.string().url()).optional()
       })
       .optional(),
+    pricing: z
+      .object({
+        hasFree: z.boolean().default(false),
+        startingPrice: z.number().default(0)
+      })
+      .optional(),
     rating: z.object({
       overall: z.number().min(0).max(10),
       usability: z.number().min(0).max(10).optional(),

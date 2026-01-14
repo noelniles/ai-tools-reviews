@@ -1,0 +1,254 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+---
+
+<BaseLayout 
+  title="Rating Methodology" 
+  description="Our comprehensive testing methodology and rating criteria for AI tool reviews"
+>
+  <Nav />
+  
+  <article class="max-w-3xl mx-auto prose-custom">
+    <header class="mb-12">
+      <h1 class="text-4xl font-bold mb-4">How We Rate AI Tools</h1>
+      <p class="text-xl text-slate-400">Our rigorous, standardized testing methodology ensures fair, accurate, and actionable reviews.</p>
+    </header>
+
+    <div class="space-y-8">
+      <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800">Our Rating System</h2>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          Every AI tool we review receives a comprehensive score out of 10, broken down into three core categories:
+        </p>
+
+        <div class="grid md:grid-cols-3 gap-6 my-8">
+          <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+            <h3 class="text-xl font-semibold text-brand mb-3">Usability</h3>
+            <p class="text-sm text-slate-400">How intuitive, accessible, and user-friendly is the tool? We evaluate onboarding, interface design, documentation quality, and learning curve.</p>
+          </div>
+          <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+            <h3 class="text-xl font-semibold text-brand mb-3">Quality</h3>
+            <p class="text-sm text-slate-400">How well does it perform its core function? We test accuracy, reliability, output quality, and consistency across multiple use cases.</p>
+          </div>
+          <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+            <h3 class="text-xl font-semibold text-brand mb-3">Pricing</h3>
+            <p class="text-sm text-slate-400">Is the value justified? We assess free tier generosity, paid plan pricing, usage limits, and ROI compared to alternatives.</p>
+          </div>
+        </div>
+
+        <p class="text-slate-300 leading-relaxed">
+          The <strong class="text-slate-100">overall rating</strong> is a weighted average that considers all three categories, with additional factors like innovation, ecosystem, and market position.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">Testing Process</h2>
+        
+        <h3 class="text-2xl font-semibold mb-3 mt-8">1. Real-World Usage (Minimum 2 Weeks)</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          We don't review tools after a quick demo. Each AI tool is used extensively in real production scenarios for at least two weeks. For coding tools, we write actual features. For writing tools, we produce real content. For image generators, we create diverse artwork across multiple styles.
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-8">2. Benchmark Testing</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          Every tool undergoes standardized benchmark tests designed for its category:
+        </p>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300">
+          <li><strong class="text-slate-100">Text AI:</strong> Accuracy tests, reasoning challenges, creative writing prompts, technical documentation tasks</li>
+          <li><strong class="text-slate-100">Image AI:</strong> Style consistency, prompt adherence, detail quality, generation speed</li>
+          <li><strong class="text-slate-100">Code AI:</strong> Code completion accuracy, security awareness, language coverage, context understanding</li>
+          <li><strong class="text-slate-100">Video AI:</strong> Motion coherence, prompt fidelity, artifact frequency, resolution quality</li>
+        </ul>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-8">3. Comparative Analysis</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          Tools aren't reviewed in isolation. We directly compare each tool against 3-5 leading competitors using identical prompts and scenarios. This ensures our ratings reflect real market positioning, not just absolute capability.
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-8">4. Edge Case Testing</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          We deliberately push tools to their limits: complex multi-step requests, ambiguous prompts, unusual use cases, and stress testing. How a tool handles edge cases reveals its true maturity and reliability.
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-8">5. Cost Analysis</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          We track actual usage costs across different subscription tiers and calculate cost-per-output metrics. For API-based tools, we measure costs at various scale levels (10 calls/day vs 10,000 calls/day).
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">Rating Criteria Breakdown</h2>
+        
+        <div class="space-y-6 mt-6">
+          <div class="border-l-4 border-brand pl-6">
+            <h3 class="text-xl font-semibold mb-2">Usability (out of 10)</h3>
+            <ul class="text-slate-300 space-y-1 text-sm">
+              <li>• <strong>Onboarding (2 pts):</strong> Sign-up friction, tutorial quality, time-to-first-value</li>
+              <li>• <strong>Interface Design (2 pts):</strong> Clarity, aesthetic, mobile experience, accessibility</li>
+              <li>• <strong>Learning Curve (2 pts):</strong> Prompt engineering difficulty, feature discoverability</li>
+              <li>• <strong>Documentation (2 pts):</strong> Completeness, examples, troubleshooting resources</li>
+              <li>• <strong>Workflow Integration (2 pts):</strong> APIs, plugins, export options, automation</li>
+            </ul>
+          </div>
+
+          <div class="border-l-4 border-purple-500 pl-6">
+            <h3 class="text-xl font-semibold mb-2">Quality (out of 10)</h3>
+            <ul class="text-slate-300 space-y-1 text-sm">
+              <li>• <strong>Accuracy (3 pts):</strong> Correctness, factuality, hallucination frequency</li>
+              <li>• <strong>Output Quality (3 pts):</strong> Creativity, coherence, professional polish</li>
+              <li>• <strong>Consistency (2 pts):</strong> Reproducibility, reliability across sessions</li>
+              <li>• <strong>Speed (1 pt):</strong> Response time, generation latency</li>
+              <li>• <strong>Innovation (1 pt):</strong> Unique capabilities vs competitors</li>
+            </ul>
+          </div>
+
+          <div class="border-l-4 border-green-500 pl-6">
+            <h3 class="text-xl font-semibold mb-2">Pricing (out of 10)</h3>
+            <ul class="text-slate-300 space-y-1 text-sm">
+              <li>• <strong>Free Tier Value (3 pts):</strong> Generosity, feature access, usage limits</li>
+              <li>• <strong>Paid Plan Value (3 pts):</strong> Price vs competitors, ROI for typical use cases</li>
+              <li>• <strong>Pricing Transparency (2 pts):</strong> Clarity, predictability, hidden costs</li>
+              <li>• <strong>Scalability (2 pts):</strong> Enterprise options, volume discounts, flexibility</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">What Our Scores Mean</h2>
+        
+        <div class="space-y-4 mt-6">
+          <div class="bg-gradient-to-r from-green-500/10 to-transparent border-l-4 border-green-500 p-4">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl font-bold text-green-400">9-10</span>
+              <span class="text-lg font-semibold text-slate-200">Exceptional</span>
+            </div>
+            <p class="text-sm text-slate-400">Industry-leading. Sets the standard for its category. Minimal flaws.</p>
+          </div>
+
+          <div class="bg-gradient-to-r from-blue-500/10 to-transparent border-l-4 border-blue-500 p-4">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl font-bold text-blue-400">7-8.9</span>
+              <span class="text-lg font-semibold text-slate-200">Excellent</span>
+            </div>
+            <p class="text-sm text-slate-400">Highly recommended. Strong performer with minor room for improvement.</p>
+          </div>
+
+          <div class="bg-gradient-to-r from-yellow-500/10 to-transparent border-l-4 border-yellow-500 p-4">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl font-bold text-yellow-400">5-6.9</span>
+              <span class="text-lg font-semibold text-slate-200">Good</span>
+            </div>
+            <p class="text-sm text-slate-400">Solid choice for specific use cases. Notable limitations or better alternatives exist.</p>
+          </div>
+
+          <div class="bg-gradient-to-r from-orange-500/10 to-transparent border-l-4 border-orange-500 p-4">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl font-bold text-orange-400">3-4.9</span>
+              <span class="text-lg font-semibold text-slate-200">Fair</span>
+            </div>
+            <p class="text-sm text-slate-400">Has potential but significant issues. Consider alternatives unless specific features are required.</p>
+          </div>
+
+          <div class="bg-gradient-to-r from-red-500/10 to-transparent border-l-4 border-red-500 p-4">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl font-bold text-red-400">1-2.9</span>
+              <span class="text-lg font-semibold text-slate-200">Poor</span>
+            </div>
+            <p class="text-sm text-slate-400">Not recommended. Fundamental issues with functionality, pricing, or value.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">Update Policy</h2>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          AI tools evolve rapidly. We commit to:
+        </p>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300 mb-4">
+          <li>Re-testing tools quarterly or when major updates are released</li>
+          <li>Updating scores if performance significantly changes</li>
+          <li>Noting the review date prominently on each review</li>
+          <li>Publishing change logs when ratings are updated</li>
+        </ul>
+        <p class="text-slate-300 leading-relaxed">
+          All reviews include the testing date and software version evaluated.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">Transparency & Ethics</h2>
+        
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Affiliate Relationships</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          We may earn commissions from affiliate links. However, <strong class="text-slate-100">ratings are never influenced by affiliate partnerships</strong>. We've given low scores to tools with generous affiliate programs and high scores to tools with no affiliate program at all.
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Independence</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          We purchase our own subscriptions and never accept payment for reviews. Companies cannot pay to improve their scores or remove negative coverage.
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Methodology Transparency</h3>
+        <p class="text-slate-300 leading-relaxed mb-6">
+          This page documents our complete methodology. We believe transparency builds trust. If you have questions about how we test or rate tools, <a href="/contact" class="text-brand hover:underline">contact us</a>.
+        </p>
+      </section>
+
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 mt-12">
+        <h3 class="text-lg font-semibold mb-2 text-slate-100">Have Suggestions?</h3>
+        <p class="text-sm text-slate-400 mb-4">We're always improving our methodology. If you have ideas for better testing approaches or rating criteria, we'd love to hear from you.</p>
+        <a href="/contact" class="inline-block px-6 py-2 bg-brand hover:bg-brand/80 rounded-lg text-sm font-semibold transition-colors">
+          Share Feedback →
+        </a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  .prose-custom {
+    line-height: 1.625;
+    color: #cbd5e1;
+  }
+  
+  .prose-custom h1 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+  
+  .prose-custom h2 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+  
+  .prose-custom h3 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+  
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.75rem;
+  }
+  
+  .prose-custom ul {
+    margin: 1rem 0;
+  }
+  
+  .prose-custom a {
+    color: #0ea5e9;
+    text-decoration: none;
+  }
+  
+  .prose-custom a:hover {
+    text-decoration: underline;
+  }
+</style>

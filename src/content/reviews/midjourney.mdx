@@ -15,8 +15,7 @@ rating:
 import Chart from '../../components/Chart.astro'
 import ComparisonBar from '../../components/ComparisonBar.astro'
 import MetricsGrid from '../../components/MetricsGrid.astro'
-
-# Midjourney Review
+import ProsCons from '../../components/ProsCons.astro'
 
 Midjourney is a leading AI image generation platform known for producing stunning, artistic images from text prompts.
 
@@ -98,23 +97,24 @@ Midjourney consistently produces high-quality, aesthetically pleasing images wit
 - Basic Plan: $10/month (~200 generations)
 - Standard Plan: $30/month (~900 generations)
 - Pro Plan: $60/month (~1800 generations + stealth mode)
-- Mega Plan: $120/month (~3600 generations + stealth mode)
+- **Mega Plan**: $120/month (~3600 generations + stealth mode)
 
-## Pros
-
-- Best-in-class image quality
-- Intuitive prompt system
-- Fast iteration
-- Great for artistic work
-- Strong community and resources
-
-## Cons
-
-- Discord-only interface can be confusing
-- Limited fine-grained control
-- Public generations on lower tiers
-- Steep learning curve for prompts
-- No API access for most users
+<ProsCons
+  pros={[
+    'Best-in-class image quality',
+    'Intuitive prompt system',
+    'Fast iteration',
+    'Great for artistic work',
+    'Strong community and resources'
+  ]}
+  cons={[
+    'Discord-only interface can be confusing',
+    'Limited fine-grained control',
+    'Public generations on lower tiers',
+    'Steep learning curve for prompts',
+    'No API access for most users'
+  ]}
+/>
 
 ## Verdict
 
