@@ -1,0 +1,282 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import { getCollection } from 'astro:content';
+
+const reviews = await getCollection('reviews');
+const sortedReviews = reviews.sort((a, b) => b.data.rating.overall - a.data.rating.overall);
+---
+
+<BaseLayout 
+  title="AI Tool Comparison & Finder" 
+  description="Interactive comparison tool to help you find the perfect AI tool for your needs"
+>
+  <Nav />
+  
+  <div class="max-w-6xl mx-auto">
+    <header class="mb-12 text-center">
+      <h1 class="text-5xl font-bold mb-4">Find Your Perfect AI Tool</h1>
+      <p class="text-xl text-slate-400 max-w-2xl mx-auto">Answer a few questions to discover which AI tool best fits your needs</p>
+    </header>
+
+    <!-- Decision Tree / Choose Your Own Adventure -->
+    <section class="mb-16">
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 border border-slate-700">
+        <h2 class="text-3xl font-bold mb-8 text-center">What do you want to create?</h2>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Text/Writing Category -->
+          <button onclick="filterCategory('text')" class="category-btn group bg-slate-800/50 hover:bg-brand/20 border-2 border-slate-700 hover:border-brand rounded-xl p-6 text-left transition-all">
+            <div class="text-4xl mb-4">✍️</div>
+            <h3 class="text-xl font-bold mb-2 group-hover:text-brand transition-colors">Text & Writing</h3>
+            <p class="text-sm text-slate-400">Articles, marketing copy, documentation, chat</p>
+          </button>
+
+          <!-- Code Category -->
+          <button onclick="filterCategory('code')" class="category-btn group bg-slate-800/50 hover:bg-purple-500/20 border-2 border-slate-700 hover:border-purple-500 rounded-xl p-6 text-left transition-all">
+            <div class="text-4xl mb-4">💻</div>
+            <h3 class="text-xl font-bold mb-2 group-hover:text-purple-400 transition-colors">Code & Development</h3>
+            <p class="text-sm text-slate-400">Code completion, debugging, API tools</p>
+          </button>
+
+          <!-- Image Category -->
+          <button onclick="filterCategory('image')" class="category-btn group bg-slate-800/50 hover:bg-pink-500/20 border-2 border-slate-700 hover:border-pink-500 rounded-xl p-6 text-left transition-all">
+            <div class="text-4xl mb-4">🎨</div>
+            <h3 class="text-xl font-bold mb-2 group-hover:text-pink-400 transition-colors">Images & Art</h3>
+            <p class="text-sm text-slate-400">AI art, image generation, photo editing</p>
+          </button>
+
+          <!-- Video Category -->
+          <button onclick="filterCategory('video')" class="category-btn group bg-slate-800/50 hover:bg-orange-500/20 border-2 border-slate-700 hover:border-orange-500 rounded-xl p-6 text-left transition-all">
+            <div class="text-4xl mb-4">🎬</div>
+            <h3 class="text-xl font-bold mb-2 group-hover:text-orange-400 transition-colors">Video & Animation</h3>
+            <p class="text-sm text-slate-400">Video generation, editing, effects</p>
+          </button>
+        </div>
+
+        <!-- Budget Filter -->
+        <div class="mt-8 pt-8 border-t border-slate-700">
+          <h3 class="text-lg font-semibold mb-4 text-center">What's your budget?</h3>
+          <div class="flex flex-wrap gap-4 justify-center">
+            <button onclick="filterBudget('free')" class="budget-btn px-6 py-3 rounded-lg border-2 border-slate-700 hover:border-green-500 hover:bg-green-500/10 transition-all">
+              💚 Free Tier
+            </button>
+            <button onclick="filterBudget('budget')" class="budget-btn px-6 py-3 rounded-lg border-2 border-slate-700 hover:border-blue-500 hover:bg-blue-500/10 transition-all">
+              💙 Budget ($0-20/mo)
+            </button>
+            <button onclick="filterBudget('pro')" class="budget-btn px-6 py-3 rounded-lg border-2 border-slate-700 hover:border-purple-500 hover:bg-purple-500/10 transition-all">
+              💜 Pro ($20-100/mo)
+            </button>
+            <button onclick="filterBudget('enterprise')" class="budget-btn px-6 py-3 rounded-lg border-2 border-slate-700 hover:border-orange-500 hover:bg-orange-500/10 transition-all">
+              🧡 Enterprise ($100+/mo)
+            </button>
+          </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="text-center mt-6">
+          <button onclick="resetFilters()" class="text-sm text-slate-400 hover:text-brand transition-colors underline">
+            Reset Filters
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-bold mb-8">Quick Comparison Table</h2>
+      
+      <div class="overflow-x-auto bg-slate-900/40 border border-slate-800 rounded-xl">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-slate-800">
+              <th class="text-left p-4 font-semibold text-slate-300 sticky left-0 bg-slate-900">Tool</th>
+              <th class="text-center p-4 font-semibold text-slate-300">Rating</th>
+              <th class="text-left p-4 font-semibold text-slate-300">Best For</th>
+              <th class="text-left p-4 font-semibold text-slate-300">Free Tier</th>
+              <th class="text-right p-4 font-semibold text-slate-300">From</th>
+              <th class="text-center p-4 font-semibold text-slate-300"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedReviews.map((review) => (
+              <tr class="border-b border-slate-800 hover:bg-slate-800/30 transition-colors tool-row" 
+                  data-category={review.data.tags?.[0]?.toLowerCase() || 'other'}
+                  data-price={review.data.pricing?.startingPrice || 0}>
+                <td class="p-4 font-semibold text-slate-100 sticky left-0 bg-slate-900/95">
+                  <a href={`/reviews/${review.slug}`} class="hover:text-brand transition-colors">
+                    {review.data.title.replace(' Review', '')}
+                  </a>
+                </td>
+                <td class="p-4 text-center">
+                  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/20 border border-brand/30">
+                    <span class="text-yellow-400">★</span>
+                    <span class="font-bold text-brand">{review.data.rating.overall}/10</span>
+                  </div>
+                </td>
+                <td class="p-4 text-slate-400 text-sm">
+                  {review.data.tags?.slice(0, 2).join(', ') || 'AI Tool'}
+                </td>
+                <td class="p-4 text-slate-400 text-sm">
+                  {review.data.pricing?.hasFree ? '✅ Yes' : '❌ No'}
+                </td>
+                <td class="p-4 text-right text-slate-300 font-semibold">
+                  {review.data.pricing?.startingPrice 
+                    ? `$${review.data.pricing.startingPrice}/mo`
+                    : 'Free'}
+                </td>
+                <td class="p-4 text-center">
+                  <a 
+                    href={`/reviews/${review.slug}`}
+                    class="inline-block px-4 py-2 bg-slate-800 hover:bg-brand text-sm rounded-lg transition-colors"
+                  >
+                    Review →
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Top Picks by Category -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-bold mb-8">Top Picks by Category</h2>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Best for Writing -->
+        <div class="bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/30 rounded-xl p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-3xl">✍️</span>
+            <h3 class="text-xl font-bold">Best for Writing</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Top AI writing assistants for content creation</p>
+          <div class="space-y-2">
+            {sortedReviews.filter(r => r.data.tags?.some(t => ['writing', 'text', 'content'].includes(t.toLowerCase()))).slice(0, 3).map(r => (
+              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-lg hover:bg-slate-800/60 transition-colors">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold">{r.data.title.replace(' Review', '')}</span>
+                  <span class="text-sm text-brand">{r.data.rating.overall}/10</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Best for Code -->
+        <div class="bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/30 rounded-xl p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-3xl">💻</span>
+            <h3 class="text-xl font-bold">Best for Coding</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Top AI coding assistants and development tools</p>
+          <div class="space-y-2">
+            {sortedReviews.filter(r => r.data.tags?.some(t => ['code', 'development', 'programming'].includes(t.toLowerCase()))).slice(0, 3).map(r => (
+              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-lg hover:bg-slate-800/60 transition-colors">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold">{r.data.title.replace(' Review', '')}</span>
+                  <span class="text-sm text-brand">{r.data.rating.overall}/10</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Best for Images -->
+        <div class="bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/30 rounded-xl p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-3xl">🎨</span>
+            <h3 class="text-xl font-bold">Best for Images</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Top AI image generators and art tools</p>
+          <div class="space-y-2">
+            {sortedReviews.filter(r => r.data.tags?.some(t => ['image', 'art', 'design'].includes(t.toLowerCase()))).slice(0, 3).map(r => (
+              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-lg hover:bg-slate-800/60 transition-colors">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold">{r.data.title.replace(' Review', '')}</span>
+                  <span class="text-sm text-brand">{r.data.rating.overall}/10</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Best for Video -->
+        <div class="bg-gradient-to-br from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-3xl">🎬</span>
+            <h3 class="text-xl font-bold">Best for Video</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Top AI video generation and editing tools</p>
+          <div class="space-y-2">
+            {sortedReviews.filter(r => r.data.tags?.some(t => ['video', 'animation'].includes(t.toLowerCase()))).slice(0, 3).map(r => (
+              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-lg hover:bg-slate-800/60 transition-colors">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold">{r.data.title.replace(' Review', '')}</span>
+                  <span class="text-sm text-brand">{r.data.rating.overall}/10</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  let currentCategory = 'all';
+  let currentBudget = 'all';
+
+  function filterCategory(category) {
+    currentCategory = category;
+    applyFilters();
+  }
+
+  function filterBudget(budget) {
+    currentBudget = budget;
+    applyFilters();
+  }
+
+  function resetFilters() {
+    currentCategory = 'all';
+    currentBudget = 'all';
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const rows = document.querySelectorAll('.tool-row');
+    
+    rows.forEach(row => {
+      const rowCategory = row.getAttribute('data-category');
+      const rowPrice = parseFloat(row.getAttribute('data-price') || '0');
+      
+      let categoryMatch = currentCategory === 'all' || rowCategory === currentCategory;
+      
+      let budgetMatch = true;
+      if (currentBudget === 'free') budgetMatch = rowPrice === 0;
+      else if (currentBudget === 'budget') budgetMatch = rowPrice > 0 && rowPrice <= 20;
+      else if (currentBudget === 'pro') budgetMatch = rowPrice > 20 && rowPrice <= 100;
+      else if (currentBudget === 'enterprise') budgetMatch = rowPrice > 100;
+      
+      if (categoryMatch && budgetMatch) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+</script>
+
+<style>
+  .category-btn:hover,
+  .budget-btn:hover {
+    transform: translateY(-2px);
+  }
+  
+  .sticky {
+    position: sticky;
+  }
+</style>
+</BaseLayout>

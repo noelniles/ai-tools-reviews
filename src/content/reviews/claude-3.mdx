@@ -15,8 +15,7 @@ rating:
 import Chart from '../../components/Chart.astro'
 import ComparisonBar from '../../components/ComparisonBar.astro'
 import MetricsGrid from '../../components/MetricsGrid.astro'
-
-# Claude 3 Review
+import ProsCons from '../../components/ProsCons.astro'
 
 Claude 3 is Anthropic's latest generation of AI language models, offering impressive capabilities across various tasks with industry-leading context windows.
 
@@ -98,20 +97,21 @@ Competitive pricing with different tiers available for various use cases:
 - API access: Usage-based pricing
 - Free tier available with limitations
 
-## Pros
-
-- Exceptional reasoning capabilities
-- Industry-leading context window
-- Strong safety and ethical alignment
-- Excellent for long-form content analysis
-- High-quality vision capabilities
-
-## Cons
-
-- API can be more expensive than competitors
-- Slower adoption than OpenAI products
-- Fewer integrations currently available
-- Rate limits on free tier
+<ProsCons
+  pros={[
+    'Exceptional reasoning capabilities',
+    'Industry-leading context window',
+    'Strong safety and ethical alignment',
+    'Excellent for long-form content analysis',
+    'High-quality vision capabilities'
+  ]}
+  cons={[
+    'API can be more expensive than competitors',
+    'Slower adoption than OpenAI products',
+    'Fewer integrations currently available',
+    'Rate limits on free tier'
+  ]}
+/>
 
 ## Verdict
 

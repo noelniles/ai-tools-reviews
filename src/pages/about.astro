@@ -1,0 +1,132 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+---
+
+<BaseLayout title="About - AI Tools Reviews" description="Learn about our mission to provide independent, honest AI tool reviews">
+  <Nav />
+  
+  <article class="max-w-3xl mx-auto prose prose-invert prose-slate">
+    <h1>About AI Tools Reviews</h1>
+    
+    <p class="lead text-xl text-slate-300">
+      We're on a mission to help you navigate the rapidly evolving world of AI tools with honest, in-depth reviews and real-world testing.
+    </p>
+
+    <h2>Our Approach</h2>
+    
+    <p>
+      The AI tools landscape changes almost daily. New products launch, existing ones get major updates, and pricing models shift constantly. 
+      It's overwhelming to keep up, let alone make informed decisions about which tools are worth your time and money.
+    </p>
+
+    <p>
+      That's where we come in. We test every tool extensively, benchmark performance across real use cases, and provide honest assessments 
+      of what works, what doesn't, and who each tool is actually best for.
+    </p>
+
+    <h2>What Makes Us Different</h2>
+
+    <ul>
+      <li><strong>Hands-on testing</strong> - We actually use these tools for weeks, not just read the marketing materials</li>
+      <li><strong>Real benchmarks</strong> - Data-driven comparisons across multiple dimensions</li>
+      <li><strong>Honest critiques</strong> - We call out limitations and overpriced features</li>
+      <li><strong>Regular updates</strong> - AI tools evolve fast; we keep our reviews current</li>
+      <li><strong>No BS</strong> - Clear verdicts on who should buy and who should skip</li>
+    </ul>
+
+    <h2>Our Testing Process</h2>
+
+    <p>
+      For each tool, we spend 2-4 weeks testing across various scenarios. We measure performance quantitatively where possible, 
+      compare against alternatives, and evaluate real-world value for different user types.
+    </p>
+
+    <p>
+      Our reviews include performance benchmarks, pricing analysis, feature comparisons, and honest assessments of strengths and weaknesses.
+    </p>
+
+    <h2>Transparency & Affiliate Links</h2>
+
+    <p>
+      We're committed to complete transparency. This site uses affiliate links, which means we may earn a commission if you purchase 
+      a tool through our links. This comes at no extra cost to you.
+    </p>
+
+    <p>
+      <strong>Important:</strong> Affiliate relationships do not influence our reviews. We maintain editorial independence and provide 
+      honest assessments regardless of commission rates. Some of our most critical reviews are of tools with the best affiliate programs.
+    </p>
+
+    <p>
+      If a tool is overpriced, buggy, or not worth it, we'll say so—even if it means losing potential commissions.
+    </p>
+
+    <h2>Get in Touch</h2>
+
+    <p>
+      Have a tool you'd like us to review? Questions about our testing methodology? Want to discuss a potential partnership?
+    </p>
+
+    <p>
+      <a href="/contact" class="text-brand hover:underline">Contact us</a> - we'd love to hear from you.
+    </p>
+
+    <div class="mt-12 p-6 bg-slate-900/40 border border-slate-800 rounded-xl not-prose">
+      <h3 class="text-lg font-semibold mb-3">Subscribe to Our Newsletter</h3>
+      <p class="text-slate-300 mb-4">Get weekly reviews, comparisons, and AI tool recommendations delivered to your inbox.</p>
+      <form 
+        action="https://formspree.io/f/YOUR_FORM_ID" 
+        method="POST"
+        class="flex gap-2 max-w-md"
+      >
+        <input 
+          type="email" 
+          name="email"
+          placeholder="your@email.com" 
+          required
+          class="flex-1 px-4 py-2 bg-slate-900 border border-slate-800 rounded focus:outline-none focus:border-brand"
+        />
+        <button 
+          type="submit"
+          class="px-6 py-2 bg-brand hover:bg-brand/80 rounded font-semibold transition-colors"
+        >
+          Subscribe
+        </button>
+      </form>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .prose {
+    @apply text-slate-300 leading-relaxed;
+  }
+  .prose h1 {
+    @apply text-4xl font-bold text-slate-100 mb-6;
+  }
+  .prose h2 {
+    @apply text-3xl font-bold text-slate-100 mt-12 mb-4 pb-3 border-b-2 border-slate-700;
+  }
+  .prose h3 {
+    @apply text-2xl font-semibold text-slate-100 mt-8 mb-3;
+  }
+  .prose p {
+    @apply mb-5 leading-7;
+  }
+  .prose ul {
+    @apply my-5 ml-6 space-y-2;
+  }
+  .prose li {
+    @apply mb-2 leading-7;
+  }
+  .prose strong {
+    @apply text-slate-100 font-semibold;
+  }
+  .prose a {
+    @apply text-brand hover:underline;
+  }
+  .lead {
+    @apply text-xl text-slate-300 mb-8;
+  }
+</style>
