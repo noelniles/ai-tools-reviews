@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://benchthebots.ai/sitemap-index.xml
