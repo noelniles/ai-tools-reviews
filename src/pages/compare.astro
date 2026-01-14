@@ -225,7 +225,7 @@ const sortedReviews = reviews.sort((a, b) => b.data.rating.overall - a.data.rati
   </div>
 </BaseLayout>
 
-<script>
+<script is:inline>
   let currentCategory = 'all';
   let currentBudget = 'all';
 
@@ -252,7 +252,29 @@ const sortedReviews = reviews.sort((a, b) => b.data.rating.overall - a.data.rati
       const rowCategory = row.getAttribute('data-category');
       const rowPrice = parseFloat(row.getAttribute('data-price') || '0');
       
-      let categoryMatch = currentCategory === 'all' || rowCategory === currentCategory;
+      // Map tags to categories
+      const categoryMap = {
+        'ai': 'text',
+        'llm': 'text',
+        'chatbot': 'text',
+        'content writing': 'text',
+        'writing': 'text',
+        'marketing': 'text',
+        'code': 'code',
+        'coding': 'code',
+        'programming': 'code',
+        'development': 'code',
+        'image': 'image',
+        'art': 'image',
+        'photo': 'image',
+        'video': 'video',
+        'animation': 'video',
+        'voice': 'text',
+        'audio': 'text'
+      };
+      
+      const mappedCategory = categoryMap[rowCategory] || rowCategory;
+      let categoryMatch = currentCategory === 'all' || mappedCategory === currentCategory;
       
       let budgetMatch = true;
       if (currentBudget === 'free') budgetMatch = rowPrice === 0;
