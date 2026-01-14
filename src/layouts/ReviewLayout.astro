@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content'
 import BaseLayout from './BaseLayout.astro'
 import Nav from '../components/Nav.astro'
 import RatingStars from '../components/RatingStars.astro'
+import { analytics } from '../lib/analytics'
 
 interface Props {
   entry: CollectionEntry<'reviews'>
@@ -11,6 +12,7 @@ interface Props {
 
 const { entry, Content } = Astro.props
 const { title, description, date, rating, affiliate_links, tags } = entry.data
+const toolName = title.replace(' Review', '');
 ---
 
 <BaseLayout title={title} description={description}>
@@ -49,14 +51,16 @@ const { title, description, date, rating, affiliate_links, tags } = entry.data
         <div class="mt-6 p-4 rounded-xl bg-gradient-to-r from-brand/20 to-purple-500/20 border border-brand/30">
           <div class="flex items-center justify-between gap-4">
             <div>
-              <p class="font-semibold text-white mb-1">Try {title.replace(' Review', '')}</p>
+              <p class="font-semibold text-white mb-1">Try {toolName}</p>
               <p class="text-xs text-slate-300">Click below to get started</p>
             </div>
             <a 
               href={affiliate_links.primary}
               target="_blank"
               rel="noopener noreferrer sponsored"
-              class="px-6 py-2.5 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors whitespace-nowrap"
+              class="affiliate-link px-6 py-2.5 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors whitespace-nowrap"
+              data-affiliate="true"
+              data-tool={toolName}
             >
               Visit Site →
             </a>
@@ -109,12 +113,14 @@ const { title, description, date, rating, affiliate_links, tags } = entry.data
     <!-- Bottom Affiliate CTA -->
     {affiliate_links?.primary && (
       <div class="mt-12 p-6 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
-        <p class="text-lg font-semibold mb-3">Ready to try {title.replace(' Review', '')}?</p>
+        <p class="text-lg font-semibold mb-3">Ready to try {toolName}?</p>
         <a 
           href={affiliate_links.primary}
           target="_blank"
           rel="noopener noreferrer sponsored"
-          class="inline-block px-8 py-3 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors"
+          class="affiliate-link inline-block px-8 py-3 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors"
+          data-affiliate="true"
+          data-tool={toolName}
         >
           Get Started →
         </a>
@@ -122,6 +128,17 @@ const { title, description, date, rating, affiliate_links, tags } = entry.data
       </div>
     )}
   </article>
+  
+  <!-- Track Review View -->
+  <script define:vars={{ toolName, rating: rating.overall }}>
+    // Track that user viewed this review
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'review_view', {
+        tool_name: toolName,
+        rating: rating,
+      });
+    }
+  </script>
 </BaseLayout>
 
 <style is:global>
