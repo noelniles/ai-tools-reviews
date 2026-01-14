@@ -1,0 +1,197 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import { getCollection } from 'astro:content';
+
+const allReviews = await getCollection('reviews');
+
+// Define use case categories
+const useCases = {
+  'content-writing': {
+    title: 'Content Writing',
+    description: 'Blog posts, articles, marketing copy',
+    icon: '✍️',
+    tags: ['writing', 'content', 'text', 'marketing']
+  },
+  'coding': {
+    title: 'Coding & Development',
+    description: 'Code generation, debugging, pair programming',
+    icon: '💻',
+    tags: ['code', 'coding', 'programming', 'development']
+  },
+  'image-generation': {
+    title: 'Image Generation',
+    description: 'AI art, graphics, product images',
+    icon: '🎨',
+    tags: ['image', 'art', 'visual', 'photo']
+  },
+  'video-creation': {
+    title: 'Video Creation',
+    description: 'Video editing, generation, effects',
+    icon: '🎬',
+    tags: ['video', 'animation', 'motion']
+  },
+  'research': {
+    title: 'Research & Analysis',
+    description: 'Data analysis, research, insights',
+    icon: '🔍',
+    tags: ['research', 'analysis', 'data', 'search']
+  },
+  'voice': {
+    title: 'Voice & Audio',
+    description: 'Voice cloning, transcription, audio',
+    icon: '🎙️',
+    tags: ['voice', 'audio', 'transcription', 'speech']
+  }
+};
+
+// Match reviews to use cases
+const recommendations = {};
+Object.keys(useCases).forEach(key => {
+  const useCase = useCases[key];
+  recommendations[key] = allReviews
+    .filter(review => {
+      const category = review.data.category?.toLowerCase() || '';
+      const title = review.data.title.toLowerCase();
+      const desc = review.data.description.toLowerCase();
+      const combined = `${category} ${title} ${desc}`;
+      
+      return useCase.tags.some(tag => combined.includes(tag));
+    })
+    .sort((a, b) => (b.data.rating || 0) - (a.data.rating || 0))
+    .slice(0, 3);
+});
+---
+
+<BaseLayout 
+  title="Find Your Perfect AI Tool" 
+  description="Get personalized AI tool recommendations based on your use case"
+>
+  <Nav />
+  
+  <div class="max-w-4xl mx-auto">
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl font-bold mb-4">🎯 Find Your Perfect AI Tool</h1>
+      <p class="text-xl text-slate-400">
+        Personalized recommendations based on what you need
+      </p>
+    </header>
+
+    <!-- Use Case Grid -->
+    <div class="grid md:grid-cols-2 gap-6 mb-16">
+      {Object.entries(useCases).map(([key, useCase]) => (
+        <a 
+          href={`#${key}`}
+          class="block bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-all hover:scale-105"
+        >
+          <div class="text-4xl mb-3">{useCase.icon}</div>
+          <h3 class="text-xl font-bold mb-2">{useCase.title}</h3>
+          <p class="text-sm text-slate-400">{useCase.description}</p>
+          <div class="mt-4 text-brand text-sm font-semibold">
+            View recommendations →
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <!-- Recommendations by Use Case -->
+    {Object.entries(useCases).map(([key, useCase]) => (
+      <section id={key} class="mb-16 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-4xl">{useCase.icon}</span>
+          <div>
+            <h2 class="text-2xl font-bold">{useCase.title}</h2>
+            <p class="text-sm text-slate-400">{useCase.description}</p>
+          </div>
+        </div>
+
+        {recommendations[key]?.length > 0 ? (
+          <div class="grid gap-4">
+            {recommendations[key].map((review, idx) => (
+              <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+                <div class="flex justify-between items-start gap-4">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      {idx === 0 && (
+                        <span class="px-2 py-1 bg-yellow-600/20 text-yellow-400 text-xs font-bold rounded">
+                          🏆 TOP PICK
+                        </span>
+                      )}
+                      <h3 class="text-lg font-bold">{review.data.title}</h3>
+                    </div>
+                    
+                    <p class="text-sm text-slate-400 mb-4">{review.data.description}</p>
+                    
+                    <div class="flex gap-4 text-sm mb-4">
+                      {review.data.rating && (
+                        <div>
+                          <span class="text-slate-500">Rating:</span>
+                          <span class="ml-2 text-yellow-500">
+                            {'⭐'.repeat(Math.round(review.data.rating))}
+                          </span>
+                        </div>
+                      )}
+                      {review.data.pricing && (
+                        <div>
+                          <span class="text-slate-500">Price:</span>
+                          <span class="ml-2 font-semibold text-brand">
+                            {review.data.pricing.monthly ? `$${review.data.pricing.monthly}/mo` : 'Free'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div class="flex gap-3">
+                      <a 
+                        href={`/reviews/${review.slug}`}
+                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
+                      >
+                        Read Review
+                      </a>
+                      {review.data.affiliateLink && (
+                        <a 
+                          href={review.data.affiliateLink}
+                          target="_blank"
+                          rel="noopener noreferrer sponsored"
+                          class="affiliate-link px-4 py-2 bg-brand hover:bg-brand/80 rounded-lg text-sm font-semibold transition-colors"
+                          data-affiliate="true"
+                          data-tool={review.data.title}
+                        >
+                          Try It Free →
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="text-slate-500 text-sm">No recommendations available yet for this category.</p>
+        )}
+      </section>
+    ))}
+
+    <!-- CTA -->
+    <div class="bg-gradient-to-r from-brand/20 to-purple-600/20 border border-brand/30 rounded-xl p-8 text-center">
+      <h3 class="text-2xl font-bold mb-3">Can't find what you need?</h3>
+      <p class="text-slate-300 mb-6">
+        Browse all {allReviews.length} reviews or compare tools side-by-side
+      </p>
+      <div class="flex gap-4 justify-center">
+        <a 
+          href="/reviews"
+          class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-semibold transition-colors"
+        >
+          All Reviews
+        </a>
+        <a 
+          href="/compare"
+          class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-lg font-semibold transition-colors"
+        >
+          Compare Tools
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
