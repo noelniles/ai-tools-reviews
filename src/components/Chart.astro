@@ -45,7 +45,8 @@ const chartType = type
     yellowAlpha: 'rgba(234, 179, 8, 0.5)',
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  // Wait for window load to ensure all styles are loaded
+  function initCharts() {
     const canvases = document.querySelectorAll('canvas[data-chart-type]')
     
     canvases.forEach((canvas) => {
@@ -118,5 +119,12 @@ const chartType = type
         }
       })
     })
-  })
+  }
+  
+  // Initialize on window load instead of DOMContentLoaded
+  if (document.readyState === 'complete') {
+    initCharts();
+  } else {
+    window.addEventListener('load', initCharts);
+  }
 </script>

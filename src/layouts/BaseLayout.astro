@@ -20,7 +20,7 @@ const currentPath = Astro.url.pathname;
     <!-- Google Analytics 4 -->
     {ANALYTICS_CONFIG.googleAnalyticsId && ANALYTICS_CONFIG.googleAnalyticsId !== 'G-XXXXXXXXXX' && (
       <>
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_CONFIG.googleAnalyticsId}`}></script>
+        <script defer async src={`https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_CONFIG.googleAnalyticsId}`}></script>
         <script is:inline define:vars={{ gaId: ANALYTICS_CONFIG.googleAnalyticsId }}>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
@@ -98,82 +98,92 @@ const currentPath = Astro.url.pathname;
     </footer>
     
     <!-- Engagement Tracking -->
-    <script>
-      // Track time on page
-      let startTime = Date.now();
-      let maxScrollDepth = 0;
-      
-      // Scroll depth tracking
-      function updateScrollDepth() {
-        const scrollPercentage = Math.round(
-          (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
-        );
-        if (scrollPercentage > maxScrollDepth) {
-          maxScrollDepth = scrollPercentage;
-        }
+    <script is:inline>
+      // Wait for DOM to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTracking);
+      } else {
+        initTracking();
       }
       
-      window.addEventListener('scroll', () => {
-        updateScrollDepth();
-      });
-      
-      // Track when user leaves
-      window.addEventListener('beforeunload', () => {
-        const timeOnPage = Math.round((Date.now() - startTime) / 1000);
+      function initTracking() {
+        // Track time on page
+        let startTime = Date.now();
+        let maxScrollDepth = 0;
         
-        // Send analytics
-        if (typeof gtag !== 'undefined') {
-          gtag('event', 'engagement', {
-            time_on_page: timeOnPage,
-            scroll_depth: maxScrollDepth,
-            page_path: window.location.pathname,
-          });
+        // Scroll depth tracking - only after page is loaded
+        function updateScrollDepth() {
+          const scrollPercentage = Math.round(
+            (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+          );
+          if (scrollPercentage > maxScrollDepth) {
+            maxScrollDepth = scrollPercentage;
+          }
         }
-      });
-      
-      // Track affiliate link clicks
-      document.addEventListener('click', (e) => {
-        const target = e.target.closest('a');
-        if (!target) return;
         
-        const href = target.getAttribute('href');
-        if (!href) return;
+        // Wait for page to fully load before tracking scroll
+        window.addEventListener('load', () => {
+          window.addEventListener('scroll', updateScrollDepth, { passive: true });
+        });
         
-        // Check if it's an affiliate link
-        if (target.dataset.affiliate === 'true' || target.classList.contains('affiliate-link')) {
-          const toolName = target.dataset.tool || 'unknown';
+        // Track when user leaves
+        window.addEventListener('beforeunload', () => {
+          const timeOnPage = Math.round((Date.now() - startTime) / 1000);
           
+          // Send analytics
           if (typeof gtag !== 'undefined') {
-            gtag('event', 'affiliate_click', {
-              tool_name: toolName,
-              link_url: href,
-              link_text: target.textContent?.trim() || '',
-            });
-          }
-        }
-        
-        // Track outbound links
-        if (href.startsWith('http') && !href.includes(window.location.hostname)) {
-          if (typeof gtag !== 'undefined') {
-            gtag('event', 'outbound_link', {
-              url: href,
-              text: target.textContent?.trim() || '',
-            });
-          }
-        }
-      });
-      
-      // Track newsletter signups
-      const newsletterForm = document.getElementById('newsletter-form');
-      if (newsletterForm) {
-        newsletterForm.addEventListener('submit', () => {
-          if (typeof gtag !== 'undefined') {
-            gtag('event', 'newsletter_signup', {
-              location: 'footer',
-              value: 5,
+            gtag('event', 'engagement', {
+              time_on_page: timeOnPage,
+              scroll_depth: maxScrollDepth,
+              page_path: window.location.pathname,
             });
           }
         });
+        
+        // Track affiliate link clicks
+        document.addEventListener('click', (e) => {
+          const target = e.target.closest('a');
+          if (!target) return;
+          
+          const href = target.getAttribute('href');
+          if (!href) return;
+          
+          // Check if it's an affiliate link
+          if (target.dataset.affiliate === 'true' || target.classList.contains('affiliate-link')) {
+            const toolName = target.dataset.tool || 'unknown';
+            
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'affiliate_click', {
+                tool_name: toolName,
+                link_url: href,
+                link_text: target.textContent?.trim() || '',
+              });
+            }
+          }
+          
+          // Track outbound links
+          if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'outbound_link', {
+                url: href,
+                text: target.textContent?.trim() || '',
+              });
+            }
+          }
+        });
+        
+        // Track newsletter signups
+        const newsletterForm = document.getElementById('newsletter-form');
+        if (newsletterForm) {
+          newsletterForm.addEventListener('submit', () => {
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'newsletter_signup', {
+                location: 'footer',
+                value: 5,
+              });
+            }
+          });
+        }
       }
     </script>
   </body>
