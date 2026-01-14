@@ -1,0 +1,428 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+---
+
+<BaseLayout 
+  title="Submit Your AI Tool Review" 
+  description="Share your experience with AI tools - help others make better decisions"
+>
+  <Nav />
+  
+  <div class="max-w-3xl mx-auto">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold mb-4">Submit a Review</h1>
+      <p class="text-xl text-slate-400">Share your honest experience with an AI tool. No account required - just verify you're human.</p>
+    </header>
+
+    <!-- Review Submission Form -->
+    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-8">
+      <form id="review-form" class="space-y-6">
+        
+        <!-- Tool Selection -->
+        <div>
+          <label for="tool-name" class="block text-sm font-semibold mb-2 text-slate-200">
+            Which AI tool are you reviewing? <span class="text-red-400">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="tool-name" 
+            name="toolName"
+            required
+            placeholder="e.g., ChatGPT, Midjourney, Cursor"
+            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100"
+          />
+          <p class="text-xs text-slate-500 mt-1">Don't see it listed? Type it in!</p>
+        </div>
+
+        <!-- Rating Section -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold mb-2 text-slate-200">
+              Overall Rating <span class="text-red-400">*</span>
+            </label>
+            <div class="flex gap-2" id="overall-rating">
+              <button type="button" class="star-btn text-3xl text-slate-600 hover:text-yellow-400 transition-colors" data-value="1">☆</button>
+              <button type="button" class="star-btn text-3xl text-slate-600 hover:text-yellow-400 transition-colors" data-value="2">☆</button>
+              <button type="button" class="star-btn text-3xl text-slate-600 hover:text-yellow-400 transition-colors" data-value="3">☆</button>
+              <button type="button" class="star-btn text-3xl text-slate-600 hover:text-yellow-400 transition-colors" data-value="4">☆</button>
+              <button type="button" class="star-btn text-3xl text-slate-600 hover:text-yellow-400 transition-colors" data-value="5">☆</button>
+            </div>
+            <input type="hidden" name="overallRating" id="overall-rating-value" required />
+          </div>
+
+          <div>
+            <label for="use-duration" class="block text-sm font-semibold mb-2 text-slate-200">
+              How long have you used it?
+            </label>
+            <select 
+              id="use-duration" 
+              name="useDuration"
+              class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100"
+            >
+              <option value="">Select duration...</option>
+              <option value="less-than-week">Less than a week</option>
+              <option value="1-4-weeks">1-4 weeks</option>
+              <option value="1-6-months">1-6 months</option>
+              <option value="6-months-plus">6+ months</option>
+              <option value="over-year">Over a year</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Use Case -->
+        <div>
+          <label for="use-case" class="block text-sm font-semibold mb-2 text-slate-200">
+            What do you use it for?
+          </label>
+          <input 
+            type="text" 
+            id="use-case" 
+            name="useCase"
+            placeholder="e.g., Writing blog posts, Generating code, Creating images"
+            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100"
+          />
+        </div>
+
+        <!-- Review Title -->
+        <div>
+          <label for="review-title" class="block text-sm font-semibold mb-2 text-slate-200">
+            Review Title <span class="text-red-400">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="review-title" 
+            name="reviewTitle"
+            required
+            placeholder="Sum up your experience in one sentence"
+            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100"
+          />
+        </div>
+
+        <!-- Detailed Review -->
+        <div>
+          <label for="review-text" class="block text-sm font-semibold mb-2 text-slate-200">
+            Your Review <span class="text-red-400">*</span>
+          </label>
+          <textarea 
+            id="review-text" 
+            name="reviewText"
+            required
+            rows="8"
+            placeholder="Share your honest experience. What worked well? What could be better? Would you recommend it?"
+            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100 resize-y"
+          ></textarea>
+          <p class="text-xs text-slate-500 mt-1"><span id="char-count">0</span> characters (minimum 100)</p>
+        </div>
+
+        <!-- Pros and Cons -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label for="pros" class="block text-sm font-semibold mb-2 text-slate-200">
+              Main Pros
+            </label>
+            <textarea 
+              id="pros" 
+              name="pros"
+              rows="4"
+              placeholder="What do you love about it? (one per line)"
+              class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100 resize-y"
+            ></textarea>
+          </div>
+
+          <div>
+            <label for="cons" class="block text-sm font-semibold mb-2 text-slate-200">
+              Main Cons
+            </label>
+            <textarea 
+              id="cons" 
+              name="cons"
+              rows="4"
+              placeholder="What could be better? (one per line)"
+              class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100 resize-y"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div>
+          <label class="block text-sm font-semibold mb-2 text-slate-200">
+            Would you recommend this tool? <span class="text-red-400">*</span>
+          </label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="recommend" value="yes" required class="w-4 h-4 text-brand" />
+              <span class="text-slate-300">Yes</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="recommend" value="maybe" required class="w-4 h-4 text-brand" />
+              <span class="text-slate-300">Maybe</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="recommend" value="no" required class="w-4 h-4 text-brand" />
+              <span class="text-slate-300">No</span>
+            </label>
+          </div>
+        </div>
+
+        <hr class="border-slate-800" />
+
+        <!-- User Info (Optional but encouraged) -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-slate-200">About You (Optional)</h3>
+          <p class="text-sm text-slate-400 mb-4">Help others understand your perspective. This info is optional but makes your review more credible.</p>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="user-name" class="block text-sm font-semibold mb-2 text-slate-200">
+                Display Name
+              </label>
+              <input 
+                type="text" 
+                id="user-name" 
+                name="userName"
+                placeholder="How should we display your name?"
+                class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100"
+              />
+            </div>
+
+            <div>
+              <label for="user-role" class="block text-sm font-semibold mb-2 text-slate-200">
+                Your Role
+              </label>
+              <select 
+                id="user-role" 
+                name="userRole"
+                class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100"
+              >
+                <option value="">Select your role...</option>
+                <option value="developer">Developer</option>
+                <option value="designer">Designer</option>
+                <option value="writer">Writer/Content Creator</option>
+                <option value="marketer">Marketer</option>
+                <option value="student">Student</option>
+                <option value="researcher">Researcher</option>
+                <option value="business">Business Owner</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="user-email" class="block text-sm font-semibold mb-2 text-slate-200">
+                Email (Private)
+              </label>
+              <input 
+                type="email" 
+                id="user-email" 
+                name="userEmail"
+                placeholder="Optional - only for verification and updates"
+                class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand text-slate-100"
+              />
+              <p class="text-xs text-slate-500 mt-1">Never shared publicly. Used only for verification.</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-slate-800" />
+
+        <!-- Google reCAPTCHA placeholder -->
+        <div>
+          <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-6 text-center">
+            <div class="text-slate-400 mb-2">
+              <svg class="w-12 h-12 mx-auto mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+              <p class="text-sm">Human verification will appear here</p>
+              <p class="text-xs text-slate-500">reCAPTCHA v3 - no clicking required</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-slate-500">
+            By submitting, you agree your review may be published publicly.
+          </p>
+          <button 
+            type="submit"
+            id="submit-btn"
+            class="px-8 py-3 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Submit Review
+          </button>
+        </div>
+      </form>
+
+      <!-- Success Message (hidden by default) -->
+      <div id="success-message" class="hidden">
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">🎉</div>
+          <h2 class="text-2xl font-bold mb-2 text-slate-100">Thank You!</h2>
+          <p class="text-slate-400 mb-6">Your review has been submitted and is pending approval.</p>
+          <p class="text-sm text-slate-500 mb-6">We review all submissions to prevent spam. Your review should appear within 24 hours.</p>
+          <button 
+            onclick="location.reload()" 
+            class="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+          >
+            Submit Another Review
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why Leave a Review? -->
+    <div class="mt-12 grid md:grid-cols-3 gap-6">
+      <div class="text-center">
+        <div class="text-4xl mb-3">💡</div>
+        <h3 class="font-semibold mb-2">Help Others</h3>
+        <p class="text-sm text-slate-400">Your experience helps others make informed decisions</p>
+      </div>
+      <div class="text-center">
+        <div class="text-4xl mb-3">🏆</div>
+        <h3 class="font-semibold mb-2">Build Credibility</h3>
+        <p class="text-sm text-slate-400">Quality reviews earn community reputation</p>
+      </div>
+      <div class="text-center">
+        <div class="text-4xl mb-3">🚀</div>
+        <h3 class="font-semibold mb-2">Shape the Industry</h3>
+        <p class="text-sm text-slate-400">Feedback influences product development</p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Star rating functionality
+  const overallRatingContainer = document.getElementById('overall-rating');
+  const overallRatingValue = document.getElementById('overall-rating-value');
+  let selectedRating = 0;
+
+  overallRatingContainer?.querySelectorAll('.star-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const value = parseInt(btn.getAttribute('data-value') || '0');
+      selectedRating = value;
+      if (overallRatingValue) overallRatingValue.value = value.toString();
+      
+      // Update star display
+      overallRatingContainer.querySelectorAll('.star-btn').forEach((star, index) => {
+        if (index < value) {
+          star.textContent = '★';
+          star.classList.remove('text-slate-600');
+          star.classList.add('text-yellow-400');
+        } else {
+          star.textContent = '☆';
+          star.classList.remove('text-yellow-400');
+          star.classList.add('text-slate-600');
+        }
+      });
+    });
+  });
+
+  // Character counter
+  const reviewText = document.getElementById('review-text');
+  const charCount = document.getElementById('char-count');
+  
+  reviewText?.addEventListener('input', () => {
+    const count = reviewText.value.length;
+    if (charCount) charCount.textContent = count.toString();
+    
+    if (count < 100) {
+      charCount?.classList.add('text-red-400');
+      charCount?.classList.remove('text-green-400');
+    } else {
+      charCount?.classList.add('text-green-400');
+      charCount?.classList.remove('text-red-400');
+    }
+  });
+
+  // Form submission
+  const form = document.getElementById('review-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const successMessage = document.getElementById('success-message');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Validate minimum review length
+    const reviewTextEl = document.getElementById('review-text') as HTMLTextAreaElement;
+    if (reviewTextEl && reviewTextEl.value.length < 100) {
+      alert('Please write at least 100 characters in your review.');
+      return;
+    }
+
+    // Validate rating selected
+    if (!selectedRating || selectedRating === 0) {
+      alert('Please select a rating.');
+      return;
+    }
+
+    // Disable submit button
+    if (submitBtn) {
+      submitBtn.setAttribute('disabled', 'true');
+      submitBtn.textContent = 'Submitting...';
+    }
+
+    // Collect form data
+    const formData = new FormData(form as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Add timestamp and metadata
+    data.submittedAt = new Date().toISOString();
+    data.userAgent = navigator.userAgent;
+    data.status = 'pending';
+
+    try {
+      // TODO: Replace with actual backend endpoint
+      // For now, this will send to a form service like Formspree, Basin, or custom backend
+      const response = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        // Show success message
+        if (form) form.style.display = 'none';
+        if (successMessage) successMessage.classList.remove('hidden');
+        
+        // Track submission (analytics)
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'review_submitted', {
+            tool_name: data.toolName,
+            rating: data.overallRating,
+          });
+        }
+      } else {
+        throw new Error('Submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('There was an error submitting your review. Please try again.');
+      
+      // Re-enable submit button
+      if (submitBtn) {
+        submitBtn.removeAttribute('disabled');
+        submitBtn.textContent = 'Submit Review';
+      }
+    }
+  });
+</script>
+
+<style>
+  /* Star button custom styling */
+  .star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+  }
+  
+  input[type="radio"]:checked {
+    accent-color: #0ea5e9;
+  }
+</style>
+</BaseLayout>
