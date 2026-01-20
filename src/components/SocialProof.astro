@@ -1,0 +1,47 @@
+---
+interface Props {
+  userCount?: string;
+  reviewCount?: number;
+  averageRating?: number;
+  recentUsers?: string[];
+}
+
+const { 
+  userCount = "10,000+", 
+  reviewCount = 20, 
+  averageRating = 8.5,
+  recentUsers = []
+} = Astro.props;
+---
+
+<div class="social-proof-banner my-8 p-6 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
+  <div class="grid md:grid-cols-3 gap-6 text-center">
+    <div class="space-y-2">
+      <div class="text-3xl font-bold text-brand">{userCount}</div>
+      <div class="text-sm text-slate-400">Monthly Visitors</div>
+    </div>
+    
+    <div class="space-y-2">
+      <div class="text-3xl font-bold text-purple-400">{reviewCount}</div>
+      <div class="text-sm text-slate-400">AI Tools Reviewed</div>
+    </div>
+    
+    <div class="space-y-2">
+      <div class="text-3xl font-bold text-green-400">{averageRating}/10</div>
+      <div class="text-sm text-slate-400">Average Tool Rating</div>
+    </div>
+  </div>
+  
+  {recentUsers.length > 0 && (
+    <div class="mt-6 pt-6 border-t border-slate-700 text-center">
+      <p class="text-xs text-slate-400 mb-3">Recently viewed by professionals from:</p>
+      <div class="flex flex-wrap justify-center gap-2">
+        {recentUsers.map(user => (
+          <span class="px-3 py-1 bg-slate-800/60 rounded-full text-xs text-slate-300">
+            {user}
+          </span>
+        ))}
+      </div>
+    </div>
+  )}
+</div>

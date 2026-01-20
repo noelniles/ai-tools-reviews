@@ -193,6 +193,160 @@ export const AFFILIATE_LINKS: Record<string, ToolAffiliateLinks> = {
       cookieDuration: 30,
     },
   },
+
+  // NEW ADDITIONS - High-Value Affiliate Programs
+  
+  // Content & Writing Tools
+  'grammarly': {
+    primary: {
+      url: 'https://www.grammarly.com/?via=aitools',
+      network: 'impact',
+      commission: '$0.20 per signup + $20 per premium',
+      cookieDuration: 90,
+    },
+  },
+
+  'writesonic': {
+    primary: {
+      url: 'https://writesonic.com/?via=aitools',
+      network: 'direct',
+      commission: '30% recurring',
+      cookieDuration: 60,
+    },
+  },
+
+  'rytr': {
+    primary: {
+      url: 'https://rytr.me/?via=aitools',
+      network: 'direct',
+      commission: '25% recurring',
+      cookieDuration: 45,
+    },
+  },
+
+  // Design & Creative Tools
+  'canva': {
+    primary: {
+      url: 'https://www.canva.com/?via=aitools',
+      network: 'impact',
+      commission: '$36 per Pro signup',
+      cookieDuration: 30,
+    },
+  },
+
+  'designai': {
+    primary: {
+      url: 'https://designs.ai/?via=aitools',
+      network: 'direct',
+      commission: '30% recurring',
+      cookieDuration: 60,
+    },
+  },
+
+  // Marketing & SEO Tools
+  'surfer-seo': {
+    primary: {
+      url: 'https://surferseo.com/?via=aitools',
+      network: 'direct',
+      commission: '25% recurring',
+      cookieDuration: 60,
+    },
+  },
+
+  'frase': {
+    primary: {
+      url: 'https://www.frase.io/?via=aitools',
+      network: 'direct',
+      commission: '30% recurring',
+      cookieDuration: 90,
+    },
+  },
+
+  'semrush': {
+    primary: {
+      url: 'https://www.semrush.com/?via=aitools',
+      network: 'impact',
+      commission: '$200 per sale (40%)',
+      cookieDuration: 120,
+    },
+  },
+
+  // Chatbot & Customer Service
+  'intercom': {
+    primary: {
+      url: 'https://www.intercom.com/?via=aitools',
+      network: 'impact',
+      commission: '20% recurring first year',
+      cookieDuration: 90,
+    },
+  },
+
+  'drift': {
+    primary: {
+      url: 'https://www.drift.com/?via=aitools',
+      network: 'impact',
+      commission: 'Varies by plan',
+      cookieDuration: 90,
+    },
+  },
+
+  // Translation & Language
+  'deepl': {
+    primary: {
+      url: 'https://www.deepl.com/pro?via=aitools',
+      network: 'direct',
+      commission: 'Contact for program',
+      cookieDuration: 30,
+    },
+  },
+
+  // Data & Analytics AI
+  'tableau': {
+    primary: {
+      url: 'https://www.tableau.com/?via=aitools',
+      network: 'cj',
+      commission: 'Varies',
+      cookieDuration: 90,
+    },
+  },
+
+  // Learning Platforms with AI
+  'coursera': {
+    primary: {
+      url: 'https://www.coursera.org/?via=aitools',
+      network: 'impact',
+      commission: '20-45% per enrollment',
+      cookieDuration: 30,
+    },
+  },
+
+  'udemy': {
+    primary: {
+      url: 'https://www.udemy.com/?via=aitools',
+      network: 'impact',
+      commission: '15% per sale',
+      cookieDuration: 7,
+    },
+  },
+
+  // Development Tools
+  'tabnine': {
+    primary: {
+      url: 'https://www.tabnine.com/?via=aitools',
+      network: 'direct',
+      commission: 'Contact for program',
+      cookieDuration: 30,
+    },
+  },
+
+  'codeium': {
+    primary: {
+      url: 'https://codeium.com/?via=aitools',
+      network: 'direct',
+      commission: 'Contact for program',
+      cookieDuration: 30,
+    },
+  },
 };
 
 /**
@@ -265,3 +419,97 @@ export function hasAffiliateProgram(toolSlug: string): boolean {
   const link = AFFILIATE_LINKS[toolSlug]?.primary;
   return !!link && link.commission !== 'No affiliate program';
 }
+
+/**
+ * Get all affiliate links for a tool (primary, secondary, alternative)
+ */
+export function getAllAffiliateLinks(toolSlug: string): ToolAffiliateLinks {
+  return AFFILIATE_LINKS[toolSlug] || {};
+}
+
+/**
+ * Create a tracked affiliate URL with UTM parameters
+ */
+export function createTrackedAffiliateUrl(toolSlug: string, source: string = 'review'): string {
+  const link = getAffiliateLink(toolSlug);
+  if (!link) return '#';
+
+  try {
+    const url = new URL(link.url);
+    url.searchParams.set('utm_source', 'aitoolsreviews');
+    url.searchParams.set('utm_medium', 'affiliate');
+    url.searchParams.set('utm_campaign', toolSlug);
+    url.searchParams.set('utm_content', source);
+    return url.toString();
+  } catch {
+    return link.url;
+  }
+}
+
+/**
+ * Get commission rate for display
+ */
+export function getCommissionRate(toolSlug: string): string {
+  const link = getAffiliateLink(toolSlug);
+  return link?.commission || 'Contact for details';
+}
+
+/**
+ * Get cookie duration in human-readable format
+ */
+export function getCookieDuration(toolSlug: string): string {
+  const link = getAffiliateLink(toolSlug);
+  if (!link?.cookieDuration) return 'N/A';
+  
+  const days = link.cookieDuration;
+  if (days >= 90) return `${Math.floor(days / 30)} months`;
+  if (days >= 30) return '1 month';
+  return `${days} days`;
+}
+
+/**
+ * Get tools by network for batch application
+ */
+export function getToolsByNetwork(network: 'impact' | 'cj' | 'partnerstack' | 'direct' | 'amazon'): string[] {
+  return Object.entries(AFFILIATE_LINKS)
+    .filter(([_, links]) => links.primary?.network === network)
+    .map(([slug, _]) => slug);
+}
+
+/**
+ * Priority affiliate programs to apply to (highest earning potential)
+ */
+export const PRIORITY_PROGRAMS = [
+  { slug: 'jasper', reason: '30% recurring, high ticket ($49-125/mo)' },
+  { slug: 'semrush', reason: '$200 per sale, high conversion' },
+  { slug: 'copy-ai', reason: '25% recurring, popular tool' },
+  { slug: 'notion', reason: 'Easy approval, consistent income' },
+  { slug: 'grammarly', reason: '$20 per premium, mass appeal' },
+  { slug: 'canva', reason: '$36 per Pro signup, huge audience' },
+  { slug: 'elevenlabs', reason: '30% recurring, growing market' },
+  { slug: 'surfer-seo', reason: '25% recurring, $59-219/mo plans' },
+  { slug: 'frase', reason: '30% recurring, high intent audience' },
+  { slug: 'writesonic', reason: '30% recurring, alternative to Jasper' },
+];
+
+/**
+ * CTA variations for A/B testing
+ */
+export const CTA_VARIATIONS = {
+  default: {
+    primary: 'Visit Site →',
+    secondary: 'Get Started →',
+  },
+  urgency: {
+    primary: 'Try Free Now →',
+    secondary: 'Start Your Trial →',
+  },
+  value: {
+    primary: 'Get Started Free →',
+    secondary: 'Start Free Trial →',
+  },
+  social: {
+    primary: 'Join 1M+ Users →',
+    secondary: 'See Why It\'s Popular →',
+  },
+};

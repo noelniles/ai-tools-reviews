@@ -1,0 +1,57 @@
+---
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  faqs: FAQ[];
+  title?: string;
+}
+
+const { faqs, title = "Frequently Asked Questions" } = Astro.props;
+---
+
+<div class="faq-section my-12 p-6 rounded-xl bg-slate-900/40 border border-slate-800">
+  <h3 class="text-2xl font-bold mb-6 text-slate-100">{title}</h3>
+  <div class="space-y-3">
+    {faqs.map((faq, index) => (
+      <details class="faq-item group rounded-lg bg-slate-800/40 border border-slate-700 hover:border-brand/50 transition-colors">
+        <summary class="cursor-pointer p-4 font-semibold text-slate-200 flex items-center justify-between list-none">
+          <span class="flex-1 pr-4">{faq.question}</span>
+          <svg class="w-5 h-5 text-brand transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </summary>
+        <div class="px-4 pb-4 pt-2 text-slate-300 leading-relaxed">
+          {faq.answer}
+        </div>
+      </details>
+    ))}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.faq-item').forEach((item) => {
+    item.addEventListener('toggle', (e) => {
+      const target = e.target as HTMLDetailsElement;
+      if (target.open && typeof gtag !== 'undefined') {
+        const question = target.querySelector('summary')?.textContent?.trim();
+        gtag('event', 'faq_opened', {
+          question: question,
+          event_category: 'engagement',
+        });
+      }
+    });
+  });
+</script>
+
+<style>
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  .faq-item[open] {
+    border-color: rgb(14 165 233 / 0.5);
+  }
+</style>
