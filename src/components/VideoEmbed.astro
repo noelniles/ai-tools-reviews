@@ -1,0 +1,84 @@
+---
+interface Props {
+  videoId: string;
+  platform?: 'youtube' | 'vimeo' | 'loom';
+  title?: string;
+  thumbnail?: string;
+}
+
+const { videoId, platform = 'youtube', title = 'Video Demo', thumbnail } = Astro.props;
+
+const getEmbedUrl = () => {
+  switch (platform) {
+    case 'youtube':
+      return `https://www.youtube.com/embed/${videoId}`;
+    case 'vimeo':
+      return `https://player.vimeo.com/video/${videoId}`;
+    case 'loom':
+      return `https://www.loom.com/embed/${videoId}`;
+    default:
+      return '';
+  }
+};
+
+const embedUrl = getEmbedUrl();
+---
+
+<div class="video-embed-container my-8 rounded-xl overflow-hidden border border-slate-700 bg-slate-900">
+  {title && (
+    <div class="px-4 py-3 bg-slate-800/60 border-b border-slate-700">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-brand" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+        </svg>
+        <span class="text-sm font-semibold text-slate-200">{title}</span>
+      </div>
+    </div>
+  )}
+  
+  <div class="video-wrapper relative" style="padding-bottom: 56.25%; height: 0;">
+    {thumbnail ? (
+      <div class="video-thumbnail" data-video-id={videoId} data-embed-url={embedUrl}>
+        <img src={thumbnail} alt={title} class="absolute inset-0 w-full h-full object-cover" />
+        <button class="play-button absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/60 transition-colors">
+          <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+          </svg>
+        </button>
+      </div>
+    ) : (
+      <iframe
+        src={embedUrl}
+        title={title}
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        class="absolute inset-0 w-full h-full"
+      ></iframe>
+    )}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.video-thumbnail').forEach((thumb) => {
+    thumb.addEventListener('click', function() {
+      const embedUrl = this.getAttribute('data-embed-url');
+      const videoId = this.getAttribute('data-video-id');
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('src', embedUrl + '?autoplay=1');
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.className = 'absolute inset-0 w-full h-full';
+      
+      this.parentElement?.replaceChild(iframe, this);
+      
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'video_play', {
+          video_id: videoId,
+          event_category: 'engagement',
+        });
+      }
+    });
+  });
+</script>

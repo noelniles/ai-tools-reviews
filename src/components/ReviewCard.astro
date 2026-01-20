@@ -8,16 +8,35 @@ interface Props {
 
 const { review } = Astro.props
 const href = `/reviews/${review.slug}`
+const testDate = new Date(review.data.date);
+const monthsAgo = Math.floor((Date.now() - testDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+const isFresh = monthsAgo < 3;
 ---
 
-<article class="border border-slate-800 rounded-xl p-4 hover:border-brand/70 transition-colors bg-slate-900/40">
-  <a href={href} class="block space-y-2">
-    <h2 class="text-lg font-semibold">{review.data.title}</h2>
-    <p class="text-sm text-slate-300 line-clamp-2">{review.data.description}</p>
-    <div class="flex items-center justify-between mt-3">
-      <RatingStars score={review.data.rating.overall} />
-      <span class="text-xs text-slate-500">
-        {new Date(review.data.date).toLocaleDateString()}
+<article class="border border-slate-800 rounded-xl p-4 hover:border-brand/70 transition-colors bg-slate-900/40 group">
+  <a href={href} class="block space-y-3">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex-1">
+        <h2 class="text-lg font-semibold group-hover:text-brand transition-colors">{review.data.title}</h2>
+        <p class="text-sm text-slate-300 line-clamp-2 mt-1">{review.data.description}</p>
+      </div>
+      <div class="flex-shrink-0 text-right">
+        <div class="text-2xl font-bold font-mono text-brand">{review.data.rating.overall}</div>
+        <div class="text-xs text-slate-500">/10</div>
+      </div>
+    </div>
+    
+    <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-800">
+      <div class="flex items-center gap-2">
+        <RatingStars score={review.data.rating.overall} size="sm" />
+        {isFresh && (
+          <span class="text-xs px-2 py-0.5 bg-green-500/10 text-green-400 rounded border border-green-500/30 font-semibold">
+            Recently Tested
+          </span>
+        )}
+      </div>
+      <span class="text-xs text-slate-500 font-mono">
+        {testDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
       </span>
     </div>
   </a>

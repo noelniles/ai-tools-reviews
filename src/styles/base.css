@@ -5,3 +5,79 @@
 body {
   @apply bg-slate-950 text-slate-100 antialiased;
 }
+
+/* Scientific/Research Typography */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+    letter-spacing: -0.02em;
+  }
+
+  /* Monospace for data and metrics */
+  .metric, .data-value {
+    @apply font-mono;
+  }
+
+  /* Academic-style prose */
+  .prose-research {
+    @apply text-slate-300 leading-relaxed;
+  }
+
+  .prose-research h2 {
+    @apply text-2xl font-bold mt-12 mb-4 pb-3 border-b border-slate-800 text-slate-100;
+  }
+
+  .prose-research h3 {
+    @apply text-xl font-bold mt-8 mb-3 text-slate-100;
+  }
+
+  .prose-research p {
+    @apply mb-4 text-slate-300;
+  }
+
+  .prose-research ul, .prose-research ol {
+    @apply my-4 space-y-2;
+  }
+
+  .prose-research li {
+    @apply text-slate-300;
+  }
+
+  .prose-research code {
+    @apply bg-slate-900 px-1.5 py-0.5 rounded text-sm font-mono text-brand;
+  }
+
+  .prose-research pre {
+    @apply bg-slate-900 border border-slate-800 rounded-lg p-4 overflow-x-auto;
+  }
+
+  .prose-research blockquote {
+    @apply border-l-4 border-brand pl-4 italic text-slate-400;
+  }
+
+  .prose-research table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .prose-research th {
+    @apply bg-slate-900 border border-slate-800 px-4 py-2 text-left font-semibold text-slate-200;
+  }
+
+  .prose-research td {
+    @apply border border-slate-800 px-4 py-2 text-slate-300;
+  }
+
+  /* Confidence indicators */
+  .confidence-high {
+    @apply text-green-400 font-semibold;
+  }
+
+  .confidence-medium {
+    @apply text-yellow-400 font-semibold;
+  }
+
+  .confidence-low {
+    @apply text-orange-400 font-semibold;
+  }
+}
+
