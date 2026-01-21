@@ -14,6 +14,7 @@ rating:
 
 import ProsCons from '../../components/ProsCons.astro'
 import MetricsGrid from '../../components/MetricsGrid.astro'
+import Chart from '../../components/Chart.astro'
 
 If you're already living in Notion for your notes, docs, and project management, Notion AI feels like a natural extension of your workspace. Rather than being another standalone AI tool requiring constant tab-switching, it lives right where you're already working—which turns out to be more valuable than you might think.
 
@@ -30,11 +31,15 @@ Launched in early 2023, Notion AI represents a different philosophy from tools l
 
 ## The Convenience Factor
 
-The killer feature of Notion AI isn't any particular capability—it's *context*. When you're already writing a project brief in Notion and need to brainstorm ideas, you don't have to switch to ChatGPT, copy-paste context, get a response, and paste it back. You just hit Space, type your prompt, and keep working.
+The killer feature of Notion AI isn't any particular capability—it's **context**. 
+
+When you're already writing a project brief in Notion and need to brainstorm ideas, you don't have to switch to ChatGPT, copy-paste context, get a response, and paste it back. You just hit Space, type your prompt, and keep working.
 
 This seamless integration shines in several scenarios:
 
-**Meeting notes** become infinitely more useful. After dumping your raw notes into a page, Notion AI can extract action items, summarize key decisions, and even draft follow-up emails—all without leaving the document.
+### Meeting Notes
+
+After dumping your raw notes into a page, Notion AI can extract action items, summarize key decisions, and even draft follow-up emails—all without leaving the document.
 
 **Writing assistance** feels natural because Notion AI understands the context of your entire page. Ask it to expand a bullet point into a paragraph, and it maintains the tone and style of what you've already written.
 
@@ -60,6 +65,18 @@ Where it struggles:
 - **Specialized knowledge** - Lacks the depth of domain-specific tools
 
 Think of Notion AI as a really smart intern who knows your workspace inside-out but hasn't read much outside of it. Great for execution and polish, less impressive for deep thinking or research.
+
+<Chart 
+  type="radar"
+  title="Notion AI Capability Scores (0-10)"
+  data={{
+    labels: ['Integration', 'Summarizing', 'Editing', 'Translation', 'Research', 'Long-form Writing'],
+    datasets: [{
+      label: 'Notion AI',
+      data: [10, 8.5, 9.0, 8.0, 5.0, 6.5]
+    }]
+  }}
+/>
 
 ## The Economics Make Sense
 
