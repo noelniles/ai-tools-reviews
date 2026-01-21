@@ -1,0 +1,93 @@
+---
+/**
+ * Clean code block component for technical content
+ * Supports syntax highlighting via class names (use with Prism or highlight.js)
+ */
+
+import Icon from './Icon.astro'
+
+interface Props {
+  code: string;
+  language?: string;
+  title?: string;
+  showLineNumbers?: boolean;
+  highlightLines?: number[];
+}
+
+const { 
+  code, 
+  language = 'python', 
+  title,
+  showLineNumbers = true,
+  highlightLines = []
+} = Astro.props;
+
+const lines = code.trim().split('\n');
+const fileName = title || `example.${language}`;
+---
+
+<div class="code-block my-6 rounded-lg overflow-hidden border border-slate-800 bg-slate-950">
+  {title && (
+    <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800">
+      <div class="flex items-center gap-2">
+        <Icon name="file-text" size="sm" class="text-slate-400" />
+        <span class="text-xs font-mono text-slate-300">{fileName}</span>
+      </div>
+      <button 
+        class="copy-btn flex items-center gap-1.5 px-2 py-1 text-xs text-slate-400 hover:text-brand transition-colors rounded hover:bg-slate-800"
+        data-code={code}
+      >
+        <Icon name="code" size="xs" />
+        <span>Copy</span>
+      </button>
+    </div>
+  )}
+  
+  <div class="relative">
+    <pre class="p-4 overflow-x-auto text-sm"><code class={`language-${language}`}>{lines.map((line, idx) => (
+      <div 
+        class={`code-line ${highlightLines.includes(idx + 1) ? 'bg-brand/10 border-l-2 border-brand -ml-4 pl-4' : ''}`}
+        data-line={idx + 1}
+      >
+        {showLineNumbers && (
+          <span class="line-number select-none text-slate-600 mr-4 inline-block w-8 text-right">{idx + 1}</span>
+        )}
+        <span class="text-slate-200">{line}</span>
+      </div>
+    ))}</code></pre>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const code = this.getAttribute('data-code');
+      if (code) {
+        try {
+          await navigator.clipboard.writeText(code);
+          const span = this.querySelector('span');
+          const originalText = span?.textContent;
+          if (span) {
+            span.textContent = 'Copied!';
+            setTimeout(() => {
+              if (span) span.textContent = originalText || 'Copy';
+            }, 2000);
+          }
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  .code-line {
+    line-height: 1.6;
+    transition: background-color 0.2s;
+  }
+  
+  .code-line:hover {
+    background-color: rgba(148, 163, 184, 0.05);
+  }
+</style>

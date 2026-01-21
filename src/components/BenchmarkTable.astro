@@ -1,0 +1,90 @@
+---
+/**
+ * Performance benchmark comparison table for technical reviews
+ */
+
+import Icon from './Icon.astro'
+
+interface Benchmark {
+  name: string;
+  metrics: {
+    [key: string]: string | number;
+  };
+  highlight?: boolean;
+}
+
+interface Props {
+  benchmarks: Benchmark[];
+  metrics: string[];
+  title?: string;
+  unit?: string;
+}
+
+const { benchmarks, metrics, title = "Performance Benchmarks", unit = "ms" } = Astro.props;
+---
+
+<div class="benchmark-table my-8">
+  <div class="mb-4 flex items-center justify-between">
+    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+      <Icon name="activity" size="md" class="text-brand" />
+      {title}
+    </h3>
+    {unit && (
+      <span class="text-xs text-slate-500 uppercase tracking-wide">Unit: {unit}</span>
+    )}
+  </div>
+  
+  <div class="overflow-x-auto rounded-lg border border-slate-800">
+    <table class="w-full">
+      <thead>
+        <tr class="bg-slate-900 border-b border-slate-800">
+          <th class="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
+            Library
+          </th>
+          {metrics.map(metric => (
+            <th class="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase tracking-wide">
+              {metric}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        {benchmarks.map((benchmark, idx) => (
+          <tr class={`${benchmark.highlight ? 'bg-brand/5 border-l-2 border-brand' : 'bg-slate-950/50'} hover:bg-slate-900/50 transition-colors`}>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                {benchmark.highlight && (
+                  <Icon name="check-circle" size="xs" class="text-brand" />
+                )}
+                <span class={`font-mono text-sm ${benchmark.highlight ? 'text-white font-semibold' : 'text-slate-300'}`}>
+                  {benchmark.name}
+                </span>
+              </div>
+            </td>
+            {metrics.map(metric => (
+              <td class="px-4 py-3 text-center">
+                <span class={`font-mono text-sm ${
+                  benchmarks.every(b => 
+                    typeof benchmark.metrics[metric] === 'number' && 
+                    typeof b.metrics[metric] === 'number'
+                      ? benchmark.metrics[metric] <= (b.metrics[metric] as number)
+                      : false
+                  ) && typeof benchmark.metrics[metric] === 'number'
+                    ? 'text-green-400 font-semibold' 
+                    : 'text-slate-300'
+                }`}>
+                  {benchmark.metrics[metric]}
+                </span>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="mt-3 flex items-start gap-2 text-xs text-slate-500">
+    <Icon name="info" size="xs" class="mt-0.5" />
+    <p>Lower values indicate better performance. Benchmarks conducted on identical hardware configurations.</p>
+  </div>
+</div>

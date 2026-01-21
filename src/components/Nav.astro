@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro'
 ---
 
 <nav class="mb-8 pb-4 border-b border-slate-800">
@@ -10,10 +11,14 @@
       <a href="/" class="hover:text-brand transition-colors">Home</a>
       <a href="/reviews" class="hover:text-brand transition-colors">All Reviews</a>
       <a href="/compare" class="hover:text-brand transition-colors">Compare</a>
-      <a href="/deals" class="hover:text-brand transition-colors">💰 Deals</a>
+      <a href="/deals" class="hover:text-brand transition-colors flex items-center gap-1.5">
+        <Icon name="check-circle" size="sm" />
+        Deals
+      </a>
       <a href="/resources" class="hover:text-brand transition-colors">Resources</a>
-      <a href="/methodology" class="hover:text-brand transition-colors inline-flex items-center gap-1">
-        <span>🔬</span> Methodology
+      <a href="/methodology" class="hover:text-brand transition-colors inline-flex items-center gap-1.5">
+        <Icon name="beaker" size="sm" />
+        Methodology
       </a>
       <a href="/submit-review" class="px-3 py-1.5 bg-brand hover:bg-brand/80 rounded transition-colors font-semibold">Submit Review</a>
     </div>

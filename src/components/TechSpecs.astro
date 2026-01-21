@@ -1,0 +1,45 @@
+---
+/**
+ * Technical specifications component for library/tool reviews
+ */
+
+import Icon from './Icon.astro'
+
+interface Spec {
+  label: string;
+  value: string;
+  icon?: string;
+}
+
+interface Props {
+  specs: Spec[];
+  title?: string;
+}
+
+const { specs, title = "Technical Specifications" } = Astro.props;
+---
+
+<div class="tech-specs my-8 p-6 rounded-lg bg-slate-900/40 border border-slate-800">
+  <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+    <Icon name="cpu" size="md" class="text-brand" />
+    {title}
+  </h3>
+  
+  <dl class="grid md:grid-cols-2 gap-4">
+    {specs.map(spec => (
+      <div class="flex items-start gap-3 p-3 rounded bg-slate-950/50">
+        {spec.icon && (
+          <Icon name={spec.icon} size="sm" class="text-brand mt-0.5" />
+        )}
+        <div class="flex-1 min-w-0">
+          <dt class="text-xs uppercase tracking-wide text-slate-500 font-medium mb-1">
+            {spec.label}
+          </dt>
+          <dd class="text-sm text-slate-200 font-mono">
+            {spec.value}
+          </dd>
+        </div>
+      </div>
+    ))}
+  </dl>
+</div>

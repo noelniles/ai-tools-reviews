@@ -1,0 +1,83 @@
+---
+/**
+ * Installation guide component for Python libraries and tools
+ */
+
+import Icon from './Icon.astro'
+import CodeBlock from './CodeBlock.astro'
+
+interface Props {
+  packageName: string;
+  pipCommand?: string;
+  condaCommand?: string;
+  requirements?: string[];
+  pythonVersion?: string;
+}
+
+const { 
+  packageName, 
+  pipCommand,
+  condaCommand,
+  requirements = [],
+  pythonVersion = "3.8+"
+} = Astro.props;
+
+const defaultPip = pipCommand || `pip install ${packageName}`;
+const defaultConda = condaCommand || `conda install -c conda-forge ${packageName}`;
+---
+
+<div class="install-guide my-8 p-6 rounded-lg bg-slate-900/40 border border-slate-800">
+  <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+    <Icon name="package" size="md" class="text-brand" />
+    Installation
+  </h3>
+  
+  <div class="space-y-4">
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <Icon name="terminal" size="sm" class="text-slate-400" />
+        <span class="text-sm font-semibold text-slate-300">Using pip</span>
+      </div>
+      <CodeBlock 
+        code={defaultPip}
+        language="bash"
+        showLineNumbers={false}
+      />
+    </div>
+    
+    {condaCommand !== null && (
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <Icon name="terminal" size="sm" class="text-slate-400" />
+          <span class="text-sm font-semibold text-slate-300">Using conda</span>
+        </div>
+        <CodeBlock 
+          code={defaultConda}
+          language="bash"
+          showLineNumbers={false}
+        />
+      </div>
+    )}
+    
+    {requirements.length > 0 && (
+      <div class="pt-4 border-t border-slate-800">
+        <div class="flex items-center gap-2 mb-3">
+          <Icon name="alert" size="sm" class="text-yellow-500" />
+          <span class="text-sm font-semibold text-slate-300">Requirements</span>
+        </div>
+        <ul class="space-y-2">
+          <li class="flex items-center gap-2 text-sm text-slate-400">
+            <Icon name="check" size="xs" class="text-brand" />
+            Python {pythonVersion}
+          </li>
+          {requirements.map(req => (
+            <li class="flex items-center gap-2 text-sm text-slate-400">
+              <Icon name="check" size="xs" class="text-brand" />
+              {req}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</div>
