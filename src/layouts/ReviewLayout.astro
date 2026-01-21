@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content'
 import BaseLayout from './BaseLayout.astro'
 import Nav from '../components/Nav.astro'
 import RatingStars from '../components/RatingStars.astro'
+import AuthorByline from '../components/AuthorByline.astro'
 import { analytics } from '../lib/analytics'
 
 interface Props {
@@ -15,7 +16,43 @@ const { title, description, date, rating, affiliate_links, tags } = entry.data
 const toolName = title.replace(' Review', '');
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout 
+  title={title} 
+  description={description}
+  type="article"
+  publishedTime={date}
+  keywords={tags}
+>
+  <!-- Schema.org Structured Data for Reviews -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Review",
+    "itemReviewed": {
+      "@type": "SoftwareApplication",
+      "name": toolName,
+      "applicationCategory": "AI Tool",
+      "operatingSystem": "Web",
+      "offers": affiliate_links?.primary ? {
+        "@type": "Offer",
+        "url": affiliate_links.primary,
+        "priceCurrency": "USD"
+      } : undefined
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "AI Tools Reviews",
+      "url": "https://aitoolsreviews.com"
+    },
+    "datePublished": date,
+    "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": rating.overall,
+      "bestRating": 10,
+      "worstRating": 0
+    },
+    "reviewBody": description
+  })} />
+
   <Nav />
 
   <article class="max-w-3xl mx-auto">
@@ -31,15 +68,9 @@ const toolName = title.replace(' Review', '');
       
       <h1 class="text-4xl font-bold tracking-tight">{title}</h1>
       
+      <AuthorByline date={date} readTime="8 min read" />
+      
       <div class="flex items-center gap-4 text-sm text-slate-400">
-        <time datetime={date}>
-          {new Date(date).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
-        </time>
-        <span>•</span>
         <div class="flex items-center gap-2">
           <RatingStars score={rating.overall} />
           <span class="font-semibold text-brand">{rating.overall}/10</span>
@@ -146,20 +177,22 @@ const toolName = title.replace(' Review', '');
     <!-- Content -->
     <div class="prose prose-invert prose-slate max-w-none
                 prose-headings:font-bold prose-headings:text-slate-100
-                prose-h1:text-4xl prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-8 
-                prose-h3:text-2xl prose-h3:mt-10 prose-h3:mb-5
-                prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-6
+                prose-h1:text-3xl prose-h1:mb-6
+                prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:border-b prose-h2:border-slate-700/50 prose-h2:pb-2
+                prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-slate-200
+                prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3 prose-h4:text-slate-300
+                prose-p:text-slate-300 prose-p:leading-7 prose-p:mb-5
                 prose-a:text-brand prose-a:no-underline hover:prose-a:underline
                 prose-strong:text-slate-100 prose-strong:font-semibold
-                prose-code:text-purple-400 prose-code:bg-slate-900/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
-                prose-pre:bg-slate-900/80 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
-                prose-ul:text-slate-300 prose-ul:space-y-3 prose-ul:my-6 prose-ul:pl-6
-                prose-ol:text-slate-300 prose-ol:space-y-3 prose-ol:my-6
-                prose-li:text-slate-300 prose-li:leading-relaxed prose-li:pl-2
-                prose-li:marker:text-brand prose-li:marker:font-bold
-                prose-blockquote:border-brand prose-blockquote:text-slate-300
-                prose-img:rounded-xl prose-img:border prose-img:border-slate-800
-                prose-hr:border-slate-700 prose-hr:my-12">
+                prose-code:text-purple-400 prose-code:bg-slate-900/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+                prose-pre:bg-slate-900/80 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-lg prose-pre:my-5 prose-pre:p-4
+                prose-ul:text-slate-300 prose-ul:my-5 prose-ul:pl-6 prose-ul:space-y-2
+                prose-ol:text-slate-300 prose-ol:my-5 prose-ol:space-y-2
+                prose-li:text-slate-300 prose-li:leading-7 prose-li:pl-1
+                prose-li:marker:text-brand
+                prose-blockquote:border-brand prose-blockquote:text-slate-300 prose-blockquote:my-5 prose-blockquote:py-1
+                prose-img:rounded-xl prose-img:border prose-img:border-slate-800 prose-img:my-6
+                prose-hr:border-slate-700 prose-hr:my-10">
       <Content />
     </div>
 
@@ -194,126 +227,60 @@ const toolName = title.replace(' Review', '');
   </script>
 </BaseLayout>
 
-<style is:global>
-  .prose-custom {
-    line-height: 1.625;
-    color: #cbd5e1;
+<style>
+  /* Better spacing control for review content */
+  :global(article h2) {
+    margin-top: 3rem !important;
+    margin-bottom: 1.25rem !important;
   }
   
-  /* Hide the first H1 since it's already in the header */
-  .prose-custom > h1:first-child {
-    display: none;
+  :global(article h3) {
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
   }
   
-  .prose-custom h1 {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
-    font-weight: 700;
-    color: #f1f5f9;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-  }
-  .prose-custom h2 {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-    font-weight: 700;
-    color: #f1f5f9;
-    margin-top: 4rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #334155;
-  }
-  .prose-custom h3 {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 600;
-    color: #f1f5f9;
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-  }
-  .prose-custom h4 {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-    font-weight: 600;
-    color: #f1f5f9;
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-  }
-  .prose-custom p {
-    margin-bottom: 1.5rem;
-    line-height: 2rem;
-    font-size: 1rem;
-    color: #cbd5e1;
-  }
-  .prose-custom ul, .prose-custom ol {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-    margin-left: 1.5rem;
-  }
-  .prose-custom li {
-    margin-bottom: 0.75rem;
-    line-height: 2rem;
-    color: #cbd5e1;
-  }
-  .prose-custom strong {
-    color: #f1f5f9;
-    font-weight: 600;
-  }
-  .prose-custom a {
-    color: #0ea5e9;
-    text-decoration: none;
-  }
-  .prose-custom a:hover {
-    text-decoration: underline;
-  }
-  .prose-custom code {
-    background-color: #1e293b;
-    color: #0ea5e9;
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-  }
-  .prose-custom pre {
-    background-color: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    overflow-x: auto;
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .prose-custom blockquote {
-    border-left: 4px solid #0ea5e9;
-    padding-left: 1.5rem;
-    font-style: italic;
-    color: #94a3b8;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+  :global(article h4) {
+    margin-top: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
   }
   
-  /* Add space before/after special components */
-  .prose-custom > div {
-    margin-top: 2.5rem;
-    margin-bottom: 2.5rem;
+  :global(article p) {
+    margin-bottom: 1.25rem !important;
   }
   
-  /* Tables */
-  .prose-custom table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+  /* Spacing around lists */
+  :global(article ul),
+  :global(article ol) {
+    margin: 1.25rem 0 !important;
   }
-  .prose-custom th {
-    background-color: #1e293b;
-    color: #f1f5f9;
-    font-weight: 600;
-    padding: 0.75rem;
-    text-align: left;
+  
+  :global(article li) {
+    margin: 0.5rem 0 !important;
   }
-  .prose-custom td {
-    border-bottom: 1px solid #334155;
-    padding: 0.75rem;
-    color: #cbd5e1;
+  
+  /* Code blocks */
+  :global(article pre) {
+    margin: 1.25rem 0 !important;
+  }
+  
+  /* Components spacing */
+  :global(article > div) {
+    margin: 1.5rem 0 !important;
+  }
+  
+  /* Spacing between different elements */
+  :global(article p + ul),
+  :global(article p + ol),
+  :global(article ul + p),
+  :global(article ol + p),
+  :global(article pre + p),
+  :global(article p + pre) {
+    margin-top: 1.25rem !important;
+  }
+  
+  :global(article h2 + p),
+  :global(article h3 + p),
+  :global(article h4 + p) {
+    margin-top: 0.5rem !important;
   }
 </style>

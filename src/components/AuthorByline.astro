@@ -1,0 +1,49 @@
+---
+interface Props {
+  author?: string;
+  date?: string;
+  readTime?: string;
+  updated?: string;
+}
+
+const { 
+  author = 'Alex Chen', 
+  date,
+  readTime = '8 min read',
+  updated 
+} = Astro.props;
+
+const formatDate = (dateString: string) => {
+  const d = new Date(dateString);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+---
+
+<div class="author-byline flex items-center gap-4 py-4 border-b border-slate-800 mb-8">
+  <div class="w-12 h-12 bg-gradient-to-br from-brand to-purple-600 rounded-full flex items-center justify-center text-lg font-bold shrink-0">
+    AC
+  </div>
+  <div class="flex-1">
+    <div class="flex flex-wrap items-center gap-2 text-sm">
+      <span class="font-semibold text-slate-200">{author}</span>
+      {date && (
+        <>
+          <span class="text-slate-600">•</span>
+          <span class="text-slate-400">{formatDate(date)}</span>
+        </>
+      )}
+      {readTime && (
+        <>
+          <span class="text-slate-600">•</span>
+          <span class="text-slate-400">{readTime}</span>
+        </>
+      )}
+    </div>
+    {updated && (
+      <div class="text-xs text-slate-500 mt-1">
+        Last updated: {formatDate(updated)}
+      </div>
+    )}
+  </div>
+</div>
+

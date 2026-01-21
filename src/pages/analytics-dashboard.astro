@@ -1,0 +1,216 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+---
+
+<BaseLayout 
+  title="Analytics Dashboard - AI Tools Reviews"
+  description="Monitor affiliate performance, user engagement, and revenue metrics"
+>
+  <Nav />
+  
+  <div class="max-w-6xl mx-auto">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold mb-4">Analytics Dashboard</h1>
+      <p class="text-slate-400">Track affiliate performance, user engagement, and conversion metrics</p>
+    </header>
+
+    <!-- Quick Stats -->
+    <div class="grid md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <div class="text-sm text-slate-400 mb-2">Total Affiliate Clicks</div>
+        <div class="text-3xl font-bold text-brand" id="total-clicks">-</div>
+        <div class="text-xs text-slate-500 mt-2">Last 30 days</div>
+      </div>
+      
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <div class="text-sm text-slate-400 mb-2">Avg Time on Page</div>
+        <div class="text-3xl font-bold text-cyan-400" id="avg-time">-</div>
+        <div class="text-xs text-slate-500 mt-2">Minutes:Seconds</div>
+      </div>
+      
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <div class="text-sm text-slate-400 mb-2">Newsletter Signups</div>
+        <div class="text-3xl font-bold text-purple-400" id="newsletter-count">-</div>
+        <div class="text-xs text-slate-500 mt-2">Last 30 days</div>
+      </div>
+      
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <div class="text-sm text-slate-400 mb-2">Page Views</div>
+        <div class="text-3xl font-bold text-green-400" id="page-views">-</div>
+        <div class="text-xs text-slate-500 mt-2">Last 30 days</div>
+      </div>
+    </div>
+
+    <!-- Top Performing Reviews -->
+    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-6">Top Performing Reviews</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-slate-800 text-left">
+              <th class="pb-3 text-sm font-semibold text-slate-300">Tool</th>
+              <th class="pb-3 text-sm font-semibold text-slate-300">Affiliate Clicks</th>
+              <th class="pb-3 text-sm font-semibold text-slate-300">Avg Time</th>
+              <th class="pb-3 text-sm font-semibold text-slate-300">Conversion</th>
+              <th class="pb-3 text-sm font-semibold text-slate-300">Revenue Est.</th>
+            </tr>
+          </thead>
+          <tbody id="top-reviews">
+            <tr>
+              <td colspan="5" class="py-8 text-center text-slate-500">Loading analytics data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Affiliate Click Trends -->
+    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-6">Affiliate Click Trends</h2>
+      <div id="clicks-chart" class="h-64 flex items-center justify-center text-slate-500">
+        Chart will be displayed here when Google Analytics is connected
+      </div>
+    </div>
+
+    <!-- User Engagement Metrics -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <h2 class="text-xl font-bold mb-4">Scroll Depth Distribution</h2>
+        <div id="scroll-depth-chart" class="h-48 flex items-center justify-center text-slate-500">
+          Connect Analytics to view
+        </div>
+      </div>
+      
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <h2 class="text-xl font-bold mb-4">Traffic Sources</h2>
+        <div id="traffic-sources" class="space-y-3">
+          <div class="text-sm text-slate-500">Connect Google Analytics to view traffic sources</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setup Instructions -->
+    <div class="bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/30 rounded-xl p-6">
+      <h2 class="text-xl font-bold mb-4">📊 Setup Instructions</h2>
+      <div class="space-y-4 text-sm text-slate-300">
+        <div>
+          <h3 class="font-semibold text-purple-300 mb-2">1. Configure Google Analytics</h3>
+          <p class="text-slate-400">Set <code class="text-purple-400 bg-slate-900/50 px-2 py-1 rounded">PUBLIC_GOOGLE_ANALYTICS_ID</code> in your <code class="text-purple-400 bg-slate-900/50 px-2 py-1 rounded">.env</code> file</p>
+        </div>
+        
+        <div>
+          <h3 class="font-semibold text-purple-300 mb-2">2. Set Up Custom Events</h3>
+          <p class="text-slate-400">Our tracking code automatically sends these events:</p>
+          <ul class="list-disc ml-6 mt-2 space-y-1 text-slate-400">
+            <li><code class="text-purple-400">affiliate_click</code> - Track affiliate link clicks</li>
+            <li><code class="text-purple-400">engagement</code> - Time on page & scroll depth</li>
+            <li><code class="text-purple-400">newsletter_signup</code> - Newsletter conversions</li>
+            <li><code class="text-purple-400">review_view</code> - Review page visits</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="font-semibold text-purple-300 mb-2">3. Access Real-Time Data</h3>
+          <p class="text-slate-400">View real-time metrics in your <a href="https://analytics.google.com" target="_blank" class="text-brand hover:underline">Google Analytics dashboard</a></p>
+        </div>
+
+        <div>
+          <h3 class="font-semibold text-purple-300 mb-2">4. Monetization Tracking</h3>
+          <p class="text-slate-400">Use UTM parameters in affiliate links to track campaign performance:</p>
+          <ul class="list-disc ml-6 mt-2 space-y-1 text-slate-400">
+            <li><code class="text-purple-400">utm_source=aitoolsreviews</code></li>
+            <li><code class="text-purple-400">utm_medium=affiliate</code></li>
+            <li><code class="text-purple-400">utm_campaign=tool-name</code></li>
+            <li><code class="text-purple-400">utm_content=review-page</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // This would fetch real analytics data from Google Analytics API
+  // For now, showing placeholder data
+  
+  interface AnalyticsData {
+    totalClicks: number;
+    avgTime: string;
+    newsletterSignups: number;
+    pageViews: number;
+    topReviews: Array<{
+      tool: string;
+      clicks: number;
+      avgTime: string;
+      conversion: string;
+      revenue: string;
+    }>;
+  }
+  
+  // Placeholder data - replace with real GA4 API calls
+  const mockData: AnalyticsData = {
+    totalClicks: 1247,
+    avgTime: "3:42",
+    newsletterSignups: 89,
+    pageViews: 5621,
+    topReviews: [
+      { tool: "ChatGPT-4", clicks: 342, avgTime: "4:23", conversion: "8.2%", revenue: "$685" },
+      { tool: "Claude 3", clicks: 287, avgTime: "3:58", conversion: "7.1%", revenue: "$574" },
+      { tool: "Midjourney", clicks: 213, avgTime: "4:01", conversion: "6.5%", revenue: "$426" },
+      { tool: "GitHub Copilot", clicks: 156, avgTime: "3:15", conversion: "5.8%", revenue: "$312" },
+      { tool: "Cursor AI", clicks: 132, avgTime: "3:42", conversion: "6.2%", revenue: "$264" },
+    ]
+  };
+  
+  // Update UI with data
+  function updateDashboard(data: AnalyticsData) {
+    const totalClicksEl = document.getElementById('total-clicks');
+    const avgTimeEl = document.getElementById('avg-time');
+    const newsletterEl = document.getElementById('newsletter-count');
+    const pageViewsEl = document.getElementById('page-views');
+    const topReviewsEl = document.getElementById('top-reviews');
+    
+    if (totalClicksEl) totalClicksEl.textContent = data.totalClicks.toLocaleString();
+    if (avgTimeEl) avgTimeEl.textContent = data.avgTime;
+    if (newsletterEl) newsletterEl.textContent = data.newsletterSignups.toString();
+    if (pageViewsEl) pageViewsEl.textContent = data.pageViews.toLocaleString();
+    
+    if (topReviewsEl) {
+      topReviewsEl.innerHTML = data.topReviews.map(review => `
+        <tr class="border-b border-slate-800/50">
+          <td class="py-4 text-slate-200 font-medium">${review.tool}</td>
+          <td class="py-4 text-brand font-semibold">${review.clicks}</td>
+          <td class="py-4 text-slate-400">${review.avgTime}</td>
+          <td class="py-4 text-cyan-400">${review.conversion}</td>
+          <td class="py-4 text-green-400 font-semibold">${review.revenue}</td>
+        </tr>
+      `).join('');
+    }
+  }
+  
+  // Check if Google Analytics is configured
+  const gaConfigured = typeof window.gtag !== 'undefined';
+  
+  if (gaConfigured) {
+    // TODO: Fetch real data from GA4 API
+    // For now, show mock data
+    updateDashboard(mockData);
+  } else {
+    // Show setup message
+    console.log('Google Analytics not configured. Set PUBLIC_GOOGLE_ANALYTICS_ID in .env');
+  }
+  
+  // Load on page ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => updateDashboard(mockData));
+  } else {
+    updateDashboard(mockData);
+  }
+</script>
+
+<style>
+  code {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  }
+</style>

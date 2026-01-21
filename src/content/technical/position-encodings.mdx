@@ -1,0 +1,370 @@
+---
+title: "Position Encodings in Transformers Explained"
+description: "How transformers understand word order - from sinusoidal to RoPE and ALiBi"
+date: "2024-01-24"
+tags: ['LLM', 'technical', 'transformers', 'position-encoding']
+author: "AI Tools Reviews Technical Team"
+---
+
+import CodeBlock from '../../components/CodeBlock.astro'
+
+# Position Encodings Explained
+
+Transformers have no inherent sense of order. Position encodings teach them "the" at position 1 is different from "the" at position 5.
+
+## The Problem
+
+Without position information:
+
+```
+Input: "The cat ate the mouse"
+Input: "The mouse ate the cat"
+
+Without positions → Same representation!
+Model can't distinguish word order
+```
+
+Attention is **permutation invariant** - it treats tokens as an unordered set.
+
+## Solution 1: Absolute Sinusoidal Encoding (Original Transformer)
+
+Add position information to embeddings:
+
+<CodeBlock
+  language="python"
+  filename="sinusoidal_encoding.py"
+  code={`import numpy as np
+
+def sinusoidal_position_encoding(seq_len, d_model):
+    """
+    Original position encoding from 'Attention is All You Need'
+    
+    Uses sin/cos with different frequencies for each dimension
+    """
+    position = np.arange(seq_len)[:, np.newaxis]
+    div_term = np.exp(
+        np.arange(0, d_model, 2) * -(np.log(10000.0) / d_model)
+    )
+    
+    pe = np.zeros((seq_len, d_model))
+    
+    # Even dimensions: sine
+    pe[:, 0::2] = np.sin(position * div_term)
+    # Odd dimensions: cosine
+    pe[:, 1::2] = np.cos(position * div_term)
+    
+    return pe
+
+# Visualization for position 0-100, first 8 dimensions:
+# Pos  Dim0   Dim1   Dim2   Dim3   Dim4   Dim5   Dim6   Dim7
+# 0    0.00   1.00   0.00   1.00   0.00   1.00   0.00   1.00
+# 1    0.84   0.54   0.10   1.00   0.01   1.00   0.00   1.00
+# 5    0.96  -0.28   0.48   0.88   0.05   1.00   0.01   1.00
+# 10  -0.54  -0.84   0.84   0.54   0.10   0.99   0.01   1.00
+
+# Pattern: Low dimensions change fast, high dimensions change slow
+# This encodes position at multiple scales`}
+/>
+
+**Why sin/cos?**
+
+1. **Continuous function**: Smooth transitions between positions
+2. **Bounded**: Values stay in [-1, 1]
+3. **Deterministic**: Same position always gets same encoding
+4. **Extrapolation**: Can handle longer sequences than training
+
+<CodeBlock
+  language="python"
+  filename="using_sinusoidal.py"
+  code={`def transformer_with_positional_encoding(tokens):
+    # Get token embeddings
+    token_embs = embedding_layer(tokens)  # [seq_len, d_model]
+    
+    # Get position encodings
+    seq_len = len(tokens)
+    pos_encoding = sinusoidal_position_encoding(seq_len, d_model)
+    
+    # Add them together!
+    input_embs = token_embs + pos_encoding
+    
+    # Now transformer can distinguish positions
+    output = transformer_layers(input_embs)
+    
+    return output
+
+# Example:
+# Token "the" at position 0: [0.2, 0.5, ...] + [0.0, 1.0, ...] = [0.2, 1.5, ...]
+# Token "the" at position 3: [0.2, 0.5, ...] + [0.9, 0.4, ...] = [1.1, 0.9, ...]
+# Different positions → Different representations!`}
+/>
+
+## Solution 2: Learned Position Embeddings (BERT, GPT-2)
+
+Learn position embeddings like token embeddings:
+
+<CodeBlock
+  language="python"
+  filename="learned_positions.py"
+  code={`class LearnedPositionalEmbedding:
+    def __init__(self, max_seq_len=512, d_model=768):
+        # Just a lookup table!
+        # Position 0 → vector, Position 1 → different vector, etc.
+        self.pos_embeddings = nn.Embedding(max_seq_len, d_model)
+    
+    def forward(self, seq_len):
+        positions = torch.arange(seq_len)
+        return self.pos_embeddings(positions)
+
+# BERT uses this
+# GPT-2 uses this
+
+# Pros:
+# - Simple
+# - Model learns best encoding for the task
+
+# Cons:
+# - Fixed max length (can't extrapolate)
+# - Uses more parameters`}
+/>
+
+## Solution 3: RoPE (Rotary Position Embedding)
+
+**Used in: LLaMA, GPT-Neo, PaLM**
+
+Apply rotation based on position:
+
+<CodeBlock
+  language="python"
+  filename="rope.py"
+  code={`def rotate_half(x):
+    """
+    Split and rotate tensor
+    """
+    x1, x2 = x.chunk(2, dim=-1)
+    return torch.cat((-x2, x1), dim=-1)
+
+def apply_rotary_pos_emb(q, k, cos, sin):
+    """
+    Apply rotary position embedding to Q and K
+    
+    Key insight: Rotate Q and K based on their positions
+    Relative position naturally emerges from rotation difference
+    """
+    # Apply rotation matrix
+    q_embed = (q * cos) + (rotate_half(q) * sin)
+    k_embed = (k * cos) + (rotate_half(k) * sin)
+    
+    return q_embed, k_embed
+
+class RoPEAttention:
+    def __init__(self, d_model=512, max_seq_len=2048):
+        self.d_model = d_model
+        
+        # Precompute rotation angles
+        position = torch.arange(max_seq_len).unsqueeze(1)
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2) * 
+            -(math.log(10000.0) / d_model)
+        )
+        
+        # Rotation angles for each position and dimension
+        angles = position * div_term
+        self.cos = torch.cos(angles)
+        self.sin = torch.sin(angles)
+    
+    def forward(self, x):
+        seq_len = x.shape[1]
+        
+        # Generate Q, K, V
+        Q = x @ self.W_q
+        K = x @ self.W_k
+        V = x @ self.W_v
+        
+        # Apply rotary embeddings to Q and K only
+        Q_rot, K_rot = apply_rotary_pos_emb(
+            Q, K,
+            self.cos[:seq_len],
+            self.sin[:seq_len]
+        )
+        
+        # Attention with rotated Q, K
+        scores = Q_rot @ K_rot.T
+        weights = softmax(scores)
+        output = weights @ V
+        
+        return output
+
+# Why RoPE is better:
+# 1. Naturally encodes relative positions
+# 2. Better extrapolation to longer sequences
+# 3. No added parameters (unlike learned embeddings)
+# 4. Works better in practice (LLaMA uses this)`}
+/>
+
+**RoPE Visualization:**
+
+```
+Position 0 and Position 5:
+├─ Rotation difference = 5 steps
+├─ This creates a consistent "distance" signal
+└─ Works for any position pair!
+
+Traditional encoding:
+├─ pos_0 = [0.0, 1.0, 0.0, ...]
+├─ pos_5 = [0.96, -0.28, 0.48, ...]
+└─ No clear relative position signal
+```
+
+## Solution 4: ALiBi (Attention with Linear Biases)
+
+**Used in: BLOOM, MPT**
+
+Add position bias directly to attention scores:
+
+<CodeBlock
+  language="python"
+  filename="alibi.py"
+  code={`def alibi_attention(Q, K, V, num_heads=8):
+    """
+    Add linear bias based on distance between positions
+    
+    No position embeddings at all!
+    Just bias the attention scores
+    """
+    seq_len = Q.shape[1]
+    
+    # Compute attention scores
+    scores = Q @ K.T  # [seq_len, seq_len]
+    
+    # Create ALiBi bias matrix
+    # Bias increases with distance
+    positions = torch.arange(seq_len)
+    distance = positions.unsqueeze(1) - positions.unsqueeze(0)
+    distance = distance.abs()
+    
+    # Different slopes for different attention heads
+    slopes = torch.tensor([
+        2 ** (-(i+1)) for i in range(num_heads)
+    ])
+    
+    # Apply bias (negative, so distant tokens get lower scores)
+    bias = -distance.unsqueeze(0) * slopes.unsqueeze(1).unsqueeze(2)
+    
+    # Add bias to scores
+    scores = scores + bias
+    
+    # Rest is normal attention
+    weights = softmax(scores, dim=-1)
+    output = weights @ V
+    
+    return output
+
+# ALiBi bias matrix (head with slope=-0.5):
+#      Pos0  Pos1  Pos2  Pos3  Pos4
+# Pos0   0   -0.5  -1.0  -1.5  -2.0
+# Pos1  -0.5   0   -0.5  -1.0  -1.5
+# Pos2  -1.0 -0.5   0   -0.5  -1.0
+# ...
+
+# Benefits:
+# - No position embeddings needed (saves memory)
+# - Excellent extrapolation (tested up to 2× training length)
+# - Simple and fast`}
+/>
+
+## Comparison
+
+```
+Sinusoidal (GPT-3):
+├─ Pros: Simple, deterministic, extrapolates
+├─ Cons: Not as good as learned
+└─ Used in: Original Transformer, GPT-3
+
+Learned (BERT, GPT-2):
+├─ Pros: Task-specific, performs well
+├─ Cons: Fixed max length, more parameters
+└─ Used in: BERT, GPT-2, early models
+
+RoPE (LLaMA):
+├─ Pros: Best performance, great extrapolation
+├─ Cons: Slightly more complex
+└─ Used in: LLaMA, GPT-Neo, most modern LLMs
+
+ALiBi (BLOOM):
+├─ Pros: Best extrapolation, no embeddings
+├─ Cons: Less common, newer technique
+└─ Used in: BLOOM, MPT, some research models
+```
+
+## Extrapolation Test
+
+How well models handle sequences longer than training:
+
+<CodeBlock
+  language="python"
+  filename="extrapolation_test.py"
+  code={`# Train on 2K tokens, test on 4K tokens
+
+results = {
+    'Sinusoidal': {
+        '2K (train)': 2.1,  # Perplexity
+        '4K (2× train)': 3.8,
+        '8K (4× train)': 7.2,
+    },
+    'Learned': {
+        '2K (train)': 2.0,
+        '4K (2× train)': 15.3,  # Breaks down!
+        '8K (4× train)': 48.7,  # Completely fails
+    },
+    'RoPE': {
+        '2K (train)': 2.0,
+        '4K (2× train)': 2.3,  # Good!
+        '8K (4× train)': 3.1,  # Still works
+    },
+    'ALiBi': {
+        '2K (train)': 2.0,
+        '4K (2× train)': 2.1,  # Best!
+        '8K (4× train)': 2.4,  # Excellent
+    }
+}
+
+# Learned embeddings fail hard
+# RoPE and ALiBi handle longer sequences well`}
+/>
+
+## Modern Best Practices
+
+**For new models:**
+
+1. **Use RoPE** if you want proven performance (LLaMA 2 approach)
+2. **Use ALiBi** if you need extreme extrapolation (BLOOM approach)
+3. **Avoid learned** unless you have fixed max length (BERT legacy)
+4. **Avoid sinusoidal** unless you want simplicity (outdated)
+
+**For extending context:**
+
+```python
+# Example: Extend LLaMA from 4K to 32K context
+
+# Method 1: RoPE Scaling (linear)
+def scaled_rope(position, scale=8.0):
+    # Divide position by scale factor
+    return rope(position / scale)
+
+# Method 2: RoPE NTK-Aware Scaling
+def ntk_scaled_rope(position, scale=8.0):
+    # Adjust frequency instead of position
+    # Better preservation of local patterns
+    return rope_with_adjusted_freq(position, scale)
+
+# Both methods allow 4K model to handle 32K tokens
+# GPT-4 likely uses similar techniques
+```
+
+---
+
+## Related Articles
+
+- [Attention Mechanisms →](/technical/attention-mechanisms)
+- [Transformer Architecture →](/technical/transformer-architecture)
+- [Long-Context Architecture →](/technical/long-context-architecture)

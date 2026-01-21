@@ -413,37 +413,10 @@ export function getAffiliateLink(toolSlug: string): AffiliateLink | undefined {
 }
 
 /**
- * Helper to check if a tool has an active affiliate program
- */
-export function hasAffiliateProgram(toolSlug: string): boolean {
-  const link = AFFILIATE_LINKS[toolSlug]?.primary;
-  return !!link && link.commission !== 'No affiliate program';
-}
-
-/**
  * Get all affiliate links for a tool (primary, secondary, alternative)
  */
 export function getAllAffiliateLinks(toolSlug: string): ToolAffiliateLinks {
   return AFFILIATE_LINKS[toolSlug] || {};
-}
-
-/**
- * Create a tracked affiliate URL with UTM parameters
- */
-export function createTrackedAffiliateUrl(toolSlug: string, source: string = 'review'): string {
-  const link = getAffiliateLink(toolSlug);
-  if (!link) return '#';
-
-  try {
-    const url = new URL(link.url);
-    url.searchParams.set('utm_source', 'aitoolsreviews');
-    url.searchParams.set('utm_medium', 'affiliate');
-    url.searchParams.set('utm_campaign', toolSlug);
-    url.searchParams.set('utm_content', source);
-    return url.toString();
-  } catch {
-    return link.url;
-  }
 }
 
 /**

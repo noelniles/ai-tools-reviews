@@ -10,6 +10,7 @@ interface Props {
   code: string;
   language?: string;
   title?: string;
+  filename?: string;
   showLineNumbers?: boolean;
   highlightLines?: number[];
 }
@@ -18,16 +19,17 @@ const {
   code, 
   language = 'python', 
   title,
+  filename,
   showLineNumbers = true,
   highlightLines = []
 } = Astro.props;
 
 const lines = code.trim().split('\n');
-const fileName = title || `example.${language}`;
+const fileName = filename || title || `example.${language}`;
 ---
 
 <div class="code-block my-6 rounded-lg overflow-hidden border border-slate-800 bg-slate-950">
-  {title && (
+  {fileName && (
     <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800">
       <div class="flex items-center gap-2">
         <Icon name="file-text" size="sm" class="text-slate-400" />
@@ -44,21 +46,22 @@ const fileName = title || `example.${language}`;
   )}
   
   <div class="relative">
-    <pre class="p-4 overflow-x-auto text-sm"><code class={`language-${language}`}>{lines.map((line, idx) => (
+    <pre class="p-4 overflow-x-auto text-sm leading-6 font-mono bg-slate-950"><code class={`language-${language} block`}>{lines.map((line, idx) => (
       <div 
         class={`code-line ${highlightLines.includes(idx + 1) ? 'bg-brand/10 border-l-2 border-brand -ml-4 pl-4' : ''}`}
         data-line={idx + 1}
       >
         {showLineNumbers && (
-          <span class="line-number select-none text-slate-600 mr-4 inline-block w-8 text-right">{idx + 1}</span>
+          <span class="line-number select-none text-slate-600 mr-4 inline-block w-8 text-right font-mono">{idx + 1}</span>
         )}
-        <span class="text-slate-200">{line}</span>
+        <span class="text-slate-300 font-mono">{line || ' '}</span>
       </div>
     ))}</code></pre>
   </div>
 </div>
 
 <script>
+  // Copy button functionality
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', async function() {
       const code = this.getAttribute('data-code');
@@ -79,15 +82,41 @@ const fileName = title || `example.${language}`;
       }
     });
   });
+  
+  // Initialize Prism if available
+  if (typeof window !== 'undefined' && window.Prism) {
+    window.Prism.highlightAll();
+  }
 </script>
 
 <style>
+  .code-block {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  }
+  
   .code-line {
-    line-height: 1.6;
+    line-height: 1.5;
     transition: background-color 0.2s;
+    display: flex;
+    align-items: baseline;
   }
   
   .code-line:hover {
     background-color: rgba(148, 163, 184, 0.05);
+  }
+  
+  .code-block pre {
+    margin: 0;
+    font-family: inherit;
+  }
+  
+  .code-block code {
+    font-family: inherit;
+    font-size: 0.875rem;
+    display: block;
+  }
+  
+  .line-number {
+    user-select: none;
   }
 </style>

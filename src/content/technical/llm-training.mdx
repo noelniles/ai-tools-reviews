@@ -1,0 +1,502 @@
+---
+title: "Training Large Language Models: Complete Guide"
+description: "How LLMs are trained from scratch - pre-training, fine-tuning, RLHF, and everything in between"
+date: "2024-01-22"
+tags: ['LLM', 'technical', 'training', 'deep-learning', 'RLHF']
+author: "AI Tools Reviews Technical Team"
+---
+
+import CodeBlock from '../../components/CodeBlock.astro'
+import TechSpecs from '../../components/TechSpecs.astro'
+
+# Training Large Language Models
+
+Training a model like GPT-4 or Claude costs millions of dollars and takes months. Understanding the training pipeline is essential for understanding why these models behave the way they do.
+
+## The Three-Stage Training Pipeline
+
+```
+Stage 1: Pre-training (Unsupervised)
+├─ Goal: Learn language patterns
+├─ Data: Trillions of tokens from the internet
+├─ Cost: $100M+ for GPT-4 scale
+└─ Duration: 2-4 months
+
+Stage 2: Supervised Fine-Tuning (SFT)
+├─ Goal: Learn to follow instructions
+├─ Data: 10K-100K high-quality examples
+├─ Cost: $100K-$1M
+└─ Duration: 1-2 weeks
+
+Stage 3: Reinforcement Learning (RLHF)
+├─ Goal: Align with human preferences
+├─ Data: Human feedback on outputs
+├─ Cost: $500K-$5M
+└─ Duration: 2-4 weeks
+```
+
+## Stage 1: Pre-Training
+
+### Data Collection
+
+Pre-training requires massive amounts of text data:
+
+<CodeBlock
+  language="python"
+  filename="data_collection.py"
+  code={`class DatasetBuilder:
+    def __init__(self):
+        self.sources = {
+            'web_crawl': 0.60,      # Common Crawl, web pages
+            'books': 0.20,           # Books corpus
+            'code': 0.10,            # GitHub, StackOverflow
+            'academic': 0.05,        # arXiv, papers
+            'wikipedia': 0.05        # Wikipedia
+        }
+    
+    def collect_training_data(self, target_tokens=1e12):
+        """
+        Collect 1 trillion tokens for pre-training
+        """
+        dataset = []
+        
+        for source, proportion in self.sources.items():
+            tokens_needed = int(target_tokens * proportion)
+            data = self.crawl_source(source, tokens_needed)
+            dataset.extend(data)
+        
+        # GPT-4 was trained on ~13 trillion tokens
+        # Claude on ~10 trillion tokens
+        return dataset
+    
+    def filter_quality(self, data):
+        """
+        Remove low-quality content
+        """
+        filters = [
+            self.remove_duplicates,
+            self.filter_gibberish,
+            self.remove_toxic_content,
+            self.check_language_quality,
+        ]
+        
+        for filter_fn in filters:
+            data = filter_fn(data)
+        
+        return data`}
+/>
+
+**Data Quality Issues:**
+
+- **Duplicate content**: 30-50% of Common Crawl is duplicates
+- **Low quality**: SEO spam, auto-generated content
+- **Toxic content**: Hate speech, harmful instructions
+- **Copyright**: Books, articles (legal gray area)
+- **Bias**: Overrepresentation of certain viewpoints
+
+### Pre-Training Objective
+
+Next token prediction - simple but effective:
+
+<CodeBlock
+  language="python"
+  filename="pretraining_loss.py"
+  code={`def compute_pretraining_loss(model, batch):
+    """
+    Compute next-token prediction loss
+    """
+    # Input: "The cat sat on the"
+    # Target: "cat sat on the mat"
+    
+    input_ids = batch['input_ids']  # [batch, seq_len]
+    
+    # Forward pass
+    logits = model(input_ids)  # [batch, seq_len, vocab_size]
+    
+    # Shift for next-token prediction
+    logits = logits[:, :-1, :]  # Remove last prediction
+    targets = input_ids[:, 1:]   # Remove first token
+    
+    # Cross-entropy loss
+    loss = cross_entropy_loss(
+        logits.reshape(-1, vocab_size),
+        targets.reshape(-1)
+    )
+    
+    return loss
+
+# Example training loop
+for batch in dataloader:
+    loss = compute_pretraining_loss(model, batch)
+    loss.backward()
+    optimizer.step()
+    optimizer.zero_grad()
+
+# After billions of steps:
+# - Model learns grammar, facts, reasoning
+# - But doesn't follow instructions well`}
+/>
+
+### Training Infrastructure
+
+<TechSpecs 
+  specs={[
+    { label: 'GPT-3 (175B)', value: '10,000 A100 GPUs, 34 days', iconName: 'cpu' },
+    { label: 'GPT-4', value: '~25,000 GPUs, 90-100 days', iconName: 'trending-up' },
+    { label: 'LLaMA 2 70B', value: '2,000 A100s, 21 days', iconName: 'activity' },
+    { label: 'Power Cost', value: '$1-2M/month for GPT-4', iconName: 'zap' },
+  ]}
+/>
+
+<CodeBlock
+  language="python"
+  filename="distributed_training.py"
+  code={`class DistributedTrainer:
+    def __init__(
+        self,
+        model_size='175B',
+        num_gpus=10000,
+        parallelism_strategy='3D'
+    ):
+        # 3D Parallelism: Data + Pipeline + Tensor
+        self.data_parallel = 100   # Copy model across nodes
+        self.pipeline_parallel = 20 # Split layers across GPUs
+        self.tensor_parallel = 5    # Split matrices within layers
+        
+        assert num_gpus == (
+            self.data_parallel * 
+            self.pipeline_parallel * 
+            self.tensor_parallel
+        )
+    
+    def split_model_layers(self, model, num_stages):
+        """
+        Pipeline parallelism: split model into stages
+        """
+        layers_per_stage = len(model.layers) // num_stages
+        
+        stages = []
+        for i in range(num_stages):
+            start = i * layers_per_stage
+            end = (i + 1) * layers_per_stage
+            stages.append(model.layers[start:end])
+        
+        return stages
+    
+    def forward_backward_pipeline(self, batch, stages):
+        """
+        Micro-batching for pipeline efficiency
+        """
+        micro_batches = split_batch(batch, num_microbatches=8)
+        
+        # Pipeline stages process different micro-batches
+        # Stage 1: micro-batch 1 forward
+        # Stage 2: micro-batch 1 forward, micro-batch 2 forward
+        # Stage 3: all stages busy
+        
+        activations = []
+        for mb in micro_batches:
+            x = mb
+            for stage in stages:
+                x = stage(x)
+            activations.append(x)
+        
+        # Backward pass in reverse
+        for act in reversed(activations):
+            act.backward()
+        
+        return loss`}
+/>
+
+## Stage 2: Supervised Fine-Tuning (SFT)
+
+### Creating Instruction Datasets
+
+High-quality examples teach the model to follow instructions:
+
+<CodeBlock
+  language="python"
+  filename="instruction_data.py"
+  code={`instruction_examples = [
+    {
+        "instruction": "Write a haiku about programming",
+        "input": "",
+        "output": "Code flows like water\\nBugs lurk in shadowed corners\\nDebug brings the light"
+    },
+    {
+        "instruction": "Translate to French",
+        "input": "Hello, how are you?",
+        "output": "Bonjour, comment allez-vous?"
+    },
+    {
+        "instruction": "Explain quantum computing to a 10-year-old",
+        "input": "",
+        "output": "Imagine if your computer could try all possible answers to a puzzle at the same time, instead of one by one. That's kind of what quantum computers do! They use special quantum bits that can be multiple things at once."
+    }
+]
+
+# OpenAI used ~100K examples for GPT-3.5
+# Anthropic used ~150K for Claude
+# Meta used ~1M for LLaMA 2 Chat`}
+/>
+
+**Quality over Quantity:**
+
+- 10K high-quality examples > 100K mediocre ones
+- Human-written preferred over AI-generated
+- Diverse tasks: coding, writing, math, reasoning
+- Consistent style and format
+
+### SFT Training Process
+
+<CodeBlock
+  language="python"
+  filename="sft_training.py"
+  code={`def sft_loss(model, example):
+    """
+    Supervised fine-tuning loss
+    Only compute loss on the output tokens
+    """
+    # Format: <instruction> + <input> + <output>
+    prompt = format_prompt(example['instruction'], example['input'])
+    full_text = prompt + example['output']
+    
+    # Tokenize
+    tokens = tokenizer(full_text)
+    prompt_len = len(tokenizer(prompt))
+    
+    # Forward pass
+    logits = model(tokens)
+    
+    # Only compute loss on output tokens (ignore prompt)
+    output_logits = logits[prompt_len:]
+    output_targets = tokens[prompt_len + 1:]
+    
+    loss = cross_entropy_loss(output_logits, output_targets)
+    
+    return loss
+
+# Training config
+training_config = {
+    'learning_rate': 1e-5,  # Much smaller than pre-training
+    'batch_size': 64,
+    'epochs': 3,            # Just a few passes
+    'warmup_steps': 100,
+}`}
+/>
+
+## Stage 3: RLHF (Reinforcement Learning from Human Feedback)
+
+### Step 1: Train Reward Model
+
+Humans rank model outputs to create a reward model:
+
+<CodeBlock
+  language="python"
+  filename="reward_model.py"
+  code={`class RewardModel:
+    """
+    Learn to predict human preferences
+    """
+    def __init__(self, base_model):
+        self.model = base_model
+        # Replace output head with single reward value
+        self.reward_head = nn.Linear(d_model, 1)
+    
+    def forward(self, text):
+        hidden = self.model(text)
+        reward = self.reward_head(hidden[-1])  # Last token
+        return reward
+
+# Training data format
+comparison_data = [
+    {
+        'prompt': 'Explain photosynthesis',
+        'response_A': 'Plants make food from sun...',  # Good
+        'response_B': 'Idk google it',                 # Bad
+        'preference': 'A'  # Human chose A
+    }
+]
+
+def train_reward_model(model, comparisons):
+    for item in comparisons:
+        reward_A = model(item['prompt'] + item['response_A'])
+        reward_B = model(item['prompt'] + item['response_B'])
+        
+        # Higher reward for preferred response
+        if item['preference'] == 'A':
+            loss = -log_sigmoid(reward_A - reward_B)
+        else:
+            loss = -log_sigmoid(reward_B - reward_A)
+        
+        loss.backward()
+        optimizer.step()`}
+/>
+
+### Step 2: PPO Optimization
+
+Use the reward model to improve the language model:
+
+<CodeBlock
+  language="python"
+  filename="ppo_training.py"
+  code={`def ppo_step(policy_model, reward_model, prompt):
+    """
+    Proximal Policy Optimization for RLHF
+    """
+    # Generate response with current policy
+    response = policy_model.generate(prompt)
+    
+    # Get reward from reward model
+    reward = reward_model(prompt + response)
+    
+    # Also penalize divergence from SFT model (KL penalty)
+    # This prevents model from "hacking" the reward
+    old_logprobs = sft_model.get_logprobs(prompt, response)
+    new_logprobs = policy_model.get_logprobs(prompt, response)
+    kl_penalty = kl_divergence(new_logprobs, old_logprobs)
+    
+    # Combined objective
+    total_reward = reward - 0.1 * kl_penalty
+    
+    # Update policy to maximize reward
+    loss = -total_reward
+    loss.backward()
+    
+    return loss
+
+# This is what makes ChatGPT helpful, harmless, honest
+# vs just predicting internet text`}
+/>
+
+**Why RLHF Works:**
+
+- Aligns with human preferences, not just internet text
+- Reduces harmful/biased outputs
+- Makes model more helpful and honest
+- But: Can make model overly cautious
+
+## Training Costs Breakdown
+
+```
+GPT-4 Estimated Training Cost:
+
+Pre-training:
+├─ Compute: $63M (25,000 A100s × 100 days)
+├─ Power: $2M
+├─ Data: $5M (cleaning, processing)
+└─ Subtotal: ~$70M
+
+Fine-tuning:
+├─ SFT: $500K
+├─ RLHF (reward + PPO): $2M
+└─ Subtotal: ~$2.5M
+
+Infrastructure:
+├─ Networking: $5M
+├─ Storage: $2M
+├─ Staff: $10M (100 engineers × 6 months)
+└─ Subtotal: ~$17M
+
+Total: ~$100M minimum
+Likely $150-200M including failed experiments
+```
+
+## Modern Training Techniques
+
+### Flash Attention
+
+Faster attention computation:
+
+<CodeBlock
+  language="python"
+  filename="flash_attention.py"
+  code={`# Traditional attention: O(n²) memory
+def standard_attention(Q, K, V):
+    scores = Q @ K.T  # Store full matrix
+    weights = softmax(scores)
+    output = weights @ V
+    return output
+
+# Flash Attention: O(n) memory, 2-4x faster
+def flash_attention(Q, K, V, block_size=128):
+    """
+    Compute attention in blocks without materializing
+    the full attention matrix
+    """
+    output = torch.zeros_like(V)
+    
+    for q_block in split_blocks(Q, block_size):
+        for k_block, v_block in zip(
+            split_blocks(K, block_size),
+            split_blocks(V, block_size)
+        ):
+            # Compute attention for this block only
+            scores = q_block @ k_block.T
+            weights = softmax(scores)
+            output += weights @ v_block
+    
+    return output
+
+# Used in GPT-4, LLaMA 2, and most modern LLMs`}
+/>
+
+### Mixed Precision Training
+
+<CodeBlock
+  language="python"
+  filename="mixed_precision.py"
+  code={`class MixedPrecisionTrainer:
+    """
+    Use FP16 for speed, FP32 for stability
+    """
+    def __init__(self, model):
+        self.model = model.half()  # Convert to FP16
+        self.optimizer = AdamW(model.parameters())
+        self.scaler = GradScaler()  # Handle small gradients
+    
+    def training_step(self, batch):
+        # Forward in FP16 (faster)
+        with autocast():
+            loss = self.model(batch)
+        
+        # Backward with gradient scaling
+        self.scaler.scale(loss).backward()
+        
+        # Optimizer step in FP32 (stable)
+        self.scaler.step(self.optimizer)
+        self.scaler.update()
+        
+        return loss
+
+# 2x memory savings, 2-3x speed improvement
+# Used universally in modern LLM training`}
+/>
+
+## Evaluation During Training
+
+Track multiple metrics:
+
+```
+Perplexity: 3.2 → 2.8 → 2.1 (lower = better)
+├─ Measures prediction accuracy
+└─ Target: < 2.0 for good models
+
+Downstream Tasks:
+├─ MMLU (knowledge): 45% → 67% → 85%
+├─ HumanEval (coding): 15% → 48% → 67%
+└─ GSM8K (math): 20% → 58% → 92%
+
+Human Eval:
+├─ Helpfulness: 3.2 → 4.5 → 4.8 / 5
+├─ Harmlessness: 3.8 → 4.6 → 4.9 / 5
+└─ Honesty: 3.5 → 4.2 → 4.7 / 5
+```
+
+---
+
+## Related Articles
+
+- [Transformer Architecture →](/technical/transformer-architecture)
+- [Attention Mechanisms →](/technical/attention-mechanisms)
+- [Inference Optimization →](/technical/inference-optimization)

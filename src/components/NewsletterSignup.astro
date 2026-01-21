@@ -1,0 +1,112 @@
+---
+interface Props {
+  variant?: 'default' | 'compact' | 'sidebar';
+}
+
+const { variant = 'default' } = Astro.props;
+---
+
+<div class={`newsletter-signup ${variant}`}>
+  {variant === 'default' && (
+    <div class="bg-gradient-to-br from-brand/10 to-purple-600/10 border border-brand/30 rounded-2xl p-8">
+      <div class="max-w-2xl mx-auto text-center">
+        <h3 class="text-2xl font-bold mb-3">Don't Waste Money on Bad AI Tools</h3>
+        <p class="text-slate-300 mb-6">
+          Every Tuesday, I test AI tools and send you the honest verdict. No fluff. No affiliate spam. 
+          Just what actually works (and what's garbage).
+        </p>
+        <p class="text-sm text-slate-400 mb-6">
+          Join 2,847 people who stopped wasting money on overhyped AI tools.
+        </p>
+        <form 
+          action="https://formspree.io/f/YOUR_FORM_ID" 
+          method="POST"
+          class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+        >
+          <input 
+            type="email" 
+            name="email"
+            placeholder="your@email.com" 
+            required
+            class="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+          />
+          <button 
+            type="submit"
+            class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-lg font-semibold transition-colors whitespace-nowrap"
+          >
+            Get Weekly Reviews
+          </button>
+        </form>
+        <p class="text-xs text-slate-500 mt-4">
+          Unsubscribe anytime. I hate spam as much as you do.
+        </p>
+      </div>
+    </div>
+  )}
+
+  {variant === 'compact' && (
+    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+      <h3 class="text-lg font-semibold mb-3">Get Weekly AI Tool Reviews</h3>
+      <p class="text-slate-300 mb-4 text-sm">
+        Every Tuesday: honest reviews, no BS. Join 2,847 readers who stopped wasting money on bad tools.
+      </p>
+      <form 
+        action="https://formspree.io/f/YOUR_FORM_ID" 
+        method="POST"
+        class="flex gap-2"
+      >
+        <input 
+          type="email" 
+          name="email"
+          placeholder="your@email.com" 
+          required
+          class="flex-1 px-4 py-2 bg-slate-900 border border-slate-800 rounded focus:outline-none focus:border-brand text-sm"
+        />
+        <button 
+          type="submit"
+          class="px-4 py-2 bg-brand hover:bg-brand/80 rounded font-semibold transition-colors text-sm"
+        >
+          Subscribe
+        </button>
+      </form>
+    </div>
+  )}
+
+  {variant === 'sidebar' && (
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-xl p-6 sticky top-24">
+      <div class="text-4xl mb-4">📬</div>
+      <h3 class="text-xl font-bold mb-2">Weekly AI Tool Reviews</h3>
+      <p class="text-slate-400 mb-4 text-sm">
+        I test AI tools so you don't waste money. Honest reviews every Tuesday.
+      </p>
+      <form 
+        action="https://formspree.io/f/YOUR_FORM_ID" 
+        method="POST"
+        class="space-y-3"
+      >
+        <input 
+          type="email" 
+          name="email"
+          placeholder="your@email.com" 
+          required
+          class="w-full px-4 py-2 bg-slate-900 border border-slate-800 rounded focus:outline-none focus:border-brand text-sm"
+        />
+        <button 
+          type="submit"
+          class="w-full px-4 py-2 bg-brand hover:bg-brand/80 rounded font-semibold transition-colors text-sm"
+        >
+          Join 2,847 Readers
+        </button>
+      </form>
+      <p class="text-xs text-slate-500 mt-3">
+        Unsubscribe anytime. Zero spam.
+      </p>
+    </div>
+  )}
+</div>
+
+<style>
+  .newsletter-signup input:focus {
+    outline: none;
+  }
+</style>

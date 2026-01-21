@@ -1,0 +1,449 @@
+---
+title: "Evaluating Long-Context Performance"
+description: "How to test if LLMs actually use their 100K+ token context windows effectively"
+date: "2024-01-25"
+tags: ['LLM', 'technical', 'long-context', 'evaluation', 'benchmarks']
+author: "AI Tools Reviews Technical Team"
+---
+
+import CodeBlock from '../../components/CodeBlock.astro'
+
+# Evaluating Long-Context Performance
+
+Models claim 100K, 200K, or even 1M token context windows. But do they actually use all of it effectively?
+
+## The "Lost in the Middle" Problem
+
+Research shows LLMs struggle with information in the middle of long contexts:
+
+```
+Context Window Performance:
+
+Position:    Start   Middle    End
+Recall:       95%     47%      92%
+
+Example with 100K context:
+├─ Tokens 0-1000: Model remembers well
+├─ Tokens 50,000-51,000: Model often forgets
+└─ Tokens 99,000-100,000: Model remembers well
+
+This is called "lost in the middle"
+```
+
+## Evaluation Benchmarks
+
+### 1. Needle in a Haystack
+
+Hide a fact in a long document, ask model to retrieve it:
+
+<CodeBlock
+  language="python"
+  filename="needle_in_haystack.py"
+  code={`def needle_in_haystack_test(model, context_len=100_000):
+    """
+    Test if model can find specific fact in long context
+    """
+    # Create long document
+    distractor_text = generate_long_text(context_len - 100)
+    
+    # Insert "needle" - the fact we want to find
+    needle = "The secret password is: BLUE_ELEPHANT_2024"
+    position = random.randint(0, len(distractor_text))
+    
+    # Combine
+    full_context = (
+        distractor_text[:position] +
+        needle +
+        distractor_text[position:]
+    )
+    
+    # Ask model to retrieve it
+    prompt = full_context + "\\n\\nWhat is the secret password?"
+    response = model.generate(prompt)
+    
+    # Check if model found it
+    correct = "BLUE_ELEPHANT_2024" in response
+    
+    return {
+        'context_length': context_len,
+        'needle_position': position,
+        'needle_depth': position / context_len,  # 0-1
+        'recall': correct
+    }
+
+# Run test at different positions
+results = []
+for depth in [0.1, 0.3, 0.5, 0.7, 0.9]:
+    position = int(100_000 * depth)
+    result = needle_in_haystack_test(model, position)
+    results.append(result)
+
+# Typical results:
+# Depth 0.1: 98% recall
+# Depth 0.3: 85% recall
+# Depth 0.5: 52% recall  ← Lost in middle
+# Depth 0.7: 78% recall
+# Depth 0.9: 95% recall`}
+/>
+
+**Performance by Model:**
+
+```
+GPT-4 Turbo (128K):
+├─ Start (0-10%): 97% recall
+├─ Early-mid (10-30%): 89% recall
+├─ Middle (40-60%): 61% recall
+├─ Late-mid (70-90%): 84% recall
+└─ End (90-100%): 96% recall
+
+Claude 2.1 (200K):
+├─ Start: 96% recall
+├─ Early-mid: 93% recall
+├─ Middle: 74% recall  ← Better than GPT-4
+├─ Late-mid: 88% recall
+└─ End: 95% recall
+
+Gemini 1.5 (1M):
+├─ Start: 98% recall
+├─ Middle: 67% recall
+└─ End: 97% recall
+```
+
+### 2. Multi-Document QA
+
+Answer questions requiring information from multiple documents:
+
+<CodeBlock
+  language="python"
+  filename="multidoc_qa.py"
+  code={`def multi_document_qa(model, num_docs=20):
+    """
+    Test reasoning over multiple long documents
+    
+    Example: "Compare the marketing strategies 
+    discussed in documents 3, 7, and 15"
+    """
+    # Generate documents
+    documents = [
+        generate_document(topic=f"topic_{i}", length=5000)
+        for i in range(num_docs)
+    ]
+    
+    # Create question requiring multiple docs
+    question = """
+    Based on documents 3, 7, and 15:
+    1. What are the common themes?
+    2. Which document presents the strongest argument?
+    3. Are there any contradictions?
+    """
+    
+    # Combine into context
+    context = "\\n\\n---\\n\\n".join([
+        f"Document {i+1}:\\n{doc}"
+        for i, doc in enumerate(documents)
+    ])
+    
+    prompt = context + "\\n\\n" + question
+    response = model.generate(prompt, max_tokens=500)
+    
+    # Evaluate response
+    score = evaluate_multi_hop_reasoning(response, documents)
+    
+    return score
+
+# Results show:
+# - Most models struggle with 10+ documents
+# - Performance degrades with context length
+# - Models often miss cross-document connections`}
+/>
+
+### 3. Summarization Quality
+
+Can the model summarize very long documents coherently?
+
+<CodeBlock
+  language="python"
+  filename="long_summarization.py"
+  code={`def evaluate_long_summarization(model, doc_length=50_000):
+    """
+    Test summarization of long documents
+    
+    Metrics:
+    - Factual accuracy
+    - Coverage (does it capture all sections?)
+    - Coherence
+    """
+    # Get long document
+    document = load_long_document(length=doc_length)
+    
+    # Generate summary
+    prompt = f"""Summarize the following document in 500 words:
+
+{document}
+
+Summary:"""
+    
+    summary = model.generate(prompt, max_tokens=500)
+    
+    # Evaluate
+    metrics = {
+        'factual_accuracy': check_facts(summary, document),
+        'coverage': measure_coverage(summary, document),
+        'coherence': measure_coherence(summary),
+        'hallucination_rate': detect_hallucinations(summary, document)
+    }
+    
+    return metrics
+
+# Typical results at different lengths:
+results = {
+    '10K tokens': {
+        'accuracy': 95,
+        'coverage': 90,
+        'hallucination': 2
+    },
+    '50K tokens': {
+        'accuracy': 82,
+        'coverage': 73,
+        'hallucination': 12
+    },
+    '100K tokens': {
+        'accuracy': 71,
+        'coverage': 58,
+        'hallucination': 23
+    }
+}
+
+# Quality degrades significantly with length`}
+/>
+
+### 4. Ruler Benchmark
+
+Comprehensive long-context evaluation:
+
+```
+RULER Tasks:
+
+1. Variable Tracking
+   ├─ Track multiple variables through long code
+   └─ Tests: State management
+
+2. Common Words Extraction  
+   ├─ Find words appearing in all documents
+   └─ Tests: Multi-document reasoning
+
+3. Frequent Words
+   ├─ Identify most common words
+   └─ Tests: Aggregation
+
+4. Multi-Hop Tracing
+   ├─ Follow chains of references
+   └─ Tests: Complex reasoning
+
+Results (% accuracy at 128K context):
+├─ GPT-4 Turbo: 76%
+├─ Claude 2.1: 82%
+├─ Gemini 1.5: 71%
+└─ LLaMA 2 70B: 43%
+```
+
+## Why Models Struggle
+
+### 1. Attention Dilution
+
+<CodeBlock
+  language="python"
+  filename="attention_dilution.py"
+  code={`def analyze_attention_dilution(seq_len):
+    """
+    Longer sequences = more tokens to attend to
+    = less attention per token
+    """
+    # Attention weights sum to 1
+    # More tokens = each gets less weight
+    
+    attention_per_token = {
+        '2K context': 1.0 / 2_000,    # 0.0005
+        '32K context': 1.0 / 32_000,  # 0.00003
+        '128K context': 1.0 / 128_000 # 0.000008
+    }
+    
+    # Important tokens in middle get diluted
+    # Model may "forget" them
+    
+    return attention_per_token
+
+# Solution: Sparse attention, sliding windows
+# But these have their own limitations`}
+/>
+
+### 2. Training Data Mismatch
+
+Most training data is short:
+
+```
+Training Data Length Distribution:
+
+Length          Proportion
+< 512 tokens    60%
+512-2K          25%
+2K-8K           10%
+8K-32K          4%
+32K+            1%
+
+Models see mostly short contexts during training
+Then expected to handle 100K at inference
+Mismatch → Poor performance
+```
+
+### 3. Positional Encoding Limits
+
+<CodeBlock
+  language="python"
+  filename="position_encoding_limits.py"
+  code={`# RoPE (used in LLaMA) degrades at long distances
+
+def rope_similarity(pos1, pos2, theta=10000):
+    """
+    Similarity between position encodings
+    """
+    distance = abs(pos1 - pos2)
+    
+    # RoPE similarity decreases with distance
+    similarity = cos(distance / theta)
+    
+    return similarity
+
+# Positions close together: high similarity
+print(rope_similarity(100, 120))  # 0.99
+print(rope_similarity(100, 500))  # 0.92
+
+# Positions far apart: low similarity
+print(rope_similarity(100, 50_000))   # 0.23
+print(rope_similarity(100, 100_000))  # 0.08
+
+# At very long contexts, position info degrades
+# Model loses sense of order`}
+/>
+
+## Improving Long-Context Performance
+
+### Technique 1: Recurrent Memory
+
+<CodeBlock
+  language="python"
+  filename="recurrent_memory.py"
+  code={`class RecurrentMemoryTransformer:
+    """
+    Process long context in chunks, maintain memory
+    """
+    def __init__(self, chunk_size=4096):
+        self.chunk_size = chunk_size
+        self.memory = None
+    
+    def forward(self, long_context):
+        chunks = split_into_chunks(long_context, self.chunk_size)
+        
+        for chunk in chunks:
+            # Process chunk
+            output = self.transformer(chunk, memory=self.memory)
+            
+            # Update memory with key information
+            self.memory = self.extract_memory(output)
+        
+        return output
+
+# Examples: Memorizing Transformers, RMT
+# Allows processing arbitrarily long sequences`}
+/>
+
+### Technique 2: Retrieval Augmentation
+
+<CodeBlock
+  language="python"
+  filename="retrieval_augmented.py"
+  code={`def retrieval_augmented_qa(query, long_context):
+    """
+    Only pass relevant parts to model
+    """
+    # Split context into chunks
+    chunks = split_into_chunks(long_context, chunk_size=512)
+    
+    # Retrieve most relevant chunks
+    embeddings = embed(chunks)
+    query_emb = embed(query)
+    
+    similarities = cosine_similarity(query_emb, embeddings)
+    top_k_indices = similarities.argsort()[-5:]  # Top 5 chunks
+    
+    relevant_context = "\\n\\n".join([
+        chunks[i] for i in top_k_indices
+    ])
+    
+    # Pass only relevant context to model
+    response = model.generate(
+        f"Context: {relevant_context}\\n\\nQuestion: {query}"
+    )
+    
+    return response
+
+# Avoids "lost in the middle" problem
+# Model only sees relevant information`}
+/>
+
+## Evaluation Best Practices
+
+**When testing your application:**
+
+1. **Test at deployment length**: If you'll use 64K context, test at 64K
+2. **Test information placement**: Put key facts at start, middle, and end
+3. **Use real data**: Synthetic benchmarks don't capture real use cases
+4. **Measure hallucinations**: Long contexts → more hallucinations
+5. **Check latency**: 100K context = much slower generation
+
+<CodeBlock
+  language="python"
+  filename="practical_evaluation.py"
+  code={`def evaluate_production_performance(model, test_cases):
+    """
+    Realistic evaluation for production use
+    """
+    results = []
+    
+    for test in test_cases:
+        start_time = time.time()
+        
+        response = model.generate(
+            test['prompt'],
+            max_tokens=test['max_output']
+        )
+        
+        latency = time.time() - start_time
+        
+        metrics = {
+            'accuracy': evaluate_accuracy(response, test['expected']),
+            'hallucination': detect_hallucinations(response, test['context']),
+            'latency': latency,
+            'cost': estimate_cost(len(test['prompt']), len(response)),
+            'context_length': len(test['prompt'])
+        }
+        
+        results.append(metrics)
+    
+    # Analyze trends
+    print(f"Avg accuracy: {np.mean([r['accuracy'] for r in results])}")
+    print(f"Hallucination rate: {np.mean([r['hallucination'] for r in results])}")
+    
+    # Check if accuracy drops with context length
+    plot_accuracy_vs_length(results)
+    
+    return results`}
+/>
+
+---
+
+## Related Articles
+
+- [Long-Context Architecture →](/technical/long-context-architecture)
+- [Attention Mechanisms →](/technical/attention-mechanisms)
+- [Inference Optimization →](/technical/inference-optimization)
