@@ -1,11 +1,16 @@
 ---
+import Icon from './Icon.astro'
+
+interface Metric {
+  label: string
+  value: string | number
+  change?: number
+  iconName?: string
+  icon?: string  // Legacy emoji support
+}
+
 interface Props {
-  metrics: {
-    label: string
-    value: string | number
-    change?: number
-    icon?: string
-  }[]
+  metrics: Metric[]
 }
 
 const { metrics } = Astro.props
@@ -14,9 +19,15 @@ const { metrics } = Astro.props
 <div class="metrics-grid grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
   {metrics.map((metric) => (
     <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-4">
-      <div class="flex items-start justify-between mb-2">
+      <div class="flex flex-col gap-2 mb-2">
+        <div class="flex items-center gap-2">
+          {metric.iconName ? (
+            <Icon name={metric.iconName} size="lg" class="text-brand" />
+          ) : metric.icon ? (
+            <span class="text-2xl">{metric.icon}</span>
+          ) : null}
+        </div>
         <p class="text-xs text-slate-400 uppercase tracking-wide">{metric.label}</p>
-        {metric.icon && <span class="text-lg">{metric.icon}</span>}
       </div>
       <p class="text-2xl font-bold text-slate-100">{metric.value}</p>
       {metric.change !== undefined && (

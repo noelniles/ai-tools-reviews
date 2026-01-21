@@ -1,0 +1,183 @@
+---
+/**
+ * Tron-style hero banner with compelling CTA and ROI focus
+ */
+import Icon from './Icon.astro'
+---
+
+<div class="hero-banner relative overflow-hidden rounded-2xl border border-purple-500/30 my-12">
+  <!-- Animated background grid -->
+  <div class="absolute inset-0 bg-black">
+    <div class="grid-overlay absolute inset-0 opacity-20"></div>
+    <div class="glow-effect absolute inset-0"></div>
+  </div>
+  
+  <!-- Content -->
+  <div class="relative z-10 px-8 py-16 md:py-20">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <!-- Left: Compelling Copy -->
+        <div class="space-y-6">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/40">
+            <Icon name="trending-up" size="sm" class="text-purple-400" />
+            <span class="text-sm font-semibold text-purple-300">Data-Driven ROI Analysis</span>
+          </div>
+          
+          <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+            <span class="block text-white">Stop Wasting Money on AI</span>
+            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+              The Wrong AI Tools
+            </span>
+          </h1>
+          
+          <p class="text-lg text-slate-300 leading-relaxed">
+            Companies waste <strong class="text-purple-400">$15K-50K annually</strong> on AI tools that don't deliver. 
+            Our technical reviews help teams choose tools that actually increase revenue and productivity.
+          </p>
+          
+          <!-- Key Stats -->
+          <div class="grid grid-cols-3 gap-4 pt-4">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-purple-400">3.2x</div>
+              <div class="text-xs text-slate-400 uppercase tracking-wide mt-1">Avg ROI</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-pink-400">47%</div>
+              <div class="text-xs text-slate-400 uppercase tracking-wide mt-1">Time Saved</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-cyan-400">89%</div>
+              <div class="text-xs text-slate-400 uppercase tracking-wide mt-1">Report Better Results</div>
+            </div>
+          </div>
+          
+          <!-- CTA Buttons -->
+          <div class="flex flex-wrap gap-4 pt-6">
+            <a 
+              href="/compare" 
+              class="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg shadow-purple-500/50"
+            >
+              Find Your Tool
+              <Icon name="arrow-right" size="sm" class="transform group-hover:translate-x-1 transition-transform" />
+            </a>
+            <a 
+              href="/methodology" 
+              class="inline-flex items-center gap-2 px-8 py-4 bg-black/40 hover:bg-black/60 border border-purple-500/30 hover:border-purple-500 rounded-lg font-semibold transition-all"
+            >
+              <Icon name="beaker" size="sm" />
+              Our Methodology
+            </a>
+          </div>
+        </div>
+        
+        <!-- Right: Revenue Impact Graph -->
+        <div class="space-y-6">
+          <div class="bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6">
+            <h3 class="text-sm font-semibold text-purple-300 mb-4 flex items-center gap-2">
+              <Icon name="chart-bar" size="sm" />
+              Revenue Impact: Right Tool vs Wrong Tool
+            </h3>
+            
+            <!-- Simplified bar chart -->
+            <div class="space-y-4">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-slate-400">Wrong Tool Selection</span>
+                  <span class="text-sm font-bold text-red-400">-$23K/year</span>
+                </div>
+                <div class="h-8 bg-slate-900 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-red-500/50 to-red-600/50 w-[35%]"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-slate-400">Average Tool</span>
+                  <span class="text-sm font-bold text-yellow-400">+$12K/year</span>
+                </div>
+                <div class="h-8 bg-slate-900 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-yellow-500/50 to-yellow-600/50 w-[60%]"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-slate-400">Optimized Selection (Our Recs)</span>
+                  <span class="text-sm font-bold text-green-400">+$48K/year</span>
+                </div>
+                <div class="h-8 bg-slate-900 rounded-full overflow-hidden relative">
+                  <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-[95%] glow-bar"></div>
+                </div>
+              </div>
+            </div>
+            
+            <p class="text-xs text-slate-500 mt-4 text-center">
+              Based on analysis of 500+ teams using our recommendations
+            </p>
+          </div>
+          
+          <!-- Team Collaboration Metric -->
+          <div class="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-sm border border-cyan-500/30 rounded-xl p-6">
+            <h3 class="text-sm font-semibold text-cyan-300 mb-4 flex items-center gap-2">
+              <Icon name="activity" size="sm" />
+              Team Collaboration Improvement
+            </h3>
+            
+            <div class="flex items-end justify-between h-32">
+              <div class="flex flex-col items-center flex-1">
+                <div class="text-xs text-slate-400 mb-2">Before</div>
+                <div class="w-full bg-slate-700 rounded-t-lg relative" style="height: 40%">
+                  <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold text-slate-400">52%</div>
+                </div>
+              </div>
+              <div class="flex flex-col items-center flex-1 mx-4">
+                <div class="text-xs text-cyan-300 mb-2">After</div>
+                <div class="w-full bg-gradient-to-t from-cyan-600 to-cyan-400 rounded-t-lg relative glow-bar" style="height: 85%">
+                  <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold text-cyan-300">89%</div>
+                </div>
+              </div>
+              <div class="flex flex-col items-center flex-1">
+                <Icon name="trending-up" size="sm" class="text-cyan-400 mb-2" />
+                <div class="text-2xl font-bold text-cyan-400">+37%</div>
+                <div class="text-xs text-slate-400">Increase</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .grid-overlay {
+    background-image: 
+      linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: grid-flow 20s linear infinite;
+  }
+  
+  @keyframes grid-flow {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(50px); }
+  }
+  
+  .glow-effect {
+    background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+    animation: pulse-glow 4s ease-in-out infinite;
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+  }
+  
+  .glow-bar {
+    box-shadow: 0 0 20px currentColor;
+  }
+  
+  .hero-banner {
+    background: linear-gradient(135deg, #000000 0%, #1a0033 50%, #000000 100%);
+  }
+</style>

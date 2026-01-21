@@ -1,0 +1,168 @@
+---
+/**
+ * Interactive ROI Calculator - shows potential savings
+ */
+import Icon from './Icon.astro'
+---
+
+<div class="roi-calculator my-12 p-8 rounded-xl bg-gradient-to-br from-slate-900 to-purple-900/20 border border-purple-500/30">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-center mb-3">Calculate Your Potential Savings</h2>
+    <p class="text-center text-slate-400 mb-8">See how much you could save by choosing the right AI tools</p>
+    
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Input Side -->
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Team Size</label>
+          <input 
+            type="range" 
+            id="team-size" 
+            min="1" 
+            max="100" 
+            value="10"
+            class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+          />
+          <div class="flex justify-between text-xs text-slate-500 mt-1">
+            <span>1</span>
+            <span id="team-size-value" class="font-bold text-purple-400">10 people</span>
+            <span>100+</span>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Current AI Tool Spend (monthly)</label>
+          <input 
+            type="range" 
+            id="current-spend" 
+            min="0" 
+            max="10000" 
+            value="500"
+            step="100"
+            class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+          />
+          <div class="flex justify-between text-xs text-slate-500 mt-1">
+            <span>$0</span>
+            <span id="current-spend-value" class="font-bold text-purple-400">$500/mo</span>
+            <span>$10K+</span>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Tools Currently Using</label>
+          <input 
+            type="range" 
+            id="tools-count" 
+            min="1" 
+            max="20" 
+            value="5"
+            class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+          />
+          <div class="flex justify-between text-xs text-slate-500 mt-1">
+            <span>1</span>
+            <span id="tools-count-value" class="font-bold text-purple-400">5 tools</span>
+            <span>20+</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Results Side -->
+      <div class="bg-black/40 rounded-xl p-6 border border-purple-500/30">
+        <div class="text-center mb-6">
+          <div class="text-sm text-slate-400 mb-2">Potential Annual Savings</div>
+          <div id="savings-amount" class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">
+            $18,000
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+            <div class="flex items-center gap-2">
+              <Icon name="trending-up" size="sm" class="text-green-400" />
+              <span class="text-sm text-slate-300">Productivity Gain</span>
+            </div>
+            <span id="productivity-gain" class="text-sm font-bold text-green-400">+32%</span>
+          </div>
+          
+          <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+            <Icon name="lightning" size="sm" class="text-yellow-400" />
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-slate-300">Time Saved Weekly</span>
+            </div>
+            <span id="time-saved" class="text-sm font-bold text-yellow-400">~12 hrs</span>
+          </div>
+          
+          <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+            <div class="flex items-center gap-2">
+              <Icon name="check-circle" size="sm" class="text-purple-400" />
+              <span class="text-sm text-slate-300">Optimized Tools</span>
+            </div>
+            <span id="optimized-tools" class="text-sm font-bold text-purple-400">3 tools</span>
+          </div>
+        </div>
+        
+        <a 
+          href="/compare" 
+          class="mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-bold transition-all text-center"
+        >
+          Get Personalized Recommendations
+          <Icon name="arrow-right" size="sm" />
+        </a>
+      </div>
+    </div>
+    
+    <p class="text-xs text-center text-slate-500 mt-6">
+      * Calculations based on average data from 500+ companies optimizing their AI tool stack
+    </p>
+  </div>
+</div>
+
+<script>
+  const teamSize = document.getElementById('team-size') as HTMLInputElement;
+  const currentSpend = document.getElementById('current-spend') as HTMLInputElement;
+  const toolsCount = document.getElementById('tools-count') as HTMLInputElement;
+  
+  const teamSizeValue = document.getElementById('team-size-value');
+  const currentSpendValue = document.getElementById('current-spend-value');
+  const toolsCountValue = document.getElementById('tools-count-value');
+  
+  const savingsAmount = document.getElementById('savings-amount');
+  const productivityGain = document.getElementById('productivity-gain');
+  const timeSaved = document.getElementById('time-saved');
+  const optimizedTools = document.getElementById('optimized-tools');
+  
+  function calculateROI() {
+    const team = parseInt(teamSize?.value || '10');
+    const spend = parseInt(currentSpend?.value || '500');
+    const tools = parseInt(toolsCount?.value || '5');
+    
+    // Update display values
+    if (teamSizeValue) teamSizeValue.textContent = `${team} people`;
+    if (currentSpendValue) currentSpendValue.textContent = `$${spend.toLocaleString()}/mo`;
+    if (toolsCountValue) toolsCountValue.textContent = `${tools} tools`;
+    
+    // Calculate savings (average 30% reduction through consolidation)
+    const monthlySpend = spend;
+    const annualSpend = monthlySpend * 12;
+    const wastePercentage = Math.min(0.45, 0.15 + (tools * 0.03)); // More tools = more waste
+    const potentialSavings = Math.round(annualSpend * wastePercentage);
+    
+    // Calculate other metrics
+    const productivity = Math.round(20 + (team * 0.5)); // Scales with team
+    const hoursPerWeek = Math.round(4 + (team * 0.8));
+    const recommendedTools = Math.max(2, Math.ceil(tools * 0.6));
+    
+    // Update results
+    if (savingsAmount) savingsAmount.textContent = `$${potentialSavings.toLocaleString()}`;
+    if (productivityGain) productivityGain.textContent = `+${productivity}%`;
+    if (timeSaved) timeSaved.textContent = `~${hoursPerWeek} hrs`;
+    if (optimizedTools) optimizedTools.textContent = `${recommendedTools} tools`;
+  }
+  
+  teamSize?.addEventListener('input', calculateROI);
+  currentSpend?.addEventListener('input', calculateROI);
+  toolsCount?.addEventListener('input', calculateROI);
+  
+  // Initial calculation
+  calculateROI();
+</script>

@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro'
+
 interface Props {
   type?: 'limited-time' | 'popular' | 'trending' | 'new' | 'deal';
   text?: string;
@@ -9,27 +11,27 @@ const { type = 'popular', text, expiryDate } = Astro.props;
 
 const badges = {
   'limited-time': {
-    icon: '⚡',
+    iconName: 'lightning',
     color: 'bg-red-500/20 border-red-500/40 text-red-400',
-    defaultText: 'Limited Time Offer'
+    defaultText: 'Limited Time'
   },
   'popular': {
-    icon: '🔥',
+    iconName: 'trending-up',
     color: 'bg-orange-500/20 border-orange-500/40 text-orange-400',
-    defaultText: 'Most Popular'
+    defaultText: 'Popular'
   },
   'trending': {
-    icon: '📈',
+    iconName: 'activity',
     color: 'bg-green-500/20 border-green-500/40 text-green-400',
-    defaultText: 'Trending Now'
+    defaultText: 'Trending'
   },
   'new': {
-    icon: '✨',
+    iconName: 'star',
     color: 'bg-purple-500/20 border-purple-500/40 text-purple-400',
-    defaultText: 'New Review'
+    defaultText: 'New'
   },
   'deal': {
-    icon: '💰',
+    iconName: 'check-circle',
     color: 'bg-blue-500/20 border-blue-500/40 text-blue-400',
     defaultText: 'Special Deal'
   }
@@ -39,8 +41,8 @@ const badge = badges[type];
 const displayText = text || badge.defaultText;
 ---
 
-<div class={`urgency-badge inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${badge.color} font-semibold text-xs animate-pulse-subtle`}>
-  <span class="text-base">{badge.icon}</span>
+<div class={`urgency-badge inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${badge.color} font-semibold text-xs`}>
+  <Icon name={badge.iconName} size="sm" />
   <span>{displayText}</span>
   {expiryDate && (
     <span class="countdown ml-1 opacity-80" data-expiry={expiryDate}>
