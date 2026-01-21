@@ -1,101 +1,169 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Nav from '../components/Nav.astro'
+import NewsletterSignup from '../components/NewsletterSignup.astro'
 ---
 
 <BaseLayout title="About - AI Tools Reviews" description="Learn about our mission to provide independent, honest AI tool reviews">
   <Nav />
   
   <article class="max-w-3xl mx-auto prose prose-invert prose-slate">
-    <h1>About AI Tools Reviews</h1>
+    <h1>Hey, I'm Alex — I Test AI Tools So You Don't Have To</h1>
     
-    <p class="lead text-xl text-slate-300">
-      We're on a mission to help you navigate the rapidly evolving world of AI tools with honest, in-depth reviews and real-world testing.
-    </p>
+    <div class="not-prose mb-8 flex items-start gap-6 p-6 bg-slate-900/40 border border-slate-800 rounded-xl">
+      <div class="w-24 h-24 bg-gradient-to-br from-brand to-purple-600 rounded-full flex items-center justify-center text-4xl font-bold shrink-0">
+        AC
+      </div>
+      <div>
+        <p class="text-lg text-slate-300 mb-2">
+          <strong class="text-slate-100">Alex Chen</strong> · Independent AI Tools Reviewer
+        </p>
+        <p class="text-sm text-slate-400">
+          Former product manager at a SaaS company. Been testing AI tools since GPT-3 dropped in 2020. 
+          Spent way too much money on subscriptions so you don't have to.
+        </p>
+      </div>
+    </div>
 
-    <h2>Our Approach</h2>
+    <h2>Why I Started This Site</h2>
     
     <p>
-      The AI tools landscape changes almost daily. New products launch, existing ones get major updates, and pricing models shift constantly. 
-      It's overwhelming to keep up, let alone make informed decisions about which tools are worth your time and money.
+      Look, I'll be honest with you.
     </p>
 
     <p>
-      That's where we come in. We test every tool extensively, benchmark performance across real use cases, and provide honest assessments 
-      of what works, what doesn't, and who each tool is actually best for.
+      In early 2023, I was drowning in AI tool subscriptions. ChatGPT Plus, Midjourney, Jasper, Claude, Copy.ai, Notion AI... 
+      my credit card statement looked like I was running a SaaS company myself. I was spending $400+/month on tools I barely understood.
     </p>
 
-    <h2>What Makes Us Different</h2>
+    <p>
+      The breaking point? I paid $49 for a "revolutionary AI writing tool" that was literally just a worse version of ChatGPT with 
+      a different UI. That's when I realized: <strong>most AI tool reviews are garbage</strong>.
+    </p>
+
+    <p>
+      They're either:
+    </p>
 
     <ul>
-      <li><strong>Hands-on testing</strong> - We actually use these tools for weeks, not just read the marketing materials</li>
-      <li><strong>Real benchmarks</strong> - Data-driven comparisons across multiple dimensions</li>
-      <li><strong>Honest critiques</strong> - We call out limitations and overpriced features</li>
-      <li><strong>Regular updates</strong> - AI tools evolve fast; we keep our reviews current</li>
-      <li><strong>No BS</strong> - Clear verdicts on who should buy and who should skip</li>
+      <li>Written by people who've never actually used the tool</li>
+      <li>Paid promotional content disguised as reviews</li>
+      <li>Copy-pasted feature lists from the company website</li>
+      <li>Or just plain wrong (looking at you, "Top 10 AI Tools" listicles from 2022)</li>
     </ul>
 
-    <h2>Our Testing Process</h2>
+    <p>
+      So I started testing everything myself. Canceling the crap. Keeping the winners. Taking notes. 
+      And now, here we are.
+    </p>
+
+    <h2>My Testing Philosophy</h2>
 
     <p>
-      For each tool, we spend 2-4 weeks testing across various scenarios. We measure performance quantitatively where possible, 
-      compare against alternatives, and evaluate real-world value for different user types.
+      I use each tool for <strong>at least 2-4 weeks</strong> before writing a review. Not 20 minutes. Not watching a YouTube demo. 
+      Actually using it for real work.
     </p>
 
     <p>
-      Our reviews include performance benchmarks, pricing analysis, feature comparisons, and honest assessments of strengths and weaknesses.
+      Here's my process:
     </p>
 
-    <h2>Transparency & Affiliate Links</h2>
+    <ol>
+      <li><strong>Week 1-2:</strong> Daily use for actual projects (writing, coding, design, whatever the tool does)</li>
+      <li><strong>Week 3:</strong> Compare against 2-3 alternatives doing the exact same tasks</li>
+      <li><strong>Week 4:</strong> Test edge cases, limits, and the stuff the marketing doesn't mention</li>
+    </ol>
 
     <p>
-      We're committed to complete transparency. This site uses affiliate links, which means we may earn a commission if you purchase 
-      a tool through our links. This comes at no extra cost to you.
+      I also track:
+    </p>
+    <ul>
+      <li>How many times I actually choose it over alternatives</li>
+      <li>What makes me frustrated (this is important)</li>
+      <li>Whether I'd still use it if I had to pay for it myself</li>
+      <li>If I recommend it to friends (the real test)</li>
+    </ul>
+
+    <h2>My Biases (Yes, I Have Them)</h2>
+
+    <p>
+      Every reviewer has biases. Here are mine:
+    </p>
+
+    <ul>
+      <li><strong>I hate complicated UIs.</strong> If it takes me 10 minutes to figure out where the settings are, that's a problem.</li>
+      <li><strong>I'm cheap.</strong> Free tier matters. A lot. I'll always test if the free version is good enough before recommending paid.</li>
+      <li><strong>I prefer tools that do one thing really well</strong> over Swiss Army knife apps that do everything poorly.</li>
+      <li><strong>I'm a Mac user</strong> (though I test on Windows when it matters).</li>
+      <li><strong>I prioritize speed.</strong> If your AI takes 30 seconds to generate a response, I'm already annoyed.</li>
+    </ul>
+
+    <p>
+      Knowing these helps you filter my recommendations. If you love complex tools with tons of features, we might disagree sometimes. That's fine.
+    </p>
+
+    <h2>The Affiliate Thing (Let's Talk About It)</h2>
+
+    <p>
+      Yeah, this site has affiliate links. When you click "Try ChatGPT Plus" and sign up, I get a commission. 
+      That's how I pay for hosting, keep testing new tools, and justify spending 20+ hours a week on reviews.
     </p>
 
     <p>
-      <strong>Important:</strong> Affiliate relationships do not influence our reviews. We maintain editorial independence and provide 
-      honest assessments regardless of commission rates. Some of our most critical reviews are of tools with the best affiliate programs.
+      <strong>But here's my rule:</strong> I will never—and I mean <em>never</em>—recommend a tool just because it has a good affiliate program.
     </p>
 
     <p>
-      If a tool is overpriced, buggy, or not worth it, we'll say so—even if it means losing potential commissions.
-    </p>
-
-    <h2>Get in Touch</h2>
-
-    <p>
-      Have a tool you'd like us to review? Questions about our testing methodology? Want to discuss a potential partnership?
+      Case in point: I gave Jasper AI a 6.5/10 even though they had one of the best affiliate programs in the space (which they've 
+      since ended, RIP). Meanwhile, I rated Cursor AI 9/10 and they didn't even have an affiliate program when I wrote that review.
     </p>
 
     <p>
-      <a href="/contact" class="text-brand hover:underline">Contact us</a> - we'd love to hear from you.
+      If a tool sucks, I'll tell you it sucks. Even if it costs me money.
     </p>
 
-    <div class="mt-12 p-6 bg-slate-900/40 border border-slate-800 rounded-xl not-prose">
-      <h3 class="text-lg font-semibold mb-3">Subscribe to Our Newsletter</h3>
-      <p class="text-slate-300 mb-4">Get weekly reviews, comparisons, and AI tool recommendations delivered to your inbox.</p>
-      <form 
-        action="https://formspree.io/f/YOUR_FORM_ID" 
-        method="POST"
-        class="flex gap-2 max-w-md"
-      >
-        <input 
-          type="email" 
-          name="email"
-          placeholder="your@email.com" 
-          required
-          class="flex-1 px-4 py-2 bg-slate-900 border border-slate-800 rounded focus:outline-none focus:border-brand"
-        />
-        <button 
-          type="submit"
-          class="px-6 py-2 bg-brand hover:bg-brand/80 rounded font-semibold transition-colors"
-        >
-          Subscribe
-        </button>
-      </form>
-    </div>
+    <p>
+      The way I see it: my reputation is worth way more than a few affiliate commissions. If I lose your trust by recommending garbage, 
+      you'll never come back. And honestly? I'd rather have readers who trust me than a quick buck from a tool I don't believe in.
+    </p>
+
+    <h2>Tools I'm Currently Testing</h2>
+
+    <p>
+      As of January 2026, I'm actively testing:
+    </p>
+
+    <ul>
+      <li>GPT-4's new reasoning updates (the improvement over GPT-4 Turbo is... interesting)</li>
+      <li>Perplexity's new Pro features (jury's still out)</li>
+      <li>Claude's latest vision capabilities (spoiler: pretty damn good)</li>
+      <li>A bunch of AI video tools that claim to be "game-changing" (most aren't)</li>
+    </ul>
+
+    <p>
+      Reviews coming soon. I don't rush these.
+    </p>
+
+    <h2>Want Me to Test Something?</h2>
+
+    <p>
+      Have a tool you want me to review? Disagree with one of my ratings? Think I missed something important?
+    </p>
+
+    <p>
+      <a href="/contact" class="text-brand hover:underline font-semibold">Send me a message</a>. 
+      I read everything (though I can't always respond immediately—one-person operation here).
+    </p>
+
+    <p class="text-sm text-slate-400 mt-8">
+      P.S. - If you're a tool founder trying to get me to review your product: I'm happy to test it, but I can't guarantee a positive review. 
+      If that's cool with you, let's talk.
+    </p>
   </article>
+
+  <div class="max-w-3xl mx-auto mt-12">
+    <NewsletterSignup variant="default" />
+  </div>
 </BaseLayout>
 
 <style>

@@ -16,6 +16,15 @@ const { Content } = await entry.render()
 ---
 
 <BaseLayout title={entry.data.title} description={entry.data.description}>
+  <!-- Prism.js for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" slot="head" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" slot="head" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" slot="head" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js" slot="head" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js" slot="head" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" slot="head" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" slot="head" defer></script>
+  
   <Nav />
   
   <article class="max-w-4xl mx-auto">
@@ -71,17 +80,20 @@ const { Content } = await entry.render()
     <!-- Content -->
     <div class="prose prose-invert prose-slate max-w-none
                 prose-headings:font-bold prose-headings:text-slate-100
-                prose-h1:text-4xl prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 
-                prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
-                prose-p:text-slate-300 prose-p:leading-relaxed
+                prose-h1:text-3xl prose-h1:mb-6
+                prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:border-b prose-h2:border-slate-700/50 prose-h2:pb-2
+                prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-slate-200
+                prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3 prose-h4:text-slate-300
+                prose-p:text-slate-300 prose-p:leading-7 prose-p:mb-5
                 prose-a:text-brand prose-a:no-underline hover:prose-a:underline
                 prose-strong:text-slate-100 prose-strong:font-semibold
-                prose-code:text-purple-400 prose-code:bg-slate-900/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
-                prose-pre:bg-slate-900/80 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
-                prose-ul:text-slate-300 prose-ol:text-slate-300
-                prose-li:marker:text-brand
-                prose-blockquote:border-brand prose-blockquote:text-slate-300
-                prose-img:rounded-xl prose-img:border prose-img:border-slate-800">
+                prose-code:text-purple-400 prose-code:bg-slate-900/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+                prose-pre:bg-slate-900/80 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-lg prose-pre:my-5 prose-pre:p-4 prose-pre:overflow-x-auto prose-pre:text-sm prose-pre:leading-6
+                prose-ul:text-slate-300 prose-ul:my-5 prose-ul:leading-7 prose-ul:space-y-2
+                prose-ol:text-slate-300 prose-ol:my-5 prose-ol:leading-7 prose-ol:space-y-2
+                prose-li:my-1 prose-li:marker:text-brand
+                prose-blockquote:border-brand prose-blockquote:text-slate-300 prose-blockquote:my-5 prose-blockquote:py-1
+                prose-img:rounded-xl prose-img:border prose-img:border-slate-800 prose-img:my-6">
       <Content />
     </div>
     
@@ -103,9 +115,140 @@ const { Content } = await entry.render()
 </BaseLayout>
 
 <style>
-  /* Custom code block styling */
+  /* Fix code block formatting */
   :global(.astro-code) {
-    padding: 1.5rem !important;
-    border-radius: 0.75rem !important;
+    padding: 1rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+    margin: 1.25rem 0 !important;
+  }
+  
+  /* Fix pre-formatted text blocks (ASCII diagrams) */
+  :global(article pre) {
+    font-size: 0.813rem !important;
+    line-height: 1.4 !important;
+    padding: 1rem !important;
+    margin: 1.25rem 0 !important;
+    white-space: pre !important;
+    overflow-x: auto !important;
+  }
+  
+  /* Reduce spacing in code blocks */
+  :global(.astro-code code) {
+    line-height: 1.5 !important;
+  }
+  
+  /* Balanced spacing around headings */
+  :global(article h2) {
+    margin-top: 3rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+  
+  :global(article h3) {
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  :global(article h4) {
+    margin-top: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  /* Spacing between paragraphs */
+  :global(article p) {
+    margin-bottom: 1.25rem !important;
+  }
+  
+  /* Fix paragraph spacing around code */
+  :global(article p + pre),
+  :global(article pre + p),
+  :global(article h2 + pre),
+  :global(article h3 + pre) {
+    margin-top: 1.25rem !important;
+  }
+  
+  /* Better list spacing */
+  :global(article ul),
+  :global(article ol) {
+    margin: 1.25rem 0 !important;
+    padding-left: 1.5rem !important;
+  }
+  
+  :global(article li) {
+    margin: 0.5rem 0 !important;
+  }
+  
+  /* Add spacing after lists */
+  :global(article ul + p),
+  :global(article ol + p),
+  :global(article ul + h2),
+  :global(article ol + h2),
+  :global(article ul + h3),
+  :global(article ol + h3) {
+    margin-top: 1.25rem !important;
+  }
+  
+  /* Spacing after headings */
+  :global(article h2 + p),
+  :global(article h3 + p),
+  :global(article h4 + p) {
+    margin-top: 0.5rem !important;
+  }
+  
+  /* Prism.js theme overrides for dark mode */
+  :global(.token.comment),
+  :global(.token.prolog),
+  :global(.token.doctype),
+  :global(.token.cdata) {
+    color: #6b7280 !important;
+  }
+  
+  :global(.token.punctuation) {
+    color: #94a3b8 !important;
+  }
+  
+  :global(.token.property),
+  :global(.token.tag),
+  :global(.token.boolean),
+  :global(.token.number),
+  :global(.token.constant),
+  :global(.token.symbol),
+  :global(.token.deleted) {
+    color: #f87171 !important;
+  }
+  
+  :global(.token.selector),
+  :global(.token.attr-name),
+  :global(.token.string),
+  :global(.token.char),
+  :global(.token.builtin),
+  :global(.token.inserted) {
+    color: #34d399 !important;
+  }
+  
+  :global(.token.operator),
+  :global(.token.entity),
+  :global(.token.url),
+  :global(.language-css .token.string),
+  :global(.style .token.string) {
+    color: #60a5fa !important;
+  }
+  
+  :global(.token.atrule),
+  :global(.token.attr-value),
+  :global(.token.keyword) {
+    color: #a78bfa !important;
+  }
+  
+  :global(.token.function),
+  :global(.token.class-name) {
+    color: #fbbf24 !important;
+  }
+  
+  :global(.token.regex),
+  :global(.token.important),
+  :global(.token.variable) {
+    color: #fb923c !important;
   }
 </style>

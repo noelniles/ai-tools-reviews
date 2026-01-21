@@ -1,0 +1,535 @@
+---
+title: "LLM Inference Optimization: Speed & Cost Guide"
+description: "How to make LLM inference faster and cheaper - quantization, batching, KV caching, and more"
+date: "2024-01-23"
+tags: ['LLM', 'technical', 'optimization', 'inference', 'performance']
+author: "AI Tools Reviews Technical Team"
+---
+
+import CodeBlock from '../../components/CodeBlock.astro'
+import TechSpecs from '../../components/TechSpecs.astro'
+
+# LLM Inference Optimization
+
+Running a 70B parameter model costs thousands per month. These optimizations can reduce that 10x while maintaining quality.
+
+## The Inference Cost Problem
+
+```
+GPT-4 API Pricing (Jan 2024):
+├─ Input: $0.03 per 1K tokens
+├─ Output: $0.06 per 1K tokens
+└─ 1M requests/day = $1,800-$3,600/day
+
+Self-Hosted 70B Model:
+├─ Hardware: 4× A100 80GB = $10K/month rental
+├─ Power: $500/month
+├─ Staff: $20K/month (engineers)
+└─ Total: ~$30K/month
+
+Goal: Optimize to run on cheaper hardware
+2× A100 40GB instead of 4× A100 80GB = 50% cost savings
+```
+
+## Optimization Techniques
+
+### 1. Quantization
+
+Reduce precision from FP16 to INT8/INT4:
+
+<CodeBlock
+  language="python"
+  filename="quantization.py"
+  code={`import torch
+
+class QuantizedLinear:
+    """
+    Quantize weights from FP16 (16 bits) to INT8 (8 bits)
+    """
+    def __init__(self, weight_fp16):
+        # Find min/max values
+        self.min_val = weight_fp16.min()
+        self.max_val = weight_fp16.max()
+        
+        # Quantize: map [-max, max] to [-128, 127]
+        scale = (self.max_val - self.min_val) / 255
+        zero_point = -128 - self.min_val / scale
+        
+        self.weight_int8 = torch.round(
+            weight_fp16 / scale + zero_point
+        ).to(torch.int8)
+        
+        self.scale = scale
+        self.zero_point = zero_point
+    
+    def dequantize(self):
+        """Convert back to FP16 for computation"""
+        return (self.weight_int8 - self.zero_point) * self.scale
+    
+    def forward(self, x):
+        # Dequantize weights, compute, quantize result
+        weight_fp16 = self.dequantize()
+        output = x @ weight_fp16
+        return output
+
+# Memory savings:
+# 70B model in FP16: 140 GB
+# 70B model in INT8: 70 GB (50% reduction)
+# 70B model in INT4: 35 GB (75% reduction)
+
+# Quality impact:
+# INT8: ~1-2% accuracy loss
+# INT4: ~3-5% accuracy loss`}
+/>
+
+**Quantization Methods:**
+
+```
+Post-Training Quantization (PTQ)
+├─ Quantize after training
+├─ Fast (hours)
+└─ 1-3% accuracy loss
+
+Quantization-Aware Training (QAT)
+├─ Train with quantization in mind
+├─ Slow (retraining needed)
+└─ <1% accuracy loss
+
+GPTQ (GPT Quantization)
+├─ Layer-by-layer quantization
+├─ INT4 with minimal loss
+└─ Used in LLaMA.cpp, llama-int4
+```
+
+### 2. KV Caching
+
+Cache key/value tensors to avoid recomputation:
+
+<CodeBlock
+  language="python"
+  filename="kv_cache.py"
+  code={`class AttentionWithKVCache:
+    """
+    Cache keys and values for autoregressive generation
+    """
+    def __init__(self):
+        self.kv_cache = {
+            'keys': [],
+            'values': []
+        }
+    
+    def forward(self, x, use_cache=True):
+        # Generate Q, K, V
+        Q = x @ self.W_q
+        K = x @ self.W_k
+        V = x @ self.W_v
+        
+        if use_cache:
+            # Append new K, V to cache
+            self.kv_cache['keys'].append(K)
+            self.kv_cache['values'].append(V)
+            
+            # Use all cached keys/values
+            K_full = torch.cat(self.kv_cache['keys'], dim=1)
+            V_full = torch.cat(self.kv_cache['values'], dim=1)
+        else:
+            K_full, V_full = K, V
+        
+        # Attention with full context
+        scores = Q @ K_full.T
+        weights = softmax(scores)
+        output = weights @ V_full
+        
+        return output
+
+# Generation with KV cache:
+prompt = "The cat sat on the"
+
+# First token: compute full attention
+output = model.forward(prompt, use_cache=True)
+# Cache now contains K,V for all prompt tokens
+
+# Subsequent tokens: only compute new K,V
+for _ in range(100):  # Generate 100 tokens
+    new_token = sample(output)
+    output = model.forward(new_token, use_cache=True)
+    # Only computes 1 new K,V, reuses cached ones
+
+# Speed improvement:
+# Without cache: O(n²) for each token
+# With cache: O(n) for each token
+# 10-100x faster generation`}
+/>
+
+### 3. Batch Processing
+
+Process multiple requests simultaneously:
+
+<CodeBlock
+  language="python"
+  filename="dynamic_batching.py"
+  code={`class DynamicBatcher:
+    """
+    Batch requests with different lengths efficiently
+    """
+    def __init__(self, max_batch_size=32, timeout_ms=100):
+        self.max_batch_size = max_batch_size
+        self.timeout_ms = timeout_ms
+        self.pending_requests = []
+    
+    def add_request(self, request):
+        self.pending_requests.append(request)
+        
+        # Process when batch is full or timeout reached
+        if (len(self.pending_requests) >= self.max_batch_size or
+            self.time_since_first_request() > self.timeout_ms):
+            return self.process_batch()
+    
+    def process_batch(self):
+        batch = self.pending_requests[:self.max_batch_size]
+        self.pending_requests = self.pending_requests[self.max_batch_size:]
+        
+        # Pad sequences to same length
+        max_len = max(len(r['tokens']) for r in batch)
+        padded_batch = [
+            pad_to_length(r['tokens'], max_len)
+            for r in batch
+        ]
+        
+        # Process all at once
+        outputs = model.forward(torch.stack(padded_batch))
+        
+        return outputs
+
+# Throughput improvement:
+# Sequential: 10 requests/sec
+# Batched (32): 200 requests/sec
+# 20x throughput improvement!
+
+# But: Increases latency for individual requests
+# Trade-off: throughput vs latency`}
+/>
+
+### 4. Speculative Decoding
+
+Use small model to predict, large model to verify:
+
+<CodeBlock
+  language="python"
+  filename="speculative_decoding.py"
+  code={`def speculative_decode(large_model, small_model, prompt, k=4):
+    """
+    Use small model to generate k tokens
+    Large model verifies in parallel
+    
+    2-3x speedup with no quality loss
+    """
+    tokens = tokenize(prompt)
+    
+    while len(tokens) < max_length:
+        # Small model: generate k candidate tokens (fast)
+        candidates = small_model.generate(
+            tokens, 
+            num_tokens=k,
+            temperature=0  # Greedy
+        )
+        
+        # Large model: score all candidates in parallel
+        # This is faster than k sequential generations!
+        scores = large_model.score_sequence(tokens + candidates)
+        
+        # Accept tokens while they match large model preference
+        accepted = 0
+        for i, candidate in enumerate(candidates):
+            if is_acceptable(scores[i]):
+                tokens.append(candidate)
+                accepted += 1
+            else:
+                break
+        
+        # If rejected, use large model for next token
+        if accepted < k:
+            next_token = large_model.generate_one(tokens)
+            tokens.append(next_token)
+    
+    return tokens
+
+# Example:
+# Small model (7B): "The cat sat on the mat"
+# Large model (70B): Verifies first 3 tokens, rejects "mat", generates "rug"
+# Result: 3 tokens in 1 large model call instead of 4
+# 3x speedup in this example`}
+/>
+
+### 5. Flash Attention
+
+Memory-efficient attention computation:
+
+<CodeBlock
+  language="python"
+  filename="flash_attention_v2.py"
+  code={`def flash_attention_v2(Q, K, V, block_size=128):
+    """
+    Flash Attention v2: 2-4x faster than standard attention
+    
+    Key ideas:
+    1. Tile-based computation (use GPU cache)
+    2. Recomputation in backward (save memory)
+    3. Fused operations (fewer kernel launches)
+    """
+    seq_len, d_k = Q.shape
+    output = torch.zeros_like(V)
+    
+    # Process in blocks to fit in GPU cache (SRAM)
+    for i in range(0, seq_len, block_size):
+        q_block = Q[i:i+block_size]
+        
+        # Accumulate attention over K, V blocks
+        attn_sum = torch.zeros(block_size, d_k)
+        
+        for j in range(0, seq_len, block_size):
+            k_block = K[j:j+block_size]
+            v_block = V[j:j+block_size]
+            
+            # Compute attention scores for this block
+            scores = q_block @ k_block.T  # [block, block]
+            weights = softmax(scores, dim=-1)
+            attn_sum += weights @ v_block
+        
+        output[i:i+block_size] = attn_sum
+    
+    return output
+
+# Performance comparison:
+# Standard attention: 100 tokens/sec
+# Flash Attention v1: 250 tokens/sec
+# Flash Attention v2: 400 tokens/sec
+# 4x improvement!
+
+# Used in: GPT-4, LLaMA 2, Claude, all modern LLMs`}
+/>
+
+## Hardware Optimizations
+
+### GPU Selection
+
+<TechSpecs 
+  specs={[
+    { label: 'A100 80GB', value: '$2,500/month, best for 70B', iconName: 'cpu' },
+    { label: 'A100 40GB', value: '$1,500/month, good for 30B', iconName: 'activity' },
+    { label: 'A10G 24GB', value: '$500/month, good for 7B', iconName: 'trending-up' },
+    { label: 'H100 80GB', value: '$4,000/month, 2x A100 speed', iconName: 'zap' },
+  ]}
+/>
+
+<CodeBlock
+  language="python"
+  filename="hardware_requirements.py"
+  code={`def calculate_gpu_memory(
+    num_params,
+    precision='fp16',
+    batch_size=1,
+    seq_len=2048,
+    num_layers=80
+):
+    """
+    Calculate GPU memory requirements
+    """
+    bytes_per_param = {
+        'fp32': 4,
+        'fp16': 2,
+        'int8': 1,
+        'int4': 0.5
+    }[precision]
+    
+    # Model weights
+    model_memory = num_params * bytes_per_param
+    
+    # KV cache
+    kv_cache = (
+        2 *  # K and V
+        batch_size *
+        seq_len *
+        num_layers *
+        8192 *  # d_model (example)
+        bytes_per_param
+    )
+    
+    # Activations (rough estimate)
+    activations = batch_size * seq_len * 8192 * 4 * bytes_per_param
+    
+    total_gb = (model_memory + kv_cache + activations) / 1e9
+    
+    return {
+        'model': model_memory / 1e9,
+        'kv_cache': kv_cache / 1e9,
+        'activations': activations / 1e9,
+        'total': total_gb
+    }
+
+# Example: LLaMA 2 70B
+memory = calculate_gpu_memory(
+    num_params=70e9,
+    precision='fp16',
+    batch_size=1,
+    seq_len=4096
+)
+print(memory)
+# {
+#   'model': 140 GB,
+#   'kv_cache': 5.2 GB,
+#   'activations': 2.7 GB,
+#   'total': 147.9 GB
+# }
+# Needs 2× A100 80GB (160 GB total)`}
+/>
+
+### Model Parallelism
+
+Split model across GPUs:
+
+<CodeBlock
+  language="python"
+  filename="model_parallelism.py"
+  code={`class TensorParallelLinear:
+    """
+    Split weight matrix across GPUs
+    """
+    def __init__(self, weight, num_gpus=2):
+        # Split columns across GPUs
+        self.weight_shards = torch.chunk(weight, num_gpus, dim=1)
+        self.num_gpus = num_gpus
+    
+    def forward(self, x):
+        # Each GPU computes its shard
+        outputs = []
+        for gpu_id, weight_shard in enumerate(self.weight_shards):
+            x_gpu = x.to(f'cuda:{gpu_id}')
+            out = x_gpu @ weight_shard
+            outputs.append(out)
+        
+        # Concatenate results
+        return torch.cat(outputs, dim=-1)
+
+class PipelineParallelModel:
+    """
+    Split layers across GPUs
+    """
+    def __init__(self, layers, num_gpus=4):
+        layers_per_gpu = len(layers) // num_gpus
+        
+        self.gpu_stages = []
+        for i in range(num_gpus):
+            start = i * layers_per_gpu
+            end = (i + 1) * layers_per_gpu
+            stage = layers[start:end]
+            stage.to(f'cuda:{i}')
+            self.gpu_stages.append(stage)
+    
+    def forward(self, x):
+        for gpu_id, stage in enumerate(self.gpu_stages):
+            x = x.to(f'cuda:{gpu_id}')
+            for layer in stage:
+                x = layer(x)
+        return x
+
+# Enables running 70B model on 2×40GB instead of 2×80GB
+# But: Adds communication overhead`}
+/>
+
+## Deployment Strategies
+
+### Inference Servers
+
+```
+vLLM (Recommended)
+├─ PagedAttention for KV cache
+├─ Continuous batching
+├─ 10-20x throughput vs naive
+└─ pip install vllm
+
+TensorRT-LLM
+├─ NVIDIA optimized
+├─ INT8/INT4 quantization
+├─ Best for NVIDIA GPUs
+└─ Requires more setup
+
+Text Generation Inference (TGI)
+├─ HuggingFace solution
+├─ Good for standard models
+├─ Easy Docker deployment
+└─ docker pull ghcr.io/huggingface/tgi
+```
+
+<CodeBlock
+  language="python"
+  filename="vllm_deployment.py"
+  code={`from vllm import LLM, SamplingParams
+
+# Initialize model with optimizations
+llm = LLM(
+    model="meta-llama/Llama-2-70b-hf",
+    tensor_parallel_size=2,  # Split across 2 GPUs
+    dtype="half",            # FP16
+    max_num_seqs=256,        # Large batch size
+    max_num_batched_tokens=8192
+)
+
+# Efficient sampling
+sampling_params = SamplingParams(
+    temperature=0.8,
+    top_p=0.95,
+    max_tokens=512
+)
+
+# Process requests
+prompts = [
+    "Explain quantum computing",
+    "Write a haiku about AI",
+    "Translate to Spanish: Hello"
+]
+
+outputs = llm.generate(prompts, sampling_params)
+
+# vLLM automatically:
+# - Batches requests
+# - Uses PagedAttention for KV cache
+# - Applies Flash Attention
+# - Handles different sequence lengths
+
+# Result: 10-20x throughput improvement`}
+/>
+
+## Cost Optimization Summary
+
+```
+Baseline (70B FP16):
+├─ Hardware: 4× A100 80GB = $10K/month
+├─ Throughput: 10 req/sec
+└─ Cost per 1M tokens: $50
+
+After Optimizations:
+├─ Quantization (INT8): 2× A100 80GB = $5K/month
+├─ vLLM + batching: 200 req/sec (20x)
+├─ Flash Attention: Included in vLLM
+└─ Cost per 1M tokens: $1.25
+
+96% cost reduction!
+```
+
+**Optimization Checklist:**
+
+- ✅ Use INT8 quantization (50% memory savings)
+- ✅ Enable KV caching (10x generation speedup)
+- ✅ Deploy with vLLM (20x throughput)
+- ✅ Use Flash Attention (included in vLLM)
+- ✅ Batch requests (maximize GPU utilization)
+- ✅ Choose right GPU (A100 40GB often sufficient)
+
+---
+
+## Related Articles
+
+- [Transformer Architecture →](/technical/transformer-architecture)
+- [Training Large Language Models →](/technical/llm-training)
+- [Long-Context Architecture →](/technical/long-context-architecture)

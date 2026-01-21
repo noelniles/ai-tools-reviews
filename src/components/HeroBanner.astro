@@ -79,34 +79,37 @@ import Icon from './Icon.astro'
             </h3>
             
             <!-- Simplified bar chart -->
-            <div class="space-y-4">
+            <div class="space-y-5">
+              <!-- Wrong Tool -->
               <div>
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs text-slate-400">Wrong Tool Selection</span>
-                  <span class="text-sm font-bold text-red-400">-$23K/year</span>
+                  <span class="text-sm text-slate-300">Wrong Tool Selection</span>
+                  <span class="text-base font-bold text-red-400">-$23K/year</span>
                 </div>
-                <div class="h-8 bg-slate-900 rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-red-500/50 to-red-600/50 w-[35%]"></div>
+                <div class="h-10 bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700/50">
+                  <div class="h-full bg-gradient-to-r from-red-600 to-red-500 rounded-lg" style="width: 35%;"></div>
                 </div>
               </div>
               
+              <!-- Average Tool -->
               <div>
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs text-slate-400">Average Tool</span>
-                  <span class="text-sm font-bold text-yellow-400">+$12K/year</span>
+                  <span class="text-sm text-slate-300">Average Tool</span>
+                  <span class="text-base font-bold text-yellow-400">+$12K/year</span>
                 </div>
-                <div class="h-8 bg-slate-900 rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-yellow-500/50 to-yellow-600/50 w-[60%]"></div>
+                <div class="h-10 bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700/50">
+                  <div class="h-full bg-gradient-to-r from-yellow-600 to-yellow-500 rounded-lg" style="width: 60%;"></div>
                 </div>
               </div>
               
+              <!-- Optimized Selection -->
               <div>
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs text-slate-400">Optimized Selection (Our Recs)</span>
-                  <span class="text-sm font-bold text-green-400">+$48K/year</span>
+                  <span class="text-sm text-slate-300">Optimized Selection (Our Recs)</span>
+                  <span class="text-base font-bold text-green-400">+$48K/year</span>
                 </div>
-                <div class="h-8 bg-slate-900 rounded-full overflow-hidden relative">
-                  <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-[95%] glow-bar"></div>
+                <div class="h-10 bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700/50">
+                  <div class="h-full bg-gradient-to-r from-green-600 to-emerald-500 rounded-lg glow-bar" style="width: 95%;"></div>
                 </div>
               </div>
             </div>
@@ -123,23 +126,26 @@ import Icon from './Icon.astro'
               Team Collaboration Improvement
             </h3>
             
-            <div class="flex items-end justify-between h-32">
-              <div class="flex flex-col items-center flex-1">
-                <div class="text-xs text-slate-400 mb-2">Before</div>
-                <div class="w-full bg-slate-700 rounded-t-lg relative" style="height: 40%">
-                  <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold text-slate-400">52%</div>
-                </div>
+            <div class="flex items-end justify-around gap-4 h-40">
+              <!-- Before Bar -->
+              <div class="flex flex-col items-center justify-end flex-1 h-full">
+                <div class="text-sm font-bold text-slate-400 mb-1">52%</div>
+                <div class="w-full bg-slate-700 rounded-t-lg" style="height: 40%;"></div>
+                <div class="text-xs text-slate-400 mt-2">Before</div>
               </div>
-              <div class="flex flex-col items-center flex-1 mx-4">
-                <div class="text-xs text-cyan-300 mb-2">After</div>
-                <div class="w-full bg-gradient-to-t from-cyan-600 to-cyan-400 rounded-t-lg relative glow-bar" style="height: 85%">
-                  <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold text-cyan-300">89%</div>
-                </div>
+              
+              <!-- After Bar -->
+              <div class="flex flex-col items-center justify-end flex-1 h-full">
+                <div class="text-sm font-bold text-cyan-300 mb-1">89%</div>
+                <div class="w-full bg-gradient-to-t from-cyan-600 to-cyan-400 rounded-t-lg glow-bar" style="height: 85%;"></div>
+                <div class="text-xs text-cyan-300 mt-2">After</div>
               </div>
-              <div class="flex flex-col items-center flex-1">
-                <Icon name="trending-up" size="sm" class="text-cyan-400 mb-2" />
+              
+              <!-- Improvement Stat -->
+              <div class="flex flex-col items-center justify-center flex-1 h-full">
+                <Icon name="trending-up" size="sm" class="text-cyan-400 mb-1" />
                 <div class="text-2xl font-bold text-cyan-400">+37%</div>
-                <div class="text-xs text-slate-400">Increase</div>
+                <div class="text-xs text-slate-400 mt-1">Increase</div>
               </div>
             </div>
           </div>
