@@ -6,6 +6,15 @@ import { getCollection } from 'astro:content';
 
 const reviews = await getCollection('reviews');
 const sortedReviews = reviews.sort((a, b) => b.data.rating.overall - a.data.rating.overall);
+
+// Prepare data for charts
+const reviewsData = sortedReviews.map(r => ({
+  slug: r.slug,
+  title: r.data.title.replace(' Review', ''),
+  rating: r.data.rating,
+  tags: r.data.tags || [],
+  pricing: r.data.pricing
+}));
 ---
 
 <BaseLayout 
@@ -23,44 +32,69 @@ const sortedReviews = reviews.sort((a, b) => b.data.rating.overall - a.data.rati
     <!-- Decision Tree / Choose Your Own Adventure -->
     <section class="mb-16">
       <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 border border-slate-700">
-        <h2 class="text-3xl font-bold mb-8 text-center">What do you want to create?</h2>
+        <h2 class="text-3xl font-bold mb-4 text-center">What do you want to create?</h2>
+        <p class="text-center text-slate-400 mb-8">Select one or more categories to compare tools</p>
         
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- Text/Writing Category -->
-          <button onclick="filterCategory('text')" class="category-btn group bg-slate-800/50 hover:bg-brand/20 border-2 border-slate-700 hover:border-brand rounded-xl p-6 text-left transition-all">
-            <div class="mb-4">
-              <Icon name="file-text" size="xl" class="text-brand" />
+          <label class="category-checkbox cursor-pointer group">
+            <input type="checkbox" value="text" class="category-input hidden" onchange="toggleCategory('text')">
+            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-xl p-6 text-left transition-all group-hover:border-brand">
+              <div class="flex items-start justify-between mb-4">
+                <Icon name="file-text" size="xl" class="text-brand" />
+                <div class="checkbox-indicator w-6 h-6 border-2 border-slate-600 rounded flex items-center justify-center">
+                  <Icon name="check" size="xs" class="text-brand hidden check-icon" />
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-2 group-hover:text-brand transition-colors">Text & Writing</h3>
+              <p class="text-sm text-slate-400">Articles, marketing copy, documentation, chat</p>
             </div>
-            <h3 class="text-xl font-bold mb-2 group-hover:text-brand transition-colors">Text & Writing</h3>
-            <p class="text-sm text-slate-400">Articles, marketing copy, documentation, chat</p>
-          </button>
+          </label>
 
           <!-- Code Category -->
-          <button onclick="filterCategory('code')" class="category-btn group bg-slate-800/50 hover:bg-purple-500/20 border-2 border-slate-700 hover:border-purple-500 rounded-xl p-6 text-left transition-all">
-            <div class="mb-4">
-              <Icon name="terminal" size="xl" class="text-purple-400" />
+          <label class="category-checkbox cursor-pointer group">
+            <input type="checkbox" value="code" class="category-input hidden" onchange="toggleCategory('code')">
+            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-xl p-6 text-left transition-all group-hover:border-purple-500">
+              <div class="flex items-start justify-between mb-4">
+                <Icon name="terminal" size="xl" class="text-purple-400" />
+                <div class="checkbox-indicator w-6 h-6 border-2 border-slate-600 rounded flex items-center justify-center">
+                  <Icon name="check" size="xs" class="text-purple-400 hidden check-icon" />
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-2 group-hover:text-purple-400 transition-colors">Code & Development</h3>
+              <p class="text-sm text-slate-400">Code completion, debugging, API tools</p>
             </div>
-            <h3 class="text-xl font-bold mb-2 group-hover:text-purple-400 transition-colors">Code & Development</h3>
-            <p class="text-sm text-slate-400">Code completion, debugging, API tools</p>
-          </button>
+          </label>
 
           <!-- Image Category -->
-          <button onclick="filterCategory('image')" class="category-btn group bg-slate-800/50 hover:bg-pink-500/20 border-2 border-slate-700 hover:border-pink-500 rounded-xl p-6 text-left transition-all">
-            <div class="mb-4">
-              <Icon name="beaker" size="xl" class="text-pink-400" />
+          <label class="category-checkbox cursor-pointer group">
+            <input type="checkbox" value="image" class="category-input hidden" onchange="toggleCategory('image')">
+            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-xl p-6 text-left transition-all group-hover:border-pink-500">
+              <div class="flex items-start justify-between mb-4">
+                <Icon name="beaker" size="xl" class="text-pink-400" />
+                <div class="checkbox-indicator w-6 h-6 border-2 border-slate-600 rounded flex items-center justify-center">
+                  <Icon name="check" size="xs" class="text-pink-400 hidden check-icon" />
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-2 group-hover:text-pink-400 transition-colors">Images & Art</h3>
+              <p class="text-sm text-slate-400">AI art, image generation, photo editing</p>
             </div>
-            <h3 class="text-xl font-bold mb-2 group-hover:text-pink-400 transition-colors">Images & Art</h3>
-            <p class="text-sm text-slate-400">AI art, image generation, photo editing</p>
-          </button>
+          </label>
 
           <!-- Video Category -->
-          <button onclick="filterCategory('video')" class="category-btn group bg-slate-800/50 hover:bg-orange-500/20 border-2 border-slate-700 hover:border-orange-500 rounded-xl p-6 text-left transition-all">
-            <div class="mb-4">
-              <Icon name="video" size="xl" class="text-orange-400" />
+          <label class="category-checkbox cursor-pointer group">
+            <input type="checkbox" value="video" class="category-input hidden" onchange="toggleCategory('video')">
+            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-xl p-6 text-left transition-all group-hover:border-orange-500">
+              <div class="flex items-start justify-between mb-4">
+                <Icon name="video" size="xl" class="text-orange-400" />
+                <div class="checkbox-indicator w-6 h-6 border-2 border-slate-600 rounded flex items-center justify-center">
+                  <Icon name="check" size="xs" class="text-orange-400 hidden check-icon" />
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-2 group-hover:text-orange-400 transition-colors">Video & Animation</h3>
+              <p class="text-sm text-slate-400">Video generation, editing, effects</p>
             </div>
-            <h3 class="text-xl font-bold mb-2 group-hover:text-orange-400 transition-colors">Video & Animation</h3>
-            <p class="text-sm text-slate-400">Video generation, editing, effects</p>
-          </button>
+          </label>
         </div>
 
         <!-- Budget Filter -->
@@ -91,6 +125,22 @@ const sortedReviews = reviews.sort((a, b) => b.data.rating.overall - a.data.rati
           <button onclick="resetFilters()" class="text-sm text-slate-400 hover:text-brand transition-colors underline">
             Reset Filters
           </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Radar Chart Comparison -->
+    <section id="chart-section" class="mb-16 hidden">
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 border border-slate-700">
+        <h2 class="text-3xl font-bold mb-4 text-center">Visual Comparison</h2>
+        <p class="text-center text-slate-400 mb-8">Top tools in selected categories compared across key metrics</p>
+        
+        <div class="max-w-4xl mx-auto">
+          <canvas id="comparison-chart" class="w-full" style="max-height: 500px;"></canvas>
+        </div>
+        
+        <div class="mt-6 text-center text-sm text-slate-400">
+          <p>Scores based on overall rating, usability, quality, and pricing</p>
         </div>
       </div>
     </section>
@@ -244,6 +294,8 @@ const sortedReviews = reviews.sort((a, b) => b.data.rating.overall - a.data.rati
   </div>
 </BaseLayout>
 
+<script type="application/json" id="reviews-data" set:html={JSON.stringify(reviewsData)} />
+
 <script is:inline>
   let currentCategory = 'all';
   let currentBudget = 'all';
@@ -311,13 +363,18 @@ const sortedReviews = reviews.sort((a, b) => b.data.rating.overall - a.data.rati
 </script>
 
 <style>
-  .category-btn:hover,
+  .category-checkbox:hover > div,
   .budget-btn:hover {
     transform: translateY(-2px);
   }
   
   .sticky {
     position: sticky;
+  }
+  
+  .category-checkbox input:checked + div {
+    border-color: var(--brand-color);
+    background-color: rgba(14, 165, 233, 0.1);
   }
 </style>
 </BaseLayout>

@@ -105,8 +105,61 @@ const toolName = title.replace(' Review', '');
       </div>
     )}
 
+    <!-- Technical Deep-Dive Callout -->
+    <div class="mb-8 p-6 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl">
+      <div class="flex items-start gap-4">
+        <div class="p-3 bg-purple-500/20 rounded-lg">
+          <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold mb-2 text-white">Want to understand how this works?</h3>
+          <p class="text-sm text-slate-300 mb-4">
+            Dive into the technical architecture, algorithms, and implementation details behind {toolName}.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a href="/technical/transformer-architecture" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-lg text-sm font-semibold transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              Transformer Architecture
+            </a>
+            <a href="/technical/attention-mechanisms" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-lg text-sm font-semibold transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              Attention Mechanisms
+            </a>
+            <a href="/technical/long-context-architecture" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-lg text-sm font-semibold transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+              </svg>
+              Long-Context Models
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Content -->
-    <div class="prose-custom max-w-none">
+    <div class="prose prose-invert prose-slate max-w-none
+                prose-headings:font-bold prose-headings:text-slate-100
+                prose-h1:text-4xl prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-8 
+                prose-h3:text-2xl prose-h3:mt-10 prose-h3:mb-5
+                prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-6
+                prose-a:text-brand prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-slate-100 prose-strong:font-semibold
+                prose-code:text-purple-400 prose-code:bg-slate-900/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
+                prose-pre:bg-slate-900/80 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
+                prose-ul:text-slate-300 prose-ul:space-y-3 prose-ul:my-6 prose-ul:pl-6
+                prose-ol:text-slate-300 prose-ol:space-y-3 prose-ol:my-6
+                prose-li:text-slate-300 prose-li:leading-relaxed prose-li:pl-2
+                prose-li:marker:text-brand prose-li:marker:font-bold
+                prose-blockquote:border-brand prose-blockquote:text-slate-300
+                prose-img:rounded-xl prose-img:border prose-img:border-slate-800
+                prose-hr:border-slate-700 prose-hr:my-12">
       <Content />
     </div>
 

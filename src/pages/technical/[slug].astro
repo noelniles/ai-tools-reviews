@@ -1,0 +1,111 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import Nav from '../../components/Nav.astro'
+
+export async function getStaticPaths() {
+  const technical = await getCollection('technical')
+  return technical.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry }
+  }))
+}
+
+const { entry } = Astro.props
+const { Content } = await entry.render()
+---
+
+<BaseLayout title={entry.data.title} description={entry.data.description}>
+  <Nav />
+  
+  <article class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <header class="mb-12">
+      <div class="flex items-center gap-2 text-sm text-slate-400 mb-4">
+        <a href="/" class="hover:text-brand">Home</a>
+        <span>→</span>
+        <a href="/technical" class="hover:text-brand">Technical</a>
+        <span>→</span>
+        <span class="text-slate-300">{entry.data.title}</span>
+      </div>
+      
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+        {entry.data.title}
+      </h1>
+      
+      <p class="text-xl text-slate-300 mb-6">
+        {entry.data.description}
+      </p>
+      
+      <div class="flex flex-wrap items-center gap-4 text-sm text-slate-400">
+        {entry.data.author && (
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            {entry.data.author}
+          </div>
+        )}
+        
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          {new Date(entry.data.date).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}
+        </div>
+        
+        <div class="flex gap-2">
+          {entry.data.tags.map((tag: string) => (
+            <span class="px-2 py-1 bg-slate-800/50 border border-slate-700 rounded text-xs">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </header>
+    
+    <!-- Content -->
+    <div class="prose prose-invert prose-slate max-w-none
+                prose-headings:font-bold prose-headings:text-slate-100
+                prose-h1:text-4xl prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 
+                prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
+                prose-p:text-slate-300 prose-p:leading-relaxed
+                prose-a:text-brand prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-slate-100 prose-strong:font-semibold
+                prose-code:text-purple-400 prose-code:bg-slate-900/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
+                prose-pre:bg-slate-900/80 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
+                prose-ul:text-slate-300 prose-ol:text-slate-300
+                prose-li:marker:text-brand
+                prose-blockquote:border-brand prose-blockquote:text-slate-300
+                prose-img:rounded-xl prose-img:border prose-img:border-slate-800">
+      <Content />
+    </div>
+    
+    <!-- Related Articles -->
+    <div class="mt-16 pt-8 border-t border-slate-800">
+      <h2 class="text-2xl font-bold mb-6">Related Articles</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <a href="/technical/attention-mechanisms" class="p-6 bg-slate-900/40 border border-slate-800 rounded-xl hover:border-brand transition-colors">
+          <h3 class="font-semibold mb-2">Attention Mechanisms</h3>
+          <p class="text-sm text-slate-400">Visual guide to transformer attention</p>
+        </a>
+        <a href="/technical/long-context-architecture" class="p-6 bg-slate-900/40 border border-slate-800 rounded-xl hover:border-brand transition-colors">
+          <h3 class="font-semibold mb-2">Long-Context Architecture</h3>
+          <p class="text-sm text-slate-400">How models handle 100K+ tokens</p>
+        </a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  /* Custom code block styling */
+  :global(.astro-code) {
+    padding: 1.5rem !important;
+    border-radius: 0.75rem !important;
+  }
+</style>

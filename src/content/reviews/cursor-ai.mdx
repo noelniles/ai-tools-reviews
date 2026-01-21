@@ -73,10 +73,14 @@ Error in terminal? Cursor sees it, understands the stack trace, and suggests fix
 
 <Chart 
   type="radar"
-  data-chart-labels='["Autocomplete", "Refactoring", "Bug Fixing", "Documentation", "Testing", "Architecture"]'
-  data-chart-values='[9.5, 9.2, 8.8, 8.5, 8.3, 9.0]'
-  data-chart-max="10"
-  data-chart-label="Cursor Capability Scores"
+  title="Cursor Capability Scores (0-10)"
+  data={{
+    labels: ['Autocomplete', 'Refactoring', 'Bug Fixing', 'Documentation', 'Testing', 'Architecture'],
+    datasets: [{
+      label: 'Cursor AI',
+      data: [9.5, 9.2, 8.8, 8.5, 8.3, 9.0]
+    }]
+  }}
 />
 
 ## Real-World Performance

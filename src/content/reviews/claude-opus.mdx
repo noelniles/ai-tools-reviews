@@ -71,10 +71,14 @@ In our testing, Claude Opus consistently delivered the highest quality outputs a
 
 <Chart 
   type="radar"
-  data-chart-labels='["Writing", "Code", "Math", "Analysis", "Creativity", "Accuracy"]'
-  data-chart-values='[9.5, 9.3, 9.4, 9.6, 9.2, 9.5]'
-  data-chart-max="10"
-  data-chart-label="Claude Opus Performance"
+  title="Claude Opus Performance (0-10)"
+  data={{
+    labels: ['Writing', 'Code', 'Math', 'Analysis', 'Creativity', 'Accuracy'],
+    datasets: [{
+      label: 'Claude Opus',
+      data: [9.5, 9.3, 9.4, 9.6, 9.2, 9.5]
+    }]
+  }}
 />
 
 ## Use Cases

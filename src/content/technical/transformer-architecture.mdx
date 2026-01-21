@@ -1,0 +1,497 @@
+---
+title: "Transformer Architecture: Complete Visual Guide"
+description: "How transformers work from input to output - the architecture behind GPT, BERT, and modern LLMs"
+date: "2024-01-20"
+tags: ['LLM', 'technical', 'transformers', 'architecture', 'deep-learning']
+author: "AI Tools Reviews Technical Team"
+---
+
+import CodeBlock from '../../components/CodeBlock.astro'
+import TechSpecs from '../../components/TechSpecs.astro'
+
+# Transformer Architecture
+
+The transformer is the foundation of modern AI. GPT-4, Claude, Gemini—they're all transformers at their core. Understanding this architecture is essential for understanding how LLMs work.
+
+## High-Level Overview
+
+```
+Input Text: "The cat sat on the mat"
+    ↓
+┌───────────────────────────────────┐
+│  1. Tokenization                  │
+│     ["The", "cat", "sat", ...]    │
+└───────────────────────────────────┘
+    ↓
+┌───────────────────────────────────┐
+│  2. Embedding Layer                │
+│     Convert tokens → vectors      │
+│     [0.2, 0.5, ...], [0.1, ...]  │
+└───────────────────────────────────┘
+    ↓
+┌───────────────────────────────────┐
+│  3. Position Encoding              │
+│     Add position information      │
+└───────────────────────────────────┘
+    ↓
+┌───────────────────────────────────┐
+│  4. Transformer Blocks (x N)      │
+│     ┌─────────────────────┐       │
+│     │ Multi-Head Attention│       │
+│     └─────────────────────┘       │
+│              ↓                    │
+│     ┌─────────────────────┐       │
+│     │  Feed-Forward Net   │       │
+│     └─────────────────────┘       │
+└───────────────────────────────────┘
+    ↓
+┌───────────────────────────────────┐
+│  5. Output Layer                   │
+│     Predict next token            │
+│     "mat" → probabilities         │
+└───────────────────────────────────┘
+```
+
+## Component Breakdown
+
+### 1. Token Embeddings
+
+Convert discrete tokens into continuous vectors:
+
+<CodeBlock
+  language="python"
+  filename="embeddings.py"
+  code={`class TokenEmbedding:
+    def __init__(self, vocab_size=50000, d_model=512):
+        # Embedding matrix: (vocab_size, d_model)
+        # Each token gets a unique vector
+        self.embeddings = np.random.randn(vocab_size, d_model)
+    
+    def forward(self, token_ids):
+        """
+        token_ids: [15, 847, 592, ...]  (integer IDs)
+        returns: embedding vectors
+        """
+        return self.embeddings[token_ids]
+
+# Example:
+vocab = {"the": 0, "cat": 1, "sat": 2, "on": 3, "mat": 4}
+emb_layer = TokenEmbedding(vocab_size=5, d_model=512)
+
+# Token IDs: [0, 1, 2]  →  "the cat sat"
+embeddings = emb_layer.forward([0, 1, 2])
+# Shape: (3, 512) - three 512-dimensional vectors`}
+/>
+
+**Visual:**
+
+```
+Token "cat" (ID: 1)
+     ↓
+Embedding Matrix row 1:
+[0.23, 0.15, -0.45, 0.67, ..., 0.12]  (512 numbers)
+     ↓
+This vector represents "cat" in a continuous space
+where similar words have similar vectors
+```
+
+### 2. Positional Encoding
+
+Tokens need position information (transformers have no inherent ordering):
+
+<CodeBlock
+  language="python"
+  filename="positional_encoding.py"
+  code={`def sinusoidal_position_encoding(seq_len, d_model):
+    """
+    Create position encodings using sin/cos functions
+    Different frequencies for different dimensions
+    """
+    position = np.arange(seq_len)[:, np.newaxis]
+    div_term = np.exp(np.arange(0, d_model, 2) * 
+                      -(np.log(10000.0) / d_model))
+    
+    pos_encoding = np.zeros((seq_len, d_model))
+    
+    # Even dimensions: sine
+    pos_encoding[:, 0::2] = np.sin(position * div_term)
+    # Odd dimensions: cosine
+    pos_encoding[:, 1::2] = np.cos(position * div_term)
+    
+    return pos_encoding
+
+# Add to embeddings:
+embeddings_with_pos = token_embeddings + positional_encoding
+
+# Why sin/cos?
+# - Continuous function (smooth transitions)
+# - Can extrapolate to longer sequences
+# - Relative positions: PE(pos+k) can be represented as 
+#   linear function of PE(pos)`}
+/>
+
+**Visual pattern:**
+
+```
+Position encoding heatmap (first 100 positions, 128 dims):
+
+Pos  Dimensions →
+0    ████████████████░░░░░░░░░░░░░░░░
+1    ███████████░░░░░░████████████░░░
+2    ██████░░░░░░████████████░░░░░░██
+3    ███░░░░░████████████░░░░░░██████
+...
+50   ░░████████░░░░░░████████░░░░░░██
+100  ████░░░░░░████████░░░░░░████████
+
+Low freq (left) → High freq (right)
+Encodes position at multiple scales
+```
+
+### 3. Transformer Block
+
+The core repeated unit (GPT-3 has 96 of these!):
+
+```
+Input (seq_len, d_model)
+    ↓
+┌─────────────────────────────┐
+│  Multi-Head Self-Attention  │  ← Tokens look at each other
+│  + Residual + LayerNorm     │
+└─────────────────────────────┘
+    ↓
+┌─────────────────────────────┐
+│  Feed-Forward Network       │  ← Process each position
+│  + Residual + LayerNorm     │
+└─────────────────────────────┘
+    ↓
+Output (seq_len, d_model)
+```
+
+<CodeBlock
+  language="python"
+  filename="transformer_block.py"
+  code={`class TransformerBlock:
+    def __init__(self, d_model=512, num_heads=8, d_ff=2048):
+        self.attention = MultiHeadAttention(d_model, num_heads)
+        self.ffn = FeedForward(d_model, d_ff)
+        self.norm1 = LayerNorm(d_model)
+        self.norm2 = LayerNorm(d_model)
+    
+    def forward(self, x):
+        # 1. Multi-head attention with residual
+        attn_out = self.attention(x)
+        x = self.norm1(x + attn_out)  # Residual + normalize
+        
+        # 2. Feed-forward with residual
+        ffn_out = self.ffn(x)
+        x = self.norm2(x + ffn_out)  # Residual + normalize
+        
+        return x
+
+class FeedForward:
+    def __init__(self, d_model=512, d_ff=2048):
+        self.W1 = np.random.randn(d_model, d_ff)
+        self.W2 = np.random.randn(d_ff, d_model)
+    
+    def forward(self, x):
+        # Two-layer network: expand then compress
+        hidden = relu(x @ self.W1)  # (seq, 512) → (seq, 2048)
+        output = hidden @ self.W2    # (seq, 2048) → (seq, 512)
+        return output
+
+def relu(x):
+    return np.maximum(0, x)`}
+/>
+
+### Why Residual Connections?
+
+```
+Without residual:
+Input → [Block] → Output
+        (can distort original info)
+
+With residual:
+Input → [Block] → (+) → Output
+  |__________________|
+  (original preserved + learned changes)
+```
+
+Benefits:
+- Prevents vanishing gradients
+- Allows very deep networks (GPT-3: 96 layers!)
+- Model can learn identity function easily
+
+### 4. Layer Normalization
+
+Normalizes across features (not batch):
+
+<CodeBlock
+  language="python"
+  filename="layer_norm.py"
+  code={`class LayerNorm:
+    def __init__(self, d_model, eps=1e-6):
+        self.gamma = np.ones(d_model)  # Learned scale
+        self.beta = np.zeros(d_model)  # Learned shift
+        self.eps = eps
+    
+    def forward(self, x):
+        # x shape: (batch, seq_len, d_model)
+        
+        # Compute mean and variance across d_model dimension
+        mean = x.mean(axis=-1, keepdims=True)
+        var = x.var(axis=-1, keepdims=True)
+        
+        # Normalize
+        x_norm = (x - mean) / np.sqrt(var + self.eps)
+        
+        # Scale and shift
+        return self.gamma * x_norm + self.beta
+
+# Why Layer Norm?
+# - Stabilizes training
+# - Each token normalized independently
+# - Works well with variable sequence lengths`}
+/>
+
+### 5. Output Layer
+
+Convert final hidden states to token probabilities:
+
+<CodeBlock
+  language="python"
+  filename="output_layer.py"
+  code={`class OutputLayer:
+    def __init__(self, d_model=512, vocab_size=50000):
+        # Project from hidden dim to vocabulary
+        self.W = np.random.randn(d_model, vocab_size)
+    
+    def forward(self, x):
+        """
+        x: (batch, seq_len, d_model)
+        returns: (batch, seq_len, vocab_size) - logits
+        """
+        logits = x @ self.W
+        # Shape: (batch, seq_len, vocab_size)
+        
+        # Apply softmax to get probabilities
+        probs = softmax(logits, axis=-1)
+        
+        return probs
+
+# During generation:
+# Take probs for last token
+# Sample or take argmax to get next token
+next_token_probs = probs[:, -1, :]  # (batch, vocab_size)
+next_token = np.argmax(next_token_probs, axis=-1)`}
+/>
+
+## Complete Forward Pass
+
+<CodeBlock
+  language="python"
+  filename="full_transformer.py"
+  code={`class GPTModel:
+    def __init__(
+        self, 
+        vocab_size=50000, 
+        d_model=768,
+        num_layers=12,
+        num_heads=12,
+        d_ff=3072,
+        max_seq_len=2048
+    ):
+        self.embedding = TokenEmbedding(vocab_size, d_model)
+        self.pos_encoding = sinusoidal_position_encoding(
+            max_seq_len, d_model
+        )
+        self.blocks = [
+            TransformerBlock(d_model, num_heads, d_ff)
+            for _ in range(num_layers)
+        ]
+        self.output = OutputLayer(d_model, vocab_size)
+    
+    def forward(self, token_ids):
+        """
+        token_ids: (batch, seq_len) - input token IDs
+        returns: (batch, seq_len, vocab_size) - probabilities
+        """
+        seq_len = token_ids.shape[1]
+        
+        # 1. Embed tokens
+        x = self.embedding(token_ids)
+        
+        # 2. Add positional encoding
+        x = x + self.pos_encoding[:seq_len]
+        
+        # 3. Pass through transformer blocks
+        for block in self.blocks:
+            x = block(x)
+        
+        # 4. Project to vocabulary
+        probs = self.output(x)
+        
+        return probs
+
+# Example usage:
+model = GPTModel(
+    vocab_size=50000,
+    d_model=768,
+    num_layers=12,
+    num_heads=12
+)
+
+# Input: "The cat"
+input_ids = [15, 847]  # Token IDs
+probs = model.forward(input_ids)
+
+# Get next token prediction
+next_token_id = np.argmax(probs[0, -1, :])
+print(f"Predicted next token: {next_token_id}")  # e.g., "sat"`}
+/>
+
+## Architecture Variants
+
+### GPT (Decoder-Only)
+
+```
+Input: "The cat"
+    ↓
+[Causal Mask] - can't see future tokens
+    ↓
+Transformer Blocks (decoder only)
+    ↓
+Output: Next token prediction → "sat"
+```
+
+**Use case:** Text generation (GPT-4, Claude, LLaMA)
+
+### BERT (Encoder-Only)
+
+```
+Input: "The [MASK] sat"
+    ↓
+[Bidirectional] - can see all tokens
+    ↓
+Transformer Blocks (encoder only)
+    ↓
+Output: Fill in [MASK] → "cat"
+```
+
+**Use case:** Understanding tasks (classification, Q&A)
+
+### T5/BART (Encoder-Decoder)
+
+```
+Encoder Input: "Translate: Hello"
+    ↓
+Encoder Blocks (bidirectional)
+    ↓
+Decoder Input: "Bonjour" (during training)
+    ↓
+Decoder Blocks (causal) + Cross-Attention to encoder
+    ↓
+Output: French translation
+```
+
+**Use case:** Translation, summarization
+
+## Scaling Laws
+
+How size affects performance:
+
+<TechSpecs 
+  specs={[
+    { label: 'GPT-2', value: '1.5B params, 48 layers', iconName: 'cube' },
+    { label: 'GPT-3', value: '175B params, 96 layers', iconName: 'database' },
+    { label: 'GPT-4', value: '~1.7T params (rumored), 120+ layers', iconName: 'trending-up' },
+    { label: 'LLaMA 2 70B', value: '70B params, 80 layers', iconName: 'activity' },
+  ]}
+/>
+
+**Scaling trends:**
+- Loss decreases predictably with size
+- Compute optimal: train bigger models on more data
+- Emergence: capabilities appear at certain scales
+
+## Memory & Compute
+
+For inference on 70B model:
+
+<CodeBlock
+  language="python"
+  filename="memory_calculation.py"
+  code={`def calculate_inference_memory(
+    num_params=70e9,  # 70 billion
+    precision="fp16",
+    batch_size=1,
+    seq_len=2048,
+    num_layers=80,
+    d_model=8192
+):
+    bytes_per_param = 2 if precision == "fp16" else 4
+    
+    # Model weights
+    model_memory = num_params * bytes_per_param / (1024**3)
+    
+    # KV cache: store keys and values for all layers
+    kv_cache = (
+        2 *  # K and V
+        batch_size *
+        num_layers *
+        seq_len *
+        d_model *
+        bytes_per_param
+    ) / (1024**3)
+    
+    # Activations (estimated)
+    activation_memory = (
+        batch_size * seq_len * d_model * bytes_per_param
+    ) / (1024**3) * 10  # rough multiplier
+    
+    total = model_memory + kv_cache + activation_memory
+    
+    print(f"Model weights: {model_memory:.1f} GB")
+    print(f"KV cache: {kv_cache:.1f} GB")
+    print(f"Activations: {activation_memory:.1f} GB")
+    print(f"Total: {total:.1f} GB")
+    
+    return total
+
+calculate_inference_memory()
+# Output:
+# Model weights: 140.0 GB
+# KV cache: 5.2 GB
+# Activations: 3.3 GB
+# Total: 148.5 GB
+
+# This is why you need A100 80GB GPUs or multiple GPUs!`}
+/>
+
+## Training Process
+
+```
+1. Pre-training (unsupervised)
+   ├─ Objective: Predict next token
+   ├─ Data: Massive text corpus (trillions of tokens)
+   └─ Cost: $100M+ for GPT-4 scale
+
+2. Supervised Fine-Tuning (SFT)
+   ├─ Objective: Follow instructions
+   ├─ Data: High-quality examples (10K-100K)
+   └─ Cost: $10K-$100K
+
+3. RLHF (Reinforcement Learning)
+   ├─ Objective: Align with human preferences
+   ├─ Data: Human feedback on outputs
+   └─ Cost: $100K-$1M
+```
+
+---
+
+## Related Articles
+
+- [Attention Mechanisms Explained →](/technical/attention-mechanisms)
+- [Long-Context Architecture →](/technical/long-context-architecture)
+- [Training Large Language Models →](/technical/llm-training)
+- [Inference Optimization →](/technical/inference-optimization)

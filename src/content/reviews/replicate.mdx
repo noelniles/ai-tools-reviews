@@ -18,6 +18,7 @@ rating:
 import ProsCons from '../../components/ProsCons.astro'
 import MetricsGrid from '../../components/MetricsGrid.astro'
 import ComparisonBar from '../../components/ComparisonBar.astro'
+import Chart from '../../components/Chart.astro'
 
 Replicate is a platform for running AI models in the cloud via simple API calls. Instead of managing GPUs and dependencies, you call an API and get results. Think of it as AWS Lambda for AI models.
 
@@ -66,17 +67,35 @@ Replicate abstracts all of this away. You get:
 
 ## Popular Use Cases
 
-**Image Generation**: Run Stable Diffusion, FLUX, SDXL without managing GPUs. Generate images via simple API calls.
+### Image Generation
 
-**Image Enhancement**: Upscaling (Real-ESRGAN), background removal (RMBG), face restoration, colorization.
+Run Stable Diffusion, FLUX, SDXL without managing GPUs. Generate images via simple API calls with consistent quality.
 
-**Video Processing**: Generate videos (Runway models), interpolation, style transfer, object removal.
+### Image Enhancement
 
-**Audio**: Speech-to-text (Whisper), text-to-speech, music generation, voice cloning.
+- **Upscaling**: Real-ESRGAN for 4x resolution improvements
+- **Background removal**: RMBG for clean product photos
+- **Face restoration**: Fix old photos, improve quality
+- **Colorization**: Add color to black & white images
 
-**LLM Inference**: Run LLaMA 3, Mistral, uncensored models, fine-tuned versions without hosting.
+### Video Processing
 
-**Fine-tuning**: Train custom LoRAs, fine-tune models on your data, deploy immediately.
+Generate videos with Runway models, perform frame interpolation, apply style transfer, or remove objects from footage.
+
+### Audio Processing
+
+- **Speech-to-text**: Whisper for accurate transcription
+- **Text-to-speech**: Natural voice synthesis
+- **Music generation**: AI-composed audio
+- **Voice cloning**: Create custom voice models
+
+### LLM Inference
+
+Run open-source models like LLaMA 3, Mistral, or uncensored versions without hosting infrastructure.
+
+### Custom Fine-tuning
+
+Train LoRAs, fine-tune models on your dataset, and deploy them instantly to production.
 
 ## Developer Experience
 
@@ -100,6 +119,18 @@ That's it. No GPU setup, no dependency hell, no version conflicts. It just works
 - **Streaming support** - Get tokens/frames as generated
 - **Webhooks** - Async processing for long-running tasks
 - **Versioning** - Pin specific model versions for stability
+
+<Chart 
+  type="radar"
+  title="Replicate Platform Capabilities (0-10)"
+  data={{
+    labels: ['Ease of Use', 'Model Selection', 'Performance', 'Documentation', 'Pricing', 'Reliability'],
+    datasets: [{
+      label: 'Replicate',
+      data: [9.5, 10, 8.5, 9.0, 7.5, 9.0]
+    }]
+  }}
+/>
 
 ## Pricing Model
 
@@ -143,34 +174,63 @@ Cost-effective for moderate use. Can get expensive at scale compared to self-hos
 
 ## vs Alternatives
 
-**vs Self-Hosting**:
-- Replicate wins: Ease, scaling, no hardware cost
-- Self-hosting wins: Long-term cost at scale, full control, privacy
+### vs Self-Hosting
 
-**vs Hugging Face Inference**:
-- Replicate wins: More models, better performance, simpler API
-- HF wins: Larger community, some models only on HF
+**Replicate wins**:
+- Zero setup and maintenance
+- Automatic scaling
+- No upfront hardware costs
+- Always up-to-date models
 
-**vs Modal/Banana**:
-- Replicate wins: Easier to use, more models available
-- Modal wins: More flexibility, better for custom workflows
+**Self-hosting wins**:
+- Lower long-term costs at scale
+- Full control over infrastructure
+- Better privacy for sensitive data
+- Custom optimizations possible
+
+### vs Hugging Face Inference
+
+**Replicate wins**:
+- Larger model library (5000+)
+- Better performance and reliability
+- Simpler, more consistent API
+- Faster cold starts
+
+**Hugging Face wins**:
+- Larger community
+- Some exclusive models
+- Better for research/experimentation
+
+### vs Modal/Banana
+
+**Replicate wins**:
+- Easier to get started
+- More pre-built models available
+- Better documentation
+
+**Modal/Together AI wins**:
+- More flexibility for custom workflows
+- Better pricing for high volume
+- More control over infrastructure
 
 ## When to Use Replicate
 
-**Perfect for**:
-- MVP and prototyping AI features
-- Low to moderate volume production apps
-- Trying many different models quickly
-- Teams without ML infrastructure expertise
-- Apps with spiky/unpredictable usage
-- Running latest open-source models without setup
+### ✅ Perfect For
 
-**Not ideal for**:
-- Very high volume (millions of requests/month)
-- Latency-critical applications (under 100ms requirements)
-- Highly privacy-sensitive data
-- Custom inference optimizations needed
-- Predictable, constant high-volume workloads
+- **MVP and prototyping** - Get AI features live in hours, not weeks
+- **Low to moderate volume production** - Cost-effective up to ~100K requests/month
+- **Model experimentation** - Try dozens of models without infrastructure setup
+- **Teams without ML ops** - No need for ML infrastructure expertise
+- **Spiky usage patterns** - Pay only for what you use, scale automatically
+- **Open-source models** - Run latest LLaMA, SDXL, Whisper without hosting
+
+### ❌ Not Ideal For
+
+- **Very high volume** - Millions of requests/month get expensive
+- **Ultra-low latency** - Sub-100ms response requirements
+- **Privacy-sensitive data** - Highly confidential information
+- **Custom optimizations** - Need fine-grained inference control
+- **Predictable high volume** - Constant heavy usage cheaper to self-host
 
 ## Pro Tips
 

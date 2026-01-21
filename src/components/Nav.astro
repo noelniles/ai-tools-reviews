@@ -7,20 +7,59 @@ import Icon from './Icon.astro'
     <a href="/" class="text-xl font-bold hover:text-brand transition-colors">
       AI Tools Reviews
     </a>
-    <div class="flex gap-6 text-sm">
+    
+    <!-- Mobile menu button -->
+    <button 
+      id="mobile-menu-btn"
+      class="md:hidden p-2 hover:bg-slate-800 rounded transition-colors"
+      aria-label="Toggle menu"
+    >
+      <Icon name="menu" size="md" />
+    </button>
+    
+    <!-- Desktop menu -->
+    <div class="hidden md:flex gap-6 text-sm items-center">
       <a href="/" class="hover:text-brand transition-colors">Home</a>
-      <a href="/reviews" class="hover:text-brand transition-colors">All Reviews</a>
+      <a href="/reviews" class="hover:text-brand transition-colors">Reviews</a>
       <a href="/compare" class="hover:text-brand transition-colors">Compare</a>
       <a href="/deals" class="hover:text-brand transition-colors flex items-center gap-1.5">
         <Icon name="check-circle" size="sm" />
         Deals
       </a>
-      <a href="/resources" class="hover:text-brand transition-colors">Resources</a>
       <a href="/methodology" class="hover:text-brand transition-colors inline-flex items-center gap-1.5">
         <Icon name="beaker" size="sm" />
         Methodology
       </a>
-      <a href="/submit-review" class="px-3 py-1.5 bg-brand hover:bg-brand/80 rounded transition-colors font-semibold">Submit Review</a>
+      <a href="/submit-review" class="px-3 py-1.5 bg-brand hover:bg-brand/80 rounded transition-colors font-semibold">
+        Submit Review
+      </a>
     </div>
   </div>
+  
+  <!-- Mobile menu (hidden by default) -->
+  <div id="mobile-menu" class="hidden md:hidden mt-4 flex flex-col gap-3 text-sm">
+    <a href="/" class="hover:text-brand transition-colors py-2">Home</a>
+    <a href="/reviews" class="hover:text-brand transition-colors py-2">All Reviews</a>
+    <a href="/compare" class="hover:text-brand transition-colors py-2">Compare</a>
+    <a href="/deals" class="hover:text-brand transition-colors flex items-center gap-1.5 py-2">
+      <Icon name="check-circle" size="sm" />
+      Deals
+    </a>
+    <a href="/methodology" class="hover:text-brand transition-colors inline-flex items-center gap-1.5 py-2">
+      <Icon name="beaker" size="sm" />
+      Methodology
+    </a>
+    <a href="/submit-review" class="px-3 py-2 bg-brand hover:bg-brand/80 rounded transition-colors font-semibold text-center">
+      Submit Review
+    </a>
+  </div>
 </nav>
+
+<script>
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  
+  menuBtn?.addEventListener('click', () => {
+    mobileMenu?.classList.toggle('hidden');
+  });
+</script>
