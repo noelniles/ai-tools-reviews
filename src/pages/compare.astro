@@ -297,23 +297,70 @@ const reviewsData = sortedReviews.map(r => ({
 <script type="application/json" id="reviews-data" set:html={JSON.stringify(reviewsData)} />
 
 <script is:inline>
-  let currentCategory = 'all';
+  let selectedCategories = new Set();
   let currentBudget = 'all';
+  let comparisonChart = null;
 
-  function filterCategory(category) {
-    currentCategory = category;
+  // Reviews data from Astro
+  const reviewsData = JSON.parse(document.getElementById('reviews-data').textContent);
+
+  function toggleCategory(category) {
+    if (selectedCategories.has(category)) {
+      selectedCategories.delete(category);
+    } else {
+      selectedCategories.add(category);
+    }
+    
+    // Update UI
+    updateCategoryUI(category);
     applyFilters();
+    updateChart();
+  }
+
+  function updateCategoryUI(category) {
+    const checkbox = document.querySelector(`input[value="${category}"]`);
+    const label = checkbox.closest('.category-checkbox');
+    const checkIcon = label.querySelector('.check-icon');
+    const box = label.querySelector('.checkbox-indicator');
+    
+    if (selectedCategories.has(category)) {
+      checkIcon.classList.remove('hidden');
+      box.classList.add('bg-brand/20', 'border-brand');
+      label.querySelector('div > div').classList.add('border-brand', 'bg-brand/10');
+    } else {
+      checkIcon.classList.add('hidden');
+      box.classList.remove('bg-brand/20', 'border-brand');
+      label.querySelector('div > div').classList.remove('border-brand', 'bg-brand/10');
+    }
   }
 
   function filterBudget(budget) {
     currentBudget = budget;
     applyFilters();
+    
+    // Update budget button styles
+    document.querySelectorAll('.budget-btn').forEach(btn => {
+      btn.classList.remove('border-brand', 'bg-brand/20');
+    });
+    event.target.closest('.budget-btn').classList.add('border-brand', 'bg-brand/20');
   }
 
   function resetFilters() {
-    currentCategory = 'all';
+    selectedCategories.clear();
     currentBudget = 'all';
+    
+    // Reset UI
+    document.querySelectorAll('.category-input').forEach(input => {
+      input.checked = false;
+      updateCategoryUI(input.value);
+    });
+    
+    document.querySelectorAll('.budget-btn').forEach(btn => {
+      btn.classList.remove('border-brand', 'bg-brand/20');
+    });
+    
     applyFilters();
+    updateChart();
   }
 
   function applyFilters() {
@@ -325,27 +372,16 @@ const reviewsData = sortedReviews.map(r => ({
       
       // Map tags to categories
       const categoryMap = {
-        'ai': 'text',
-        'llm': 'text',
-        'chatbot': 'text',
-        'content writing': 'text',
-        'writing': 'text',
-        'marketing': 'text',
-        'code': 'code',
-        'coding': 'code',
-        'programming': 'code',
-        'development': 'code',
-        'image': 'image',
-        'art': 'image',
-        'photo': 'image',
-        'video': 'video',
-        'animation': 'video',
-        'voice': 'text',
-        'audio': 'text'
+        'ai': 'text', 'llm': 'text', 'chatbot': 'text',
+        'content writing': 'text', 'writing': 'text', 'marketing': 'text',
+        'code': 'code', 'coding': 'code', 'programming': 'code', 'development': 'code',
+        'image': 'image', 'art': 'image', 'photo': 'image', 'design': 'image',
+        'video': 'video', 'animation': 'video',
+        'voice': 'text', 'audio': 'text', 'transcription': 'text'
       };
       
       const mappedCategory = categoryMap[rowCategory] || rowCategory;
-      let categoryMatch = currentCategory === 'all' || mappedCategory === currentCategory;
+      let categoryMatch = selectedCategories.size === 0 || selectedCategories.has(mappedCategory);
       
       let budgetMatch = true;
       if (currentBudget === 'free') budgetMatch = rowPrice === 0;
@@ -360,6 +396,116 @@ const reviewsData = sortedReviews.map(r => ({
       }
     });
   }
+
+  function updateChart() {
+    if (selectedCategories.size === 0) {
+      document.getElementById('chart-section').classList.add('hidden');
+      return;
+    }
+    
+    document.getElementById('chart-section').classList.remove('hidden');
+    
+    // Wait for Chart.js to be loaded
+    if (typeof Chart === 'undefined') {
+      setTimeout(updateChart, 100);
+      return;
+    }
+    
+    // Get top tools for selected categories
+    const categoryMap = {
+      'ai': 'text', 'llm': 'text', 'chatbot': 'text',
+      'content writing': 'text', 'writing': 'text', 'marketing': 'text',
+      'code': 'code', 'coding': 'code', 'programming': 'code', 'development': 'code',
+      'image': 'image', 'art': 'image', 'photo': 'image', 'design': 'image',
+      'video': 'video', 'animation': 'video'
+    };
+    
+    const filteredTools = reviewsData.filter(tool => {
+      const toolCategories = tool.tags.map(tag => categoryMap[tag.toLowerCase()] || tag.toLowerCase());
+      return Array.from(selectedCategories).some(cat => toolCategories.includes(cat));
+    }).sort((a, b) => b.rating.overall - a.rating.overall).slice(0, 5);
+    
+    if (filteredTools.length === 0) {
+      document.getElementById('chart-section').classList.add('hidden');
+      return;
+    }
+    
+    const canvas = document.getElementById('comparison-chart');
+    const ctx = canvas.getContext('2d');
+    
+    // Destroy existing chart
+    if (comparisonChart) {
+      comparisonChart.destroy();
+    }
+    
+    const datasets = filteredTools.map((tool, idx) => {
+      const colors = [
+        { bg: 'rgba(14, 165, 233, 0.2)', border: 'rgb(14, 165, 233)' },
+        { bg: 'rgba(168, 85, 247, 0.2)', border: 'rgb(168, 85, 247)' },
+        { bg: 'rgba(236, 72, 153, 0.2)', border: 'rgb(236, 72, 153)' },
+        { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgb(34, 197, 94)' },
+        { bg: 'rgba(251, 146, 60, 0.2)', border: 'rgb(251, 146, 60)' }
+      ];
+      
+      return {
+        label: tool.title,
+        data: [
+          tool.rating.overall || 0,
+          tool.rating.usability || tool.rating.overall || 0,
+          tool.rating.quality || tool.rating.overall || 0,
+          tool.rating.pricing || tool.rating.overall || 0,
+          (tool.pricing && tool.pricing.hasFree ? 10 : tool.pricing && tool.pricing.startingPrice <= 20 ? 7 : 5)
+        ],
+        backgroundColor: colors[idx % 5].bg,
+        borderColor: colors[idx % 5].border,
+        borderWidth: 2
+      };
+    });
+    
+    comparisonChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['Overall Rating', 'Usability', 'Quality', 'Pricing Value', 'Affordability'],
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgb(203, 213, 225)',
+              font: { size: 14 }
+            }
+          }
+        },
+        scales: {
+          r: {
+            beginAtZero: true,
+            max: 10,
+            ticks: {
+              color: 'rgb(148, 163, 184)',
+              backdropColor: 'transparent',
+              stepSize: 2
+            },
+            grid: { color: 'rgba(148, 163, 184, 0.2)' },
+            pointLabels: { 
+              color: 'rgb(203, 213, 225)',
+              font: { size: 12 }
+            }
+          }
+        }
+      }
+    });
+  }
+  
+  // Load Chart.js immediately
+  (function loadChartJS() {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+    script.async = true;
+    document.head.appendChild(script);
+  })();
 </script>
 
 <style>
