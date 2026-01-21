@@ -1,0 +1,15 @@
+<svg width="200" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="300" fill="url(#bgGrad2)" rx="8"/>
+  <text x="100" y="70" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white" text-anchor="middle">HANDS-ON</text>
+  <text x="100" y="110" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#fbbf24" text-anchor="middle">MACHINE</text>
+  <text x="100" y="145" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#fbbf24" text-anchor="middle">LEARNING</text>
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">with Scikit-Learn,</text>
+  <text x="100" y="210" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">Keras & TensorFlow</text>
+  <text x="100" y="260" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="white" text-anchor="middle">3rd Edition</text>
+</svg>

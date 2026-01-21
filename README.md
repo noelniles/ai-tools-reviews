@@ -81,6 +81,7 @@ PUBLIC_GA_ID=G-XXXXXXXXXX  # Your Google Analytics ID
 # Forms
 PUBLIC_FORMSPREE_NEWSLETTER_ID=your-form-id
 PUBLIC_FORMSPREE_REVIEW_ID=your-form-id
+PUBLIC_FORMSPREE_SUGGESTIONS_ID=your-form-id  # For review requests from search
 
 # Optional: Privacy-focused alternatives
 PUBLIC_PLAUSIBLE_DOMAIN=yourdomain.com

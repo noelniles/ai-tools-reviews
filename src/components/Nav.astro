@@ -21,6 +21,10 @@ import Icon from './Icon.astro'
     <div class="hidden md:flex gap-6 text-sm items-center">
       <a href="/" class="hover:text-brand transition-colors">Home</a>
       <a href="/reviews" class="hover:text-brand transition-colors">Reviews</a>
+      <a href="/search" class="hover:text-brand transition-colors inline-flex items-center gap-1.5">
+        <Icon name="search" size="sm" />
+        Search
+      </a>
       <a href="/compare" class="hover:text-brand transition-colors">Compare</a>
       <a href="/deals" class="hover:text-brand transition-colors flex items-center gap-1.5">
         <Icon name="check-circle" size="sm" />
@@ -40,6 +44,10 @@ import Icon from './Icon.astro'
   <div id="mobile-menu" class="hidden md:hidden mt-4 flex flex-col gap-3 text-sm">
     <a href="/" class="hover:text-brand transition-colors py-2">Home</a>
     <a href="/reviews" class="hover:text-brand transition-colors py-2">All Reviews</a>
+    <a href="/search" class="hover:text-brand transition-colors inline-flex items-center gap-1.5 py-2">
+      <Icon name="search" size="sm" />
+      Search
+    </a>
     <a href="/compare" class="hover:text-brand transition-colors py-2">Compare</a>
     <a href="/deals" class="hover:text-brand transition-colors flex items-center gap-1.5 py-2">
       <Icon name="check-circle" size="sm" />
