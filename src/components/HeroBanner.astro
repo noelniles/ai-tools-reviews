@@ -32,8 +32,20 @@ import Icon from './Icon.astro'
           
           <p class="text-lg text-slate-300 leading-relaxed">
             Companies waste <strong class="text-purple-400">$15K-50K annually</strong> on AI tools that don't deliver. 
-            Our technical reviews help teams choose tools that actually increase revenue and productivity.
+            Our technical reviews and <strong class="text-cyan-400">open-source benchmarking tools</strong> help teams choose tools that actually increase revenue and productivity.
           </p>
+          
+          <!-- Quick Links to Tools -->
+          <div class="flex flex-wrap gap-2">
+            <a href="https://github.com/ai-tools-reviews/ai-tools-testing" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 border border-slate-600 hover:border-cyan-500/50 rounded-lg text-sm font-medium text-slate-300 hover:text-cyan-300 transition-all">
+              <Icon name="github" size="sm" />
+              Testing Suite
+            </a>
+            <a href="/technical/open-source-tools" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/60 hover:bg-slate-700/60 border border-slate-600 hover:border-purple-500/50 rounded-lg text-sm font-medium text-slate-300 hover:text-purple-300 transition-all">
+              <Icon name="beaker" size="sm" />
+              Our Benchmarks
+            </a>
+          </div>
           
           <!-- Key Stats -->
           <div class="grid grid-cols-3 gap-4 pt-4">

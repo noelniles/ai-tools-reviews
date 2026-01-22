@@ -202,6 +202,16 @@ const { Content } = await entry.render()
   :global(.token.doctype),
   :global(.token.cdata) {
     color: #6b7280 !important;
+    font-style: normal !important;
+  }
+  
+  /* Style Python docstrings (triple-quoted strings) as comments */
+  /* Override Prism's nested tokenization inside Python strings */
+  :global(.language-python .token.string),
+  :global(.language-python .token.string *),
+  :global(.language-python .token.string .token) {
+    color: #6b7280 !important;
+    font-style: normal !important;
   }
   
   :global(.token.punctuation) {

@@ -12,6 +12,10 @@ import CodeBlock from '../../components/CodeBlock.astro'
 
 Transformers have no inherent sense of order. Position encodings teach them "the" at position 1 is different from "the" at position 5.
 
+The attention mechanism is **permutation-equivariant**: shuffling input tokens produces shuffled outputs, but the model can't detect the shuffle! This is catastrophic for language, where "dog bites man" ≠ "man bites dog". Position encodings inject order information, transforming the model into a sequence processor.
+
+The evolution from sinusoidal encodings (2017) to RoPE (2021) to ALiBi (2022) represents a fascinating arc of increasingly elegant solutions to the same problem: how do we tell a model where each token is, without sacrificing the parallelism that makes transformers fast?
+
 ## The Problem
 
 Without position information:
@@ -28,7 +32,29 @@ Attention is **permutation invariant** - it treats tokens as an unordered set.
 
 ## Solution 1: Absolute Sinusoidal Encoding (Original Transformer)
 
-Add position information to embeddings:
+The original "Attention is All You Need" paper proposed adding fixed sinusoidal functions to embeddings:
+
+$$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
+
+$$PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
+
+where $pos$ is position and $i$ is dimension index. Each dimension oscillates at a different frequency, creating a unique "fingerprint" for each position.
+
+**The beautiful property**: Due to trigonometric identities, $PE_{pos+k}$ can be expressed as a linear function of $PE_{pos}$:
+
+$$PE_{pos+k} = f(PE_{pos}, k)$$
+
+This means the model can learn to attend to relative positions ("3 tokens back") even though we only provide absolute positions.
+
+**Proof of the key property**: Consider the dot product between position encodings at positions $p$ and $p+k$:
+
+$$PE_p \cdot PE_{p+k} = \sum_{i=0}^{d/2-1} \left[\sin\left(\frac{p}{\omega_i}\right)\sin\left(\frac{p+k}{\omega_i}\right) + \cos\left(\frac{p}{\omega_i}\right)\cos\left(\frac{p+k}{\omega_i}\right)\right]$$
+
+Using the trigonometric identity $\cos(a-b) = \cos(a)\cos(b) + \sin(a)\sin(b)$:
+
+$$PE_p \cdot PE_{p+k} = \sum_{i=0}^{d/2-1} \cos\left(\frac{k}{\omega_i}\right)$$
+
+Notice this depends **only on $k$** (the relative distance), not on the absolute position $p$! This is the magic that allows the model to learn relative position patterns. When computing attention scores $Q_p \cdot K_{p+k}$, the position encoding contribution naturally captures relative distance.
 
 <CodeBlock
   language="python"
@@ -131,7 +157,22 @@ Learn position embeddings like token embeddings:
 
 **Used in: LLaMA, GPT-Neo, PaLM**
 
-Apply rotation based on position:
+RoPE (Su et al., 2021) is elegant: instead of adding position to embeddings, rotate the query and key vectors by an angle proportional to their position.
+
+For a 2D subspace, the rotation matrix for position $m$ is:
+
+$$R_m = \begin{pmatrix} \cos(m\theta) & -\sin(m\theta) \\ \sin(m\theta) & \cos(m\theta) \end{pmatrix}$$
+
+**Key insight**: The dot product between rotated vectors at positions $m$ and $n$:
+
+$$q_m^T k_n = (R_m q)^T (R_n k) = q^T R_m^T R_n k = q^T R_{n-m} k$$
+
+The result depends only on the relative distance $(n-m)$! The rotation difference naturally encodes relative position.
+
+**Why this works better**:
+1. **Relative positions emerge naturally** from rotation algebra
+2. **Extrapolation**: Training on length $L$ works for length $>L$ because rotations extend smoothly
+3. **No parameters**: Unlike learned embeddings, RoPE is deterministic
 
 <CodeBlock
   language="python"
@@ -219,7 +260,18 @@ Traditional encoding:
 
 **Used in: BLOOM, MPT**
 
-Add position bias directly to attention scores:
+ALiBi (Press et al., 2022) takes a radically simple approach: don't encode positions at all. Instead, add a distance-based bias directly to attention scores:
+
+$$\text{score}_{ij} = q_i^T k_j - \lambda \cdot |i - j|$$
+
+where $\lambda$ is a head-specific slope (different heads use different slopes to capture multiple scales).
+
+**Why this is brilliant**:
+1. **No position embeddings**: Saves memory and parameters
+2. **Perfect linearity**: Distance bias is exactly linear, making extrapolation trivial
+3. **Inductive bias**: Closer tokens naturally get higher attention scores
+
+**Mathematical intuition**: The bias creates a "locality preference" - tokens far apart need stronger query-key compatibility to attend to each other. This matches linguistic intuition: nearby words are usually more related.
 
 <CodeBlock
   language="python"
@@ -363,8 +415,52 @@ def ntk_scaled_rope(position, scale=8.0):
 
 ---
 
-## Related Articles
+## Resources & Further Reading
 
-- [Attention Mechanisms →](/technical/attention-mechanisms)
-- [Transformer Architecture →](/technical/transformer-architecture)
-- [Long-Context Architecture →](/technical/long-context-architecture)
+### 📄 Foundational Papers
+
+<div class="resources-grid">
+
+**Sinusoidal Encodings**
+- <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">Attention is All You Need</a> (Vaswani et al., 2017)
+  - Original transformer paper introducing sinusoidal position encodings
+  - Section 3.5 covers the mathematical foundation
+
+**RoPE (Rotary Position Embeddings)**
+- <a href="https://arxiv.org/abs/2104.09864" target="_blank" rel="noopener noreferrer">RoFormer: Enhanced Transformer with Rotary Position Embedding</a> (Su et al., 2021)
+  - Introduces rotation-based position encoding
+  - Used in LLaMA, GPT-Neo, PaLM
+
+**ALiBi**
+- <a href="https://arxiv.org/abs/2108.12409" target="_blank" rel="noopener noreferrer">Train Short, Test Long: Attention with Linear Biases</a> (Press et al., 2022)
+  - Linear biases for better extrapolation
+  - Used in BLOOM, MPT
+
+</div>
+
+### 🔧 Implementation Resources
+
+- **Hugging Face Transformers**: <a href="https://github.com/huggingface/transformers" target="_blank" rel="noopener noreferrer">Position encoding implementations</a>
+- **LLaMA RoPE**: <a href="https://github.com/facebookresearch/llama" target="_blank" rel="noopener noreferrer">Meta's official implementation</a>
+- **Flash Attention with RoPE**: <a href="https://github.com/Dao-AILab/flash-attention" target="_blank" rel="noopener noreferrer">Optimized CUDA kernels</a>
+
+### 📚 Related Technical Guides
+
+- [Attention Mechanisms →](/technical/attention-mechanisms) - Understanding the attention computation
+- [Transformer Architecture →](/technical/transformer-architecture) - Complete architecture overview
+- [Long-Context Architecture →](/technical/long-context-architecture) - Extending to longer sequences
+- [Inference Optimization →](/technical/inference-optimization) - Making inference faster
+
+### 🔬 Advanced Topics
+
+**Context Extension**
+- <a href="https://arxiv.org/abs/2306.15595" target="_blank" rel="noopener noreferrer">Extending Context Window via RoPE Scaling</a>
+- <a href="https://www.reddit.com/r/LocalLLaMA/comments/14lz7j5/ntkaware_scaled_rope_allows_llama_models_to_have/" target="_blank" rel="noopener noreferrer">NTK-Aware Scaled RoPE</a>
+
+**Theoretical Analysis**
+- <a href="https://arxiv.org/abs/2104.03640" target="_blank" rel="noopener noreferrer">On Position Embeddings in BERT</a>
+- <a href="https://arxiv.org/abs/2203.06992" target="_blank" rel="noopener noreferrer">What Do Position Embeddings Learn?</a>
+
+---
+
+*Last updated: October 2025*

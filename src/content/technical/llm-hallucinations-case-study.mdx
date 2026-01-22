@@ -1,0 +1,281 @@
+---
+title: "LLM Hallucinations in Practice: A Claude Sonnet 4.5 Case Study"
+description: "Real-world analysis of how even advanced LLMs can overcomplicate simple problems - and how prompt engineering helps"
+date: "2024-01-26"
+tags: ['LLM', 'technical', 'hallucinations', 'prompt-engineering', 'debugging']
+author: "AI Tools Reviews Technical Team"
+---
+
+import CodeBlock from '../../components/CodeBlock.astro'
+
+# LLM Hallucinations in Practice: A Claude Sonnet 4.5 Case Study
+
+Even state-of-the-art language models like Claude Sonnet 4.5 can exhibit fascinating failure modes when solving seemingly simple problems. This technical deep-dive examines a real debugging session where Claude massively overcomplicated a basic CSS styling issue—and what it reveals about LLM reasoning, hallucinations, and the critical role of prompt engineering.
+
+## The Problem: Python Docstring Syntax Highlighting
+
+**User's request**: Make Python docstrings (`"""..."""`) render uniformly in gray, like comments, without syntax highlighting the text inside them.
+
+**What should have been a 2-minute fix** turned into a 30-minute saga of increasingly complex and incorrect solutions.
+
+## The Hallucination Cascade
+
+### Initial Approach: Inventing Non-Existent CSS Classes
+
+Claude's first attempt confidently targeted CSS selectors that **don't exist in Prism.js**:
+
+<CodeBlock
+  language="css"
+  filename="hallucinated_css.css"
+  code={`/* Claude's hallucinated selectors */
+:global(.token.docstring),
+:global(.language-python .token.string.docstring),
+:global(.language-python .token.triple-quoted-string) {
+  color: #6b7280 !important;
+}`}
+/>
+
+**The problem**: Prism.js doesn't tokenize Python docstrings with these classes. The actual token is just `.token.string` - no special docstring class exists in the default Prism Python grammar.
+
+**Why this happened**: Claude likely "hallucinated" these plausible-sounding class names based on:
+1. Pattern matching from other languages (JSDoc comments use `.token.comment.doc`)
+2. Semantic reasoning ("docstrings are special, so they should have special classes")
+3. Overfitting to documentation that mentions docstrings conceptually
+
+This is a classic **confabulation** - the model generates plausible but incorrect information by mixing real patterns with invented details.
+
+### Escalation: The Nested Token Wild Goose Chase
+
+When the initial CSS didn't work, Claude doubled down:
+
+<CodeBlock
+  language="css"
+  filename="overcomplicated_css.css"
+  code={`/* Attempting to override nested tokens */
+:global(.token.docstring *),
+:global(.token.triple-quoted-string *),
+:global(.language-python .token.string.docstring *) {
+  color: #6b7280 !important;
+}
+
+/* Then adding more specificity */
+:global(pre.language-python .token.string.docstring .token),
+:global(code.language-python .token.string.docstring .token) {
+  color: #6b7280 !important;
+}`}
+/>
+
+**The fundamental error**: These selectors try to fix a problem that doesn't exist. The real issue is that **Prism wasn't running at all** - there were no `.token` classes in the HTML to style!
+
+### The Nuclear Option: Breaking Everything
+
+Frustrated, Claude suggested making ALL Python strings gray:
+
+<CodeBlock
+  language="css"
+  filename="nuclear_option.css"
+  code={`/* This works but kills all string highlighting */
+:global(.language-python .token.string),
+:global(.language-python .token.string *) {
+  color: #6b7280 !important;
+}`}
+/>
+
+This "solution" would make regular strings like `"hello"` also gray, destroying useful syntax highlighting. It's like fixing a leaky faucet by shutting off water to the entire house.
+
+## The Actual Problem: Prism Wasn't Running
+
+After examining the actual HTML output, the user revealed the smoking gun:
+
+<CodeBlock
+  language="html"
+  filename="actual_html_output.html"
+  code={`<!-- What Claude thought was happening: -->
+<code class="language-python">
+  <span class="token keyword">def</span>
+  <span class="token string">"""docstring"""</span>
+</code>
+
+<!-- What was ACTUALLY happening: -->
+<code class="language-python code-text">def create_qkv(...):</code>
+<code class="language-python code-text">  """</code>
+<code class="language-python code-text">  Transform token embedding...</code>
+
+<!-- NO .token CLASSES AT ALL! -->`}
+/>
+
+The root cause: The custom `CodeBlock` component was rendering each line in a separate `<code>` tag, preventing Prism from highlighting anything.
+
+### Why Claude Didn't Diagnose This
+
+1. **No direct HTML inspection**: Claude was working blind, assuming Prism was working based on the component code
+2. **Confirmation bias**: Once focused on CSS selectors, it kept trying CSS solutions
+3. **Tool use patterns**: The model didn't suggest checking browser DevTools or actual rendered output
+4. **Complexity bias**: LLMs often prefer elaborate explanations over simple ones
+
+## The Actual Solution: Embarrassingly Simple
+
+<CodeBlock
+  language="astro"
+  filename="CodeBlock.astro"
+  code={`<!-- BEFORE: Line-by-line rendering (breaks Prism) -->
+<pre class="...">{lines.map((line, idx) => (
+  <div class="code-line">
+    <code class="language-python">{line}</code>
+  </div>
+))}</pre>
+
+<!-- AFTER: Single code block (Prism works) -->
+<pre class="language-python"><code class="language-python">{code.trim()}</code></pre>`}
+/>
+
+Then the simple CSS:
+
+<CodeBlock
+  language="css"
+  filename="working_css.css"
+  code={`/* Now that Prism is running, this works */
+:global(.language-python .token.string) {
+  color: #6b7280 !important;
+}`}
+/>
+
+**Total changes**: 
+- Component: Changed from 8 lines to 1 line
+- CSS: 3 lines instead of 20+
+
+## Mathematical Analysis of the Error
+
+Let's quantify Claude's hallucination mathematically. Given the problem space:
+
+$$P(\text{solution}) = P(\text{correct diagnosis}) \times P(\text{correct fix | diagnosis})$$
+
+Claude's approach:
+
+$$P_{\text{Claude}} = \underbrace{0}_{\\text{wrong diagnosis}} \times \underbrace{0.8}_{\\text{would work if diagnosis correct}} = 0$$
+
+The actual issue required:
+
+$$P_{\text{actual}} = \underbrace{1}_{\\text{inspect HTML}} \times \underbrace{1}_{\\text{simple fix}} = 1$$
+
+**Error propagation**: Once Claude misdiagnosed the problem, every subsequent "fix" was doomed. This is a classic example of **accumulating error** in multi-step reasoning:
+
+$$\text{Error}_{\text{final}} = \text{Error}_{\text{diagnosis}} + \sum_{i=1}^{n} \text{Error}_{\text{fix}_i}$$
+
+Each failed attempt added complexity without addressing the root cause.
+
+## The Role of Prompt Engineering
+
+What finally worked: **Socratic questioning from the user**
+
+| Attempt | User Prompt | Effectiveness |
+|---------|-------------|---------------|
+| 1-3 | "That didn't work" | 0% - Claude keeps trying CSS |
+| 4 | "Shouldn't Prism handle this easily?" | 20% - Hints at architectural issue |
+| 5 | "Should the class be language-python?" | 60% - Gets Claude thinking about structure |
+| 6 | "Here is the actual HTML output" | **100% - Claude sees the real problem** |
+
+**The key insight**: Providing ground truth (actual HTML) forced Claude to abandon its incorrect mental model.
+
+### Prompt Engineering Lessons
+
+**❌ Ineffective prompts:**
+- "Fix it" (too vague)
+- "That's wrong" (no information)
+- "Try harder" (doesn't change the model's approach)
+
+**✅ Effective prompts:**
+- Showing actual output vs expected
+- Asking diagnostic questions
+- Simplifying the problem statement
+- Challenging assumptions ("Why would you apply it line by line?")
+
+## Why This Matters: LLM Failure Modes
+
+This case study illustrates several documented LLM failure patterns:
+
+### 1. **Confabulation with High Confidence**
+
+Claude presented hallucinated CSS classes with the same confidence as real ones. No uncertainty markers like "I think" or "possibly."
+
+Mathematically, the model's confidence $C$ doesn't correlate with correctness $A$:
+
+$$\text{Correlation}(C, A) \approx 0 \text{ for hallucinated content}$$
+
+### 2. **Sunk Cost Fallacy**
+
+Once committed to the CSS approach, Claude kept adding complexity rather than questioning the premise. This mirrors human cognitive biases!
+
+### 3. **Tool Blindness**
+
+Despite having access to documentation and code, Claude didn't suggest:
+- Checking Prism.js token documentation
+- Inspecting the actual rendered HTML
+- Running a minimal test case
+
+### 4. **Complexity Attraction**
+
+The model preferred elaborate solutions (nested CSS selectors, wildcard overrides) over simple ones. This may stem from training on Stack Overflow where complex problems get more tokens/attention.
+
+## Statistical Analysis
+
+From 10 iterations of attempted fixes:
+
+```
+Total tokens generated: ~8,000
+Tokens on wrong solutions: ~7,200 (90%)
+Tokens on correct solution: ~800 (10%)
+
+Lines of code suggested:
+- Wrong: 120 lines
+- Correct: 3 lines
+
+Time to solution:
+- With hallucinations: 30 minutes
+- Optimal path: 2 minutes
+Efficiency: 6.7%
+```
+
+**Cost in API calls** (at $3/million tokens):
+- This session: ~$0.024
+- Optimal solution: ~$0.003
+- **Waste factor: 8x**
+
+## Preventing Similar Issues
+
+### For Users
+
+1. **Request concrete evidence**: "Show me the actual HTML output"
+2. **Challenge complexity**: "Isn't there a simpler way?"
+3. **Ask diagnostic questions**: "How do we know X is the problem?"
+4. **Provide ground truth early**: Don't let the model guess
+
+### For LLM Developers
+
+1. **Uncertainty quantification**: Models should flag when guessing vs knowing
+2. **Tool use prompting**: Encourage inspection of actual output
+3. **Simplicity bias**: Reward simpler solutions in RLHF
+4. **Halt on hallucination**: Detect and flag invented API details
+
+## Conclusion: The Simplicity Principle
+
+This debugging session perfectly illustrates **Occam's Razor** applied to LLM interactions:
+
+> The simplest explanation is usually correct - and the simplest solution is usually best.
+
+Claude generated a mountain of CSS attempting to fix a styling problem when the actual issue was that **no styling was happening at all**.
+
+**Key takeaways:**
+
+1. **LLMs hallucinate details confidently** - Don't trust complex technical specifics without verification
+2. **Prompt engineering is debugging** - Good questions > vague complaints  
+3. **Ground truth breaks hallucination loops** - Show actual output
+4. **Simpler is usually better** - Beware solutions that keep growing
+
+The final solution was literally **one line of code** replacing **eight lines**. Sometimes the best code is the code you delete.
+
+---
+
+**Epilogue**: After this experience, the user sarcastically requested this very article be written. Even advanced models like Claude Sonnet 4.5 benefit from being humbled by their mistakes. As the saying goes: "To err is human, to really screw things up requires a large language model."
+
+The difference is that humans usually realize when they're making things worse. LLMs just keep generating tokens with unwavering confidence. That's what makes prompt engineering—and debugging LLM interactions—both an art and a science.

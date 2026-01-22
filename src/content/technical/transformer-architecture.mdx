@@ -13,6 +13,14 @@ import TechSpecs from '../../components/TechSpecs.astro'
 
 The transformer is the foundation of modern AI. GPT-4, Claude, Gemini—they're all transformers at their core. Understanding this architecture is essential for understanding how LLMs work.
 
+Introduced in the seminal 2017 paper "Attention is All You Need" by Vaswani et al., the transformer architecture revolutionized natural language processing by replacing recurrent neural networks (RNNs) with a pure attention-based mechanism. The key insight? Instead of processing text sequentially (word by word), transformers can attend to all positions simultaneously through **self-attention**, enabling massive parallelization during training.
+
+This parallel processing capability is why we can train models on trillions of tokens—something impossible with sequential architectures like LSTMs. But the real magic lies in how attention allows each token to dynamically gather information from every other token in the sequence, creating rich contextual representations.
+
+**The computational breakthrough**: RNNs require $O(n)$ sequential steps for a sequence of length $n$, making parallelization impossible. Transformers reduce this to $O(1)$ sequential steps—all tokens are processed simultaneously. This is the difference between training GPT-4 in 3 months versus 30 years.
+
+However, this parallelism comes at a cost: $O(n^2)$ memory and compute for attention. The entire field of efficient transformers (Linformer, Performer, FlashAttention) is dedicated to taming this quadratic beast while preserving the architectural elegance.
+
 ## High-Level Overview
 
 ```
@@ -56,7 +64,15 @@ Input Text: "The cat sat on the mat"
 
 ### 1. Token Embeddings
 
-Convert discrete tokens into continuous vectors:
+The first step transforms discrete tokens (words or subwords) into continuous vector representations. Think of this as mapping each word to a point in a high-dimensional space where semantic similarity corresponds to geometric proximity.
+
+Mathematically, we maintain an embedding matrix $E \in \mathbb{R}^{V \times d_{\text{model}}}$ where $V$ is the vocabulary size and $d_{\text{model}}$ is the embedding dimension. For a token with ID $t$, we simply look up row $t$:
+
+$$\text{embed}(t) = E[t] \in \mathbb{R}^{d_{\text{model}}}$$
+
+For a sequence of tokens $[t_1, t_2, ..., t_n]$, we get a matrix $X \in \mathbb{R}^{n \times d_{\text{model}}}$ where each row is an embedding vector.
+
+**Why continuous representations?** Neural networks need gradients to learn, which require continuous (differentiable) inputs. These embeddings are learned during training—words with similar meanings naturally cluster together through backpropagation.
 
 <CodeBlock
   language="python"
@@ -97,7 +113,22 @@ where similar words have similar vectors
 
 ### 2. Positional Encoding
 
-Tokens need position information (transformers have no inherent ordering):
+Here's the problem: unlike RNNs that process sequences left-to-right, transformers see all tokens simultaneously. Without position information, "dog bites man" and "man bites dog" would be indistinguishable!
+
+We inject positional information by adding a positional encoding to each embedding. The original transformer uses sinusoidal functions:
+
+$$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
+
+$$PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
+
+where $pos$ is the position and $i$ is the dimension. This creates a unique encoding for each position using different frequencies.
+
+**Why sin/cos?** Multiple brilliant reasons:
+1. **Continuous**: Smooth function allows the model to interpolate for unseen positions
+2. **Relative positioning**: Due to trigonometric identities, $PE_{pos+k}$ can be expressed as a linear function of $PE_{pos}$, helping the model learn relative distances
+3. **Extrapolation**: Can handle sequences longer than those seen during training
+
+The final input to the transformer is: $X_{\text{input}} = X_{\text{embed}} + X_{\text{pos}}$
 
 <CodeBlock
   language="python"
@@ -148,9 +179,31 @@ Low freq (left) → High freq (right)
 Encodes position at multiple scales
 ```
 
-### 3. Transformer Block
+### 3. Transformer Block: The Core Engine
 
-The core repeated unit (GPT-3 has 96 of these!):
+The transformer block is where the magic happens—this is the repeating unit stacked $N$ times (GPT-3 uses 96!). Each block has two main sub-components:
+
+1. **Multi-Head Self-Attention**: Allows tokens to gather context from other tokens
+2. **Feed-Forward Network**: Processes each position independently
+
+Both use **residual connections** and **layer normalization** for training stability. The residual connections create "skip paths" that help gradients flow through deep networks without vanishing.
+
+**Mathematical formulation** of a transformer block:
+
+$$\begin{align*}
+\text{Step 1: } & Z = \text{LayerNorm}(X + \text{MultiHeadAttention}(X)) \\
+\text{Step 2: } & \text{Output} = \text{LayerNorm}(Z + \text{FFN}(Z))
+\end{align*}$$
+
+The residual connections ($+$ operations) are critical. Without them, gradients vanish in deep networks:
+
+$$\frac{\partial \mathcal{L}}{\partial X} = \frac{\partial \mathcal{L}}{\partial \text{Output}} \cdot \underbrace{\frac{\partial \text{FFN}}{\partial Z}}_{\text{can be small}} \cdot \underbrace{\frac{\partial \text{Attn}}{\partial X}}_{\text{can be small}}$$
+
+With residuals, we get an additional gradient path:
+
+$$\frac{\partial \mathcal{L}}{\partial X} = \frac{\partial \mathcal{L}}{\partial \text{Output}} \cdot \underbrace{1}_{\text{from residual}} + \frac{\partial \mathcal{L}}{\partial \text{Output}} \cdot \frac{\partial \text{Functions}}{\partial X}$$
+
+The "1" ensures gradients always flow, even if the function path vanishes. This is why we can train 96-layer models!
 
 ```
 Input (seq_len, d_model)
@@ -217,14 +270,40 @@ Input → [Block] → (+) → Output
   (original preserved + learned changes)
 ```
 
+Residual connections solve a fundamental problem in deep learning: as networks get deeper, gradients either vanish (approach zero) or explode during backpropagation. The residual formulation:
+
+$$x_{\text{out}} = x_{\text{in}} + F(x_{\text{in}})$$
+
+where $F$ is the block's transformation, creates a direct gradient pathway. During backpropagation:
+
+$$\frac{\partial L}{\partial x_{\text{in}}} = \frac{\partial L}{\partial x_{\text{out}}} \cdot \left(1 + \frac{\partial F}{\partial x_{\text{in}}}\right)$$
+
+The "$+1$" term ensures gradients can flow directly backward even if $\frac{\partial F}{\partial x_{\text{in}}}$ is very small. This enables training of 96+ layer networks!
+
 Benefits:
-- Prevents vanishing gradients
-- Allows very deep networks (GPT-3: 96 layers!)
-- Model can learn identity function easily
+- **Prevents vanishing gradients**: The $+1$ term guarantees gradient flow
+- **Easier optimization**: Model can learn identity (do nothing) by setting $F(x) \approx 0$
+- **Allows very deep networks**: GPT-3 has 96 layers, GPT-4 likely has 120+
 
-### 4. Layer Normalization
+### 4. Layer Normalization: Stabilizing Training
 
-Normalizes across features (not batch):
+Layer normalization standardizes the inputs to each layer, dramatically stabilizing training dynamics. Unlike batch normalization (which normalizes across the batch dimension), layer norm normalizes across the feature dimension.
+
+For an input $x \in \mathbb{R}^{d_{\text{model}}}$, layer norm computes:
+
+$$\text{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} + \beta$$
+
+where:
+- $\mu = \frac{1}{d_{\text{model}}} \sum_{i=1}^{d_{\text{model}}} x_i$ is the mean
+- $\sigma^2 = \frac{1}{d_{\text{model}}} \sum_{i=1}^{d_{\text{model}}} (x_i - \mu)^2$ is the variance
+- $\gamma, \beta \in \mathbb{R}^{d_{\text{model}}}$ are learned scale and shift parameters
+- $\epsilon$ is a small constant (e.g., $10^{-6}$) for numerical stability
+- $\odot$ denotes element-wise multiplication
+
+**Why layer norm over batch norm?**
+1. **Sequence length independence**: Works with variable-length sequences
+2. **Batch size independence**: Each example normalized independently
+3. **Better for transformers**: Normalizes the representation of each token independently
 
 <CodeBlock
   language="python"
@@ -254,9 +333,26 @@ Normalizes across features (not batch):
 # - Works well with variable sequence lengths`}
 />
 
-### 5. Output Layer
+### 5. Output Layer: From Hidden States to Predictions
 
-Convert final hidden states to token probabilities:
+The final layer projects the model's hidden representations back to vocabulary space, producing logits for each possible next token.
+
+Given the final hidden state $h \in \mathbb{R}^{d_{\text{model}}}$, we compute:
+
+$$\text{logits} = hW^{\text{out}} \quad \text{where } W^{\text{out}} \in \mathbb{R}^{d_{\text{model}} \times V}$$
+
+Then apply softmax to get probabilities:
+
+$$P(\text{token}_i | \text{context}) = \frac{\exp(\text{logit}_i)}{\sum_{j=1}^V \exp(\text{logit}_j)}$$
+
+This gives a probability distribution over the entire vocabulary. During **generation**, we sample from this distribution (or take argmax for greedy decoding):
+
+$$\text{next\_token} = \arg\max_i P(\text{token}_i | \text{context})$$
+
+**Temperature sampling**: We can control randomness by dividing logits by temperature $T$ before softmax:
+- $T > 1$: More random (flatter distribution)
+- $T < 1$: More confident (peakier distribution)
+- $T = 0$: Greedy (always pick most likely)
 
 <CodeBlock
   language="python"
@@ -396,9 +492,23 @@ Output: French translation
 
 **Use case:** Translation, summarization
 
-## Scaling Laws
+## Scaling Laws: The Power of Scale
 
-How size affects performance:
+One of the most remarkable discoveries in modern AI is the predictability of scaling. Performance improves as a power law with model size, dataset size, and compute budget.
+
+**The Chinchilla Scaling Law** (Hoffmann et al., 2022) found that for compute-optimal training:
+
+$$N_{\text{params}} \propto C^{0.5} \quad \text{and} \quad D_{\text{tokens}} \propto C^{0.5}$$
+
+where $C$ is compute budget (in FLOPs), $N_{\text{params}}$ is model size, and $D_{\text{tokens}}$ is dataset size.
+
+**Key insight**: Most models are undertrained! To optimally use compute, scale data and parameters equally. For a 70B parameter model, you should train on ~1.4 trillion tokens (not the ~300B GPT-3 used).
+
+**Loss scaling**: Test loss decreases predictably:
+
+$$L(N) = \left(\frac{N_c}{N}\right)^{\alpha}$$
+
+where $\alpha \approx 0.076$ for language modeling. This means doubling model size gives a ~5% reduction in loss.
 
 <TechSpecs 
   specs={[
@@ -489,9 +599,66 @@ calculate_inference_memory()
 
 ---
 
-## Related Articles
+---
 
-- [Attention Mechanisms Explained →](/technical/attention-mechanisms)
-- [Long-Context Architecture →](/technical/long-context-architecture)
-- [Training Large Language Models →](/technical/llm-training)
-- [Inference Optimization →](/technical/inference-optimization)
+## Resources & Further Reading
+
+### 📄 Foundational Papers
+
+<div class="resources-grid">
+
+**The Original Paper**
+- <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">Attention is All You Need</a> (Vaswani et al., 2017)
+  - The paper that started it all - introduces the transformer architecture
+  - Must-read for understanding modern LLMs
+
+**Scaling Laws**
+- <a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Scaling Laws for Neural Language Models</a> (Kaplan et al., 2020)
+  - How performance scales with model size, data, and compute
+- <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Training Compute-Optimal LLMs</a> (Hoffmann et al., 2022)
+  - Chinchilla paper showing most models are undertrained
+
+**Architecture Improvements**
+- <a href="https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" target="_blank" rel="noopener noreferrer">GPT-2: Language Models are Unsupervised Multitask Learners</a>
+- <a href="https://arxiv.org/abs/2005.14165" target="_blank" rel="noopener noreferrer">GPT-3: Language Models are Few-Shot Learners</a>
+- <a href="https://arxiv.org/abs/2302.13971" target="_blank" rel="noopener noreferrer">LLaMA: Open and Efficient Foundation Models</a>
+
+</div>
+
+### 🔧 Implementation Resources
+
+- **The Annotated Transformer**: <a href="http://nlp.seas.harvard.edu/annotated-transformer/" target="_blank" rel="noopener noreferrer">Harvard NLP's line-by-line guide</a>
+- **Hugging Face Transformers**: <a href="https://github.com/huggingface/transformers" target="_blank" rel="noopener noreferrer">Production-ready implementations</a>
+- **nanoGPT**: <a href="https://github.com/karpathy/nanoGPT" target="_blank" rel="noopener noreferrer">Minimal GPT implementation by Karpathy</a>
+- **PyTorch Transformer Tutorial**: [Official PyTorch guide](https://pytorch.org/tutorials/beginner/transformer_tutorial.html)
+
+### 📚 Related Technical Guides
+
+- [Attention Mechanisms Explained →](/technical/attention-mechanisms) - Deep dive into self-attention
+- [Position Encodings →](/technical/position-encodings) - How transformers understand order
+- [Long-Context Architecture →](/technical/long-context-architecture) - Extending to longer sequences
+- [Training Large Language Models →](/technical/llm-training) - How to train transformers at scale
+- [Inference Optimization →](/technical/inference-optimization) - Making transformers faster
+- [KV Cache Optimization →](/technical/kv-cache-optimization) - Memory management for generation
+
+### 🎓 Educational Content
+
+**Video Lectures**
+- [Stanford CS324: Large Language Models](https://stanford-cs324.github.io/winter2022/)
+- [Andrej Karpathy: Let's build GPT](https://www.youtube.com/watch?v=kCc8FmEb1nY)
+- [3Blue1Brown: Transformers Visualized](https://www.youtube.com/watch?v=wjZofJX0v4M)
+
+**Interactive Tools**
+- [Transformer Explainer](https://poloclub.github.io/transformer-explainer/)
+- [LLM Visualization](https://bbycroft.net/llm)
+- [The Illustrated Transformer](http://jalammar.github.io/illustrated-transformer/)
+
+### 🔬 Advanced Topics
+
+- [FlashAttention](https://arxiv.org/abs/2205.14135) - IO-aware exact attention
+- [Mixture of Experts](https://arxiv.org/abs/2101.03961) - Scaling with sparsity
+- [Grouped Query Attention](https://arxiv.org/abs/2305.13245) - Efficient multi-head attention
+
+---
+
+*Last updated: August 2025*

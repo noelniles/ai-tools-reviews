@@ -178,6 +178,174 @@ import Nav from '../components/Nav.astro';
       </section>
 
       <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">Technical Testing Infrastructure</h2>
+        
+        <p class="text-slate-300 leading-relaxed mb-6">
+          Beyond hands-on usage, we've built custom testing infrastructure to measure AI tool performance objectively and reproducibly. Our testing suite is <strong class="text-slate-100">open-source</strong> and available on GitHub for transparency and community contribution. See our <a href="/technical/open-source-tools" class="text-brand hover:underline">complete tools documentation</a> for details.
+        </p>
+
+        <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-6 mb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <svg class="w-6 h-6 text-brand" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+            <div>
+              <h3 class="text-xl font-semibold text-slate-100">Open-Source Testing Tools</h3>
+              <a href="https://github.com/ai-tools-reviews/ai-tools-testing" target="_blank" rel="noopener" class="text-brand hover:underline text-sm">
+                github.com/ai-tools-reviews/ai-tools-testing →
+              </a>
+            </div>
+          </div>
+          <p class="text-sm text-slate-400">
+            Our complete benchmark suite, evaluation scripts, and analysis tools are publicly available. Run the same tests we do, verify our results, or contribute improvements.
+          </p>
+        </div>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-8">Automated Benchmark Suite</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          We've developed automated testing frameworks for each AI category:
+        </p>
+
+        <div class="space-y-4 mb-6">
+          <div class="bg-slate-900/40 border border-slate-800 rounded-lg p-4">
+            <h4 class="font-semibold text-slate-100 mb-2">Language Model Benchmarks</h4>
+            <ul class="text-sm text-slate-300 space-y-1 ml-4">
+              <li>• <strong>MMLU</strong> (Massive Multitask Language Understanding): 57 subjects, 14,000+ questions</li>
+              <li>• <strong>HumanEval</strong>: Code generation on 164 programming problems</li>
+              <li>• <strong>TruthfulQA</strong>: 817 questions testing factual accuracy and hallucination resistance</li>
+              <li>• <strong>GSM8K</strong>: 8,500 grade school math problems</li>
+              <li>• <strong>MATH</strong>: 12,500 competition-level mathematics problems</li>
+              <li>• <strong>Custom prompts</strong>: 500+ domain-specific tests (legal, medical, creative writing, etc.)</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-900/40 border border-slate-800 rounded-lg p-4">
+            <h4 class="font-semibold text-slate-100 mb-2">Image Generation Metrics</h4>
+            <ul class="text-sm text-slate-300 space-y-1 ml-4">
+              <li>• <strong>CLIP Score</strong>: Automated prompt-image alignment measurement</li>
+              <li>• <strong>Aesthetic Score</strong>: ML-based quality assessment trained on human preferences</li>
+              <li>• <strong>FID</strong> (Fréchet Inception Distance): Distribution similarity to real images</li>
+              <li>• <strong>Human eval</strong>: Blind A/B testing with 50+ evaluators per tool</li>
+              <li>• <strong>Artifact detection</strong>: Automated detection of common failure modes (deformed hands, text errors, etc.)</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-900/40 border border-slate-800 rounded-lg p-4">
+            <h4 class="font-semibold text-slate-100 mb-2">Code Assistant Testing</h4>
+            <ul class="text-sm text-slate-300 space-y-1 ml-4">
+              <li>• <strong>MultiPL-E</strong>: Code generation across 18 programming languages</li>
+              <li>• <strong>SWE-bench</strong>: Real-world GitHub issues from 12 popular Python repos</li>
+              <li>• <strong>Code completion accuracy</strong>: Next-token prediction on 10,000+ real codebases</li>
+              <li>• <strong>Security analysis</strong>: Detection of vulnerable code patterns (SQL injection, XSS, etc.)</li>
+              <li>• <strong>Context understanding</strong>: Multi-file reasoning tasks</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-8">Performance Monitoring</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          We continuously monitor tools for performance degradation and capability drift:
+        </p>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300 mb-4">
+          <li><strong class="text-slate-100">Weekly regression testing</strong> on a subset of benchmarks</li>
+          <li><strong class="text-slate-100">Latency tracking</strong> across different times of day and server loads</li>
+          <li><strong class="text-slate-100">Cost monitoring</strong> as pricing and token limits change</li>
+          <li><strong class="text-slate-100">Uptime measurement</strong> via automated health checks</li>
+        </ul>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-8">AI Detection & Analysis Tools</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          We've built specialized tools for analyzing AI-generated content:
+        </p>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300 mb-4">
+          <li><strong class="text-slate-100">Watermark detection</strong>: Identify embedded signals in text and images</li>
+          <li><strong class="text-slate-100">Style fingerprinting</strong>: Statistical analysis to detect AI vs human patterns</li>
+          <li><strong class="text-slate-100">Hallucination trackers</strong>: Automatic fact-checking against knowledge bases</li>
+          <li><strong class="text-slate-100">Bias measurement</strong>: Demographic and political bias quantification</li>
+        </ul>
+
+        <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mt-6">
+          <p class="text-sm text-slate-300">
+            <strong class="text-blue-400">Contribute to our tools:</strong> Found a bug? Have ideas for new benchmarks? Our testing infrastructure is open to community contributions. Submit issues or PRs on <a href="https://github.com/ai-tools-reviews/ai-tools-testing" target="_blank" rel="noopener" class="text-brand hover:underline">GitHub</a>.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">Statistical Analysis & Data Science</h2>
+        
+        <p class="text-slate-300 leading-relaxed mb-6">
+          Raw benchmark scores don't tell the whole story. We apply rigorous statistical methods to ensure our ratings are reliable and meaningful.
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Confidence Intervals</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          Every quantitative metric includes 95% confidence intervals. We run each test multiple times to account for variance in model outputs (especially for creative tasks with temperature > 0).
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Normalization & Weighting</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          Different benchmarks have different scales and difficulty levels. We normalize scores across benchmarks and apply domain-expert-validated weights to create composite scores that reflect real-world priorities.
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">A/B Testing Protocol</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          For subjective evaluations (image quality, writing style, etc.), we conduct blind A/B tests with diverse evaluator pools. Statistical significance is required before declaring one tool superior to another.
+        </p>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Reproducibility</h3>
+        <p class="text-slate-300 leading-relaxed mb-4">
+          All our test prompts, scripts, and raw data are version-controlled. Anyone can reproduce our benchmarks and verify our conclusions. We publish:
+        </p>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300 mb-4">
+          <li>Exact prompts and system messages used</li>
+          <li>Model parameters (temperature, top-p, max tokens, etc.)</li>
+          <li>Timestamp and model version tested</li>
+          <li>Raw output samples and evaluation criteria</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">Specialized Testing by Category</h2>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Conversational AI</h3>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300 mb-6">
+          <li>Multi-turn coherence over 20+ message conversations</li>
+          <li>Context window stress testing (up to 200K tokens)</li>
+          <li>Instruction following accuracy across diverse tasks</li>
+          <li>Safety and refusal behavior on harmful requests</li>
+          <li>Personality consistency and tone control</li>
+        </ul>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Code Assistants</h3>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300 mb-6">
+          <li>IDE integration quality and latency</li>
+          <li>Multi-file refactoring capabilities</li>
+          <li>Bug detection and fixing accuracy</li>
+          <li>Documentation generation quality</li>
+          <li>Support for legacy/uncommon languages</li>
+        </ul>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Image & Video AI</h3>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300 mb-6">
+          <li>Photorealism vs stylized art quality</li>
+          <li>Text rendering capabilities</li>
+          <li>Character consistency across generations</li>
+          <li>Editing and inpainting precision</li>
+          <li>Video motion smoothness and coherence</li>
+        </ul>
+
+        <h3 class="text-2xl font-semibold mb-3 mt-6">Voice & Audio</h3>
+        <ul class="list-disc ml-6 space-y-2 text-slate-300 mb-6">
+          <li>Voice cloning accuracy and naturalness</li>
+          <li>Transcription accuracy (WER metric) across accents</li>
+          <li>Real-time processing latency</li>
+          <li>Background noise handling</li>
+          <li>Emotion and prosody control</li>
+        </ul>
+      </section>
+
+      <section>
         <h2 class="text-3xl font-bold mb-4 pb-3 border-b border-slate-800 mt-12">Transparency & Ethics</h2>
         
         <h3 class="text-2xl font-semibold mb-3 mt-6">Affiliate Relationships</h3>

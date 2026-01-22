@@ -13,6 +13,24 @@ import TechSpecs from '../../components/TechSpecs.astro'
 
 Running a 70B parameter model costs thousands per month. These optimizations can reduce that 10x while maintaining quality.
 
+**The economics are brutal**: At commercial scale, every millisecond of latency costs money. If your model serves 1M requests/day with an average latency of 2 seconds per request, that's **2 million GPU-seconds** per day. On an A100 ($3/hour), that's approximately:
+
+$$\text{Daily cost} = \frac{2,000,000 \text{ GPU-sec}}{3600 \text{ sec/hour}} \times \$3/\text{hour} \approx \$1,667/\text{day}$$
+
+Or about **$50,000/month** just for inference compute. Cut latency in half through optimization, and you save $25K/month. These optimizations aren't academic—they're the difference between a profitable and unprofitable AI business.
+
+**The latency breakdown** for a typical 70B model generating 100 tokens:
+
+```
+Prompt processing (prefill):     200ms  (20%)   ← Parallelizable
+First token generation:          100ms  (10%)   ← Serial bottleneck  
+Remaining 99 tokens:             700ms  (70%)   ← Auto-regressive
+                                 ------
+Total:                          1000ms (100%)
+```
+
+The key insight: **token generation is memory-bandwidth bound**, not compute-bound. Loading 140GB of weights from GPU memory 100 times dominates the cost. Quantization, batching, and speculative decoding all attack this bottleneck from different angles.
+
 ## The Inference Cost Problem
 
 ```
@@ -33,9 +51,31 @@ Goal: Optimize to run on cheaper hardware
 
 ## Optimization Techniques
 
-### 1. Quantization
+### 1. Quantization: Trading Precision for Speed
 
-Reduce precision from FP16 to INT8/INT4:
+Reduce precision from FP16 to INT8/INT4. The core idea: most weights don't need 16 bits of precision.
+
+**Mathematical foundation**: Quantization maps floating-point values to integers using an affine transformation:
+
+$$x_{\text{int}} = \text{round}\left(\frac{x_{\text{float}} - z}{s}\right)$$
+
+where:
+- $s$ is the **scale factor** (step size between quantized values)
+- $z$ is the **zero point** (which float value maps to 0)
+
+Dequantization recovers the approximate value:
+
+$$\hat{x}_{\text{float}} = s \cdot x_{\text{int}} + z$$
+
+The quantization error is:
+
+$$\epsilon = x_{\text{float}} - \hat{x}_{\text{float}} \in \left[-\frac{s}{2}, \frac{s}{2}\right]$$
+
+For INT8 (256 levels) quantizing a range $[w_{\min}, w_{\max}]$:
+
+$$s = \frac{w_{\max} - w_{\min}}{255}$$
+
+**The magic**: Neural networks are remarkably robust to this quantization noise! Experiments show that INT8 quantization (256 levels instead of 65,536) causes only 1-2% accuracy loss for most LLMs. Why? The model learns to tolerate noise during training, and quantization error acts like regularization.
 
 <CodeBlock
   language="python"
@@ -161,9 +201,45 @@ for _ in range(100):  # Generate 100 tokens
 # 10-100x faster generation`}
 />
 
-### 3. Batch Processing
+### 3. Batch Processing: Amortizing the Cost
 
-Process multiple requests simultaneously:
+Process multiple requests simultaneously to maximize GPU utilization. The key insight: **loading model weights from memory dominates the cost**, so amortize it across multiple examples.
+
+**The economics**: For a 70B model in FP16:
+- Model weights: 140 GB
+- A100 memory bandwidth: 1,935 GB/s
+- Time to load weights: $\frac{140 \text{ GB}}{1.935 \text{ GB/s}} \approx 72\text{ ms}$
+
+For a single token:
+- Compute: ~1 ms (matrix multiplication)
+- Memory transfer: 72 ms (loading weights)
+- **Utilization: 1/73 = 1.4%** ← Terrible!
+
+With batch size $B$:
+- Load weights once: 72 ms
+- Compute for $B$ examples: $B$ ms (parallelized)
+- **Time per example: $\frac{72 + B}{B}$ ms**
+
+$$\text{Throughput} = \frac{B}{72 + B} \text{ tokens/ms}$$
+
+As $B \to \infty$, throughput approaches 1 token/ms. With $B=32$:
+
+$$\text{Time per example} = \frac{72 + 32}{32} \approx 3.25\text{ ms}$$
+
+versus 73 ms without batching—a **22x improvement**!
+
+**The latency-throughput tradeoff**: Larger batches mean waiting for more requests to arrive, increasing latency for early requests. The sweet spot depends on your SLA:
+
+```
+Batch Size  |  Latency (p50)  |  Throughput  |  Cost/Token
+-----------------------------------------------------------------
+1           |  75 ms          |  13 tok/s    |  $0.020
+8           |  150 ms         |  89 tok/s    |  $0.003
+32          |  300 ms         |  280 tok/s   |  $0.001
+128         |  800 ms         |  720 tok/s   |  $0.0004
+```
+
+Google/OpenAI likely use batch sizes of 100-500 to balance cost and user experience.
 
 <CodeBlock
   language="python"
@@ -210,7 +286,35 @@ Process multiple requests simultaneously:
 # Trade-off: throughput vs latency`}
 />
 
-### 4. Speculative Decoding
+### 4. Speculative Decoding: Gambling on Predictions
+
+Generate multiple tokens per forward pass using a small "draft" model to propose candidates that a large model verifies in parallel.
+
+**The standard autoregressive bottleneck**: Each token requires a full forward pass:
+
+$$T_{\text{total}} = n \times T_{\text{forward}}$$
+
+For 100 tokens at 100ms/token: **10 seconds**. Can we parallelize?
+
+**Speculative decoding idea** (Chen et al., 2023):
+1. Small draft model quickly generates $K$ candidate tokens
+2. Large model verifies all $K$ candidates in parallel (one forward pass)
+3. Accept longest prefix that matches draft model probabilities
+
+**Mathematical guarantee**: The final distribution is **identical** to standard sampling! The speedup is "free" — no quality loss.
+
+Expected speedup with acceptance rate $\alpha$ and lookahead $K$:
+
+$$\text{Speedup} = \frac{1 + K \cdot \alpha}{1 + \frac{T_{\text{draft}}}{T_{\text{target}}}}$$
+
+With $K=5$, $\alpha=0.7$ (70% acceptance), and draft model 10x faster:
+
+$$\text{Speedup} = \frac{1 + 5 \times 0.7}{1 + 0.1} = \frac{4.5}{1.1} \approx 4.1\text{x}$$
+
+For easier tasks (high $\alpha$), speedups of **5-8x** are common. The draft model can be:
+- A smaller model (7B drafting for 70B)
+- The same model quantized to INT4
+- Early-exit layers from the target model
 
 Use small model to predict, large model to verify:
 

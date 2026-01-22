@@ -1,0 +1,502 @@
+---
+title: "Open-Source AI Testing Tools"
+description: "Our complete suite of benchmarking and evaluation tools for testing AI systems. Run the same tests we use, verify our results, and contribute improvements."
+date: "2026-01-21"
+author: "AI Tools Reviews Team"
+---
+
+import CodeBlock from '../../components/CodeBlock.astro'
+import TechSpecs from '../../components/TechSpecs.astro'
+
+# Open-Source AI Testing Tools
+
+All of our benchmarking and evaluation infrastructure is **open-source and freely available**. This page documents the tools we've built for testing AI systems objectively and reproducibly.
+
+> 🔗 **GitHub Repository**: <a href="https://github.com/ai-tools-reviews/ai-tools-testing" target="_blank" rel="noopener noreferrer">github.com/ai-tools-reviews/ai-tools-testing</a>
+
+---
+
+## Why Open Source?
+
+We believe **transparency builds trust**. By open-sourcing our testing infrastructure:
+
+- **Reproducibility**: Anyone can run the same tests and verify our claims
+- **Community improvement**: Contributions from researchers and developers worldwide
+- **Industry standards**: Help establish benchmarks that become widely adopted
+- **Educational value**: Learn how to evaluate AI systems effectively
+
+Every review and rating on this site is backed by tests you can run yourself.
+
+---
+
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/ai-tools-reviews/ai-tools-testing.git
+cd ai-tools-testing
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up API keys
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
+
+# Run your first benchmark
+python scripts/run_mmlu.py --model gpt-4 --save
+```
+
+---
+
+## Available Benchmarks
+
+### Language Model Testing
+
+#### MMLU (Massive Multitask Language Understanding)
+
+Tests models on multiple-choice questions across 57 subjects including mathematics, physics, computer science, history, law, and medicine.
+
+**What it measures:**
+- Factual knowledge breadth
+- Multi-domain reasoning
+- Subject-specific expertise
+
+**Usage:**
+
+```python
+from benchmarks.llm.mmlu import MMLUBenchmark
+from utils.api_clients.openai_client import OpenAIClient
+
+client = OpenAIClient(api_key="sk-...", model="gpt-4")
+benchmark = MMLUBenchmark()
+
+results = benchmark.run(client)
+benchmark.print_summary(results)
+benchmark.save_results(results, "gpt-4")
+```
+
+**Sample Output:**
+
+```
+============================================================
+📊 MMLU Benchmark Results
+============================================================
+Overall Accuracy: 86.4%
+Correct: 43/50
+
+By Subject:
+------------------------------------------------------------
+  computer_science    :  92.0% (23/25)
+  mathematics         :  88.0% (22/25)
+  physics             :  84.0% (21/25)
+  history             :  82.0% (20/25)
+  biology             :  90.0% (27/30)
+============================================================
+```
+
+See our [methodology page](/methodology#automated-benchmark-suite) for details on how we use MMLU in reviews.
+
+---
+
+#### HumanEval (Coming Soon)
+
+Code generation benchmark with 164 programming problems testing algorithmic reasoning.
+
+**What it will measure:**
+- Code correctness
+- Problem-solving ability
+- Programming language understanding
+
+**Status:** Implementation in progress. See <a href="https://github.com/ai-tools-reviews/ai-tools-testing/issues/2" target="_blank" rel="noopener noreferrer">GitHub issue #2</a>.
+
+---
+
+#### TruthfulQA (Coming Soon)
+
+817 questions designed to test whether models generate truthful answers or repeat common misconceptions.
+
+**What it will measure:**
+- Factual accuracy
+- Hallucination resistance
+- Ability to say "I don't know"
+
+---
+
+### Image Generation Testing (Planned)
+
+#### CLIP Score
+
+Measures alignment between text prompts and generated images using OpenAI's CLIP model.
+
+**What it measures:**
+- Prompt adherence
+- Semantic consistency
+- Text-image correlation
+
+#### Aesthetic Score
+
+ML-based quality assessment trained on human preference data.
+
+**What it measures:**
+- Visual appeal
+- Composition quality
+- Technical execution
+
+---
+
+### Code Assistant Testing (Planned)
+
+#### MultiPL-E
+
+Code generation across 18+ programming languages to test polyglot capabilities.
+
+#### SWE-bench
+
+Real-world GitHub issues from popular Python repositories to test practical coding ability.
+
+---
+
+## Tool Architecture
+
+### Base Classes
+
+All benchmarks inherit from a common base class ensuring consistency:
+
+```python
+from abc import ABC, abstractmethod
+from typing import Dict, Any
+
+class Benchmark(ABC):
+    """Base class for all benchmarks."""
+    
+    @abstractmethod
+    def run(self, client, **kwargs) -> Dict[str, Any]:
+        """Execute the benchmark and return results."""
+        pass
+    
+    @abstractmethod
+    def score(self, results: Dict[str, Any]) -> float:
+        """Calculate normalized score from results."""
+        pass
+    
+    def save_results(self, results, model_name):
+        """Save results to JSON file."""
+        pass
+```
+
+### API Client System
+
+Unified interface for interacting with different AI providers:
+
+```python
+from abc import ABC, abstractmethod
+
+class ModelClient(ABC):
+    """Base class for API clients."""
+    
+    @abstractmethod
+    def generate_text(self, prompt: str, **kwargs) -> str:
+        """Generate text completion."""
+        pass
+    
+    @abstractmethod
+    def count_tokens(self, text: str) -> int:
+        """Count tokens in text."""
+        pass
+```
+
+**Supported providers:**
+
+<div class="grid md:grid-cols-2 gap-4 my-6">
+  <div class="flex items-center gap-3 p-4 bg-slate-900/40 border border-slate-800 rounded-lg">
+    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+      <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" fill="#10a37f"/>
+    </svg>
+    <div>
+      <div class="font-semibold text-green-400">✅ OpenAI</div>
+      <div class="text-sm text-slate-400">GPT-4, GPT-3.5-turbo</div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3 p-4 bg-slate-900/40 border border-slate-800 rounded-lg">
+    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="5" fill="#CC9B7A"/>
+      <path d="M7 8L12 4L17 8L12 12L7 8Z" fill="#1A1A1A"/>
+      <path d="M7 16L12 12L17 16L12 20L7 16Z" fill="#1A1A1A"/>
+    </svg>
+    <div>
+      <div class="font-semibold text-yellow-400">🚧 Anthropic</div>
+      <div class="text-sm text-slate-400">Claude 3 - In progress</div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3 p-4 bg-slate-900/40 border border-slate-800 rounded-lg opacity-60">
+    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L2 19.5h20L12 2z" fill="#4285F4"/>
+      <path d="M12 2L19 15H5L12 2z" fill="#669DF6"/>
+      <circle cx="12" cy="17" r="2" fill="#AECBFA"/>
+    </svg>
+    <div>
+      <div class="font-semibold text-slate-400">📋 Google</div>
+      <div class="text-sm text-slate-500">Gemini - Planned</div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3 p-4 bg-slate-900/40 border border-slate-800 rounded-lg opacity-60">
+    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="4" fill="url(#gradient)"/>
+      <defs>
+        <linearGradient id="gradient" x1="0" y1="0" x2="24" y2="24">
+          <stop offset="0%" style="stop-color:#7C3AED"/>
+          <stop offset="100%" style="stop-color:#EC4899"/>
+        </linearGradient>
+      </defs>
+      <path d="M8 12L12 8L16 12L12 16L8 12Z" fill="white"/>
+    </svg>
+    <div>
+      <div class="font-semibold text-slate-400">📋 Replicate</div>
+      <div class="text-sm text-slate-500">Planned</div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Statistical Analysis
+
+Our tools include robust statistical analysis to ensure meaningful comparisons.
+
+### Confidence Intervals
+
+Every quantitative metric includes 95% confidence intervals calculated using bootstrap resampling:
+
+```python
+from analysis.statistical import calculate_confidence_interval
+
+results = [0.85, 0.87, 0.84, 0.86, 0.88]
+mean, lower, upper = calculate_confidence_interval(results, confidence=0.95)
+
+print(f"Score: {mean:.2f} (95% CI: [{lower:.2f}, {upper:.2f}])")
+# Output: Score: 0.86 (95% CI: [0.84, 0.88])
+```
+
+### Significance Testing
+
+Statistical significance required before claiming one model outperforms another:
+
+```python
+from analysis.statistical import test_significance
+
+gpt4_scores = [0.86, 0.87, 0.85, 0.88]
+gpt35_scores = [0.78, 0.79, 0.77, 0.80]
+
+p_value = test_significance(gpt4_scores, gpt35_scores)
+is_significant = p_value < 0.05
+```
+
+### Normalization
+
+Scores normalized across different benchmarks for fair comparison:
+
+```python
+from analysis.statistical import normalize_scores
+
+# Raw scores from different benchmarks
+scores = {
+    "mmlu": 86.4,      # Out of 100
+    "humaneval": 0.72,  # Out of 1
+    "math": 42.5        # Out of 100
+}
+
+normalized = normalize_scores(scores)
+# All scores now 0-1 scale
+```
+
+---
+
+## AI Detection Tools (In Development)
+
+### Watermark Detection
+
+Identify embedded signals in AI-generated text and images.
+
+**How it works:**
+- Text: Analyzes token distribution patterns
+- Images: Detects imperceptible embedded signals
+
+### Style Fingerprinting
+
+Statistical analysis to detect AI vs human patterns without explicit watermarks.
+
+**Metrics:**
+- Perplexity distributions
+- Token burstiness
+- N-gram patterns
+
+### Hallucination Detection
+
+Automatic fact-checking against knowledge bases:
+
+```python
+from detection.hallucination import FactChecker
+
+checker = FactChecker(knowledge_base="wikipedia")
+text = "Albert Einstein invented the telephone in 1876."
+
+result = checker.check(text)
+# Returns: {
+#   "claims": [...],
+#   "verified": False,
+#   "contradictions": ["Einstein born 1879, telephone invented 1876"]
+# }
+```
+
+---
+
+## Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+### Adding a New Benchmark
+
+1. Create a file in the appropriate category (e.g., `benchmarks/llm/your_benchmark.py`)
+2. Inherit from the `Benchmark` base class
+3. Implement `run()` and `score()` methods
+4. Add unit tests in `tests/`
+5. Update documentation
+
+**Example:**
+
+```python
+from benchmarks.base import Benchmark
+
+class GSM8KBenchmark(Benchmark):
+    """Grade School Math 8K problems."""
+    
+    def __init__(self):
+        super().__init__(
+            name="gsm8k",
+            description="8,500 grade school math word problems"
+        )
+    
+    def run(self, client, **kwargs):
+        # Load questions
+        # Run inference
+        # Calculate accuracy
+        return results
+    
+    def score(self, results):
+        return results["correct"] / results["total"] * 100
+```
+
+### Adding an API Client
+
+1. Create `utils/api_clients/your_provider_client.py`
+2. Inherit from `ModelClient`
+3. Implement `generate_text()` and `count_tokens()`
+4. Add retry logic using the `@retry_on_error` decorator
+
+### Improving Documentation
+
+- Fix typos or unclear explanations
+- Add usage examples
+- Create tutorials for specific benchmarks
+
+### Reporting Issues
+
+Found a bug or have a feature request? <a href="https://github.com/ai-tools-reviews/ai-tools-testing/issues" target="_blank" rel="noopener noreferrer">Open an issue on GitHub</a>.
+
+---
+
+## Integration with Reviews
+
+Every tool review on this site uses these benchmarks:
+
+- **[ChatGPT-4 Review](/reviews/chatgpt-4)** - MMLU, HumanEval scores
+- **[Claude 3 Review](/reviews/claude-3)** - TruthfulQA, reasoning benchmarks
+- **[GitHub Copilot Review](/reviews/github-copilot)** - Code generation tests
+- **[Midjourney Review](/reviews/midjourney)** - Image quality metrics
+
+The raw benchmark results for each review are available in our <a href="https://github.com/ai-tools-reviews/benchmark-results" target="_blank" rel="noopener noreferrer">results repository</a>.
+
+---
+
+## Technical Articles Using These Tools
+
+Our technical deep-dives reference specific implementations:
+
+- **[Attention Mechanisms](/technical/attention-mechanisms)** - Performance profiling code
+- **[Transformer Architecture](/technical/transformer-architecture)** - Complexity analysis tools
+- **[LLM Training](/technical/llm-training)** - Training cost calculators
+- **[Inference Optimization](/technical/inference-optimization)** - Latency benchmarks
+- **[KV Cache Optimization](/technical/kv-cache-optimization)** - Memory profiling
+
+---
+
+## Roadmap
+
+### Phase 1: Core LLM Benchmarks (Q1 2026)
+- ✅ MMLU implementation
+- 🚧 HumanEval
+- 📋 TruthfulQA
+- 📋 GSM8K (math reasoning)
+- 📋 MATH (advanced mathematics)
+
+### Phase 2: Multimodal Testing (Q2 2026)
+- 📋 CLIP Score for images
+- 📋 Aesthetic Score
+- 📋 FID (Fréchet Inception Distance)
+- 📋 Video quality metrics
+
+### Phase 3: Advanced Analysis (Q3 2026)
+- 📋 Bias measurement tools
+- 📋 Fairness metrics
+- 📋 Cost-performance analysis
+- 📋 Carbon footprint estimation
+
+### Phase 4: Production Tools (Q4 2026)
+- 📋 Web dashboard for results
+- 📋 REST API for programmatic access
+- 📋 CI/CD integrations
+- 📋 Real-time monitoring
+
+---
+
+## Resources
+
+### Documentation
+- <a href="https://github.com/ai-tools-reviews/ai-tools-testing/tree/main/docs/API.md" target="_blank" rel="noopener noreferrer">API Reference</a>
+- <a href="https://github.com/ai-tools-reviews/ai-tools-testing/tree/main/docs/BENCHMARKS.md" target="_blank" rel="noopener noreferrer">Benchmark Specifications</a>
+- <a href="https://github.com/ai-tools-reviews/ai-tools-testing/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing Guide</a>
+
+### Community
+- <a href="https://github.com/ai-tools-reviews/ai-tools-testing/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a>
+- <a href="https://github.com/ai-tools-reviews/ai-tools-testing/issues" target="_blank" rel="noopener noreferrer">Issue Tracker</a>
+- <a href="https://github.com/ai-tools-reviews/ai-tools-testing/pulls" target="_blank" rel="noopener noreferrer">Pull Requests</a>
+
+### Citation
+
+If you use our tools in research, please cite:
+
+```bibtex
+@software{ai_tools_testing_2026,
+  title = {AI Tools Testing Suite},
+  author = {AI Tools Reviews Team},
+  year = {2026},
+  url = {https://github.com/ai-tools-reviews/ai-tools-testing}
+}
+```
+
+---
+
+## Get Started
+
+Visit the <a href="https://github.com/ai-tools-reviews/ai-tools-testing" target="_blank" rel="noopener noreferrer">GitHub repository</a> to:
+- ⭐ Star the project
+- 📥 Clone and run benchmarks
+- 🐛 Report issues
+- 🔧 Submit improvements
+- 💬 Join discussions
+
+Questions? Check our [methodology page](/methodology) or [contact us](/contact).
