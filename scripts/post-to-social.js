@@ -27,13 +27,26 @@ const BLUESKY_PASSWORD = process.env.BLUESKY_PASSWORD;
  */
 function getNewContentFiles() {
   try {
-    const output = execSync('git diff --name-only HEAD^ HEAD').toString();
+    const output = execSync('git diff --name-only HEAD~1 HEAD').toString();
     const files = output
       .split('\n')
       .filter(file => file.match(/src\/content\/(reviews|technical)\/.*\.mdx?$/));
     return files;
   } catch (error) {
     console.error('Error getting new files:', error);
+    return [];
+  }
+}
+
+/**
+ * Get the most recent content file (for manual testing)
+ */
+function getMostRecentContentFile() {
+  try {
+    const output = execSync('find src/content/reviews src/content/technical -name "*.mdx" -o -name "*.md" | head -1').toString();
+    return output.trim() ? [output.trim()] : [];
+  } catch (error) {
+    console.error('Error finding recent files:', error);
     return [];
   }
 }
@@ -178,14 +191,20 @@ async function postToBluesky(text) {
 async function main() {
   console.log('🤖 Checking for new content to post...\n');
   
-  const newFiles = getNewContentFiles();
+  let newFiles = getNewContentFiles();
   
   if (newFiles.length === 0) {
-    console.log('ℹ️  No new content files found');
+    console.log('ℹ️  No new content files found via git diff');
+    console.log('📝 Using most recent content file for testing...\n');
+    newFiles = getMostRecentContentFile();
+  }
+  
+  if (newFiles.length === 0) {
+    console.log('ℹ️  No content files found at all');
     return;
   }
 
-  console.log(`📝 Found ${newFiles.length} new file(s):\n${newFiles.join('\n')}\n`);
+  console.log(`📝 Found ${newFiles.length} file(s):\n${newFiles.join('\n')}\n`);
 
   for (const file of newFiles) {
     console.log(`\n📄 Processing: ${file}`);
