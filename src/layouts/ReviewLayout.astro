@@ -13,7 +13,8 @@ interface Props {
 
 const { entry, Content } = Astro.props
 const { title, description, date, rating, affiliate_links, tags } = entry.data
-const toolName = title.replace(' Review', '');
+// Extract tool name from title (e.g., "Replicate Review 2026: ..." -> "Replicate")
+const toolName = title.split(' Review')[0];
 ---
 
 <BaseLayout 
