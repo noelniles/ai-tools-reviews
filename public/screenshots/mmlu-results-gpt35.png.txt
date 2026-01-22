@@ -1,0 +1,8 @@
+This is a placeholder file. The actual screenshot should be saved as:
+public/screenshots/mmlu-results-gpt35.png
+
+The screenshot shows MMLU benchmark results:
+- Model: gpt-3.5-turbo
+- Overall Accuracy: 90.0%
+- Correct: 9/10
+- Subject breakdown showing 100% across multiple subjects
