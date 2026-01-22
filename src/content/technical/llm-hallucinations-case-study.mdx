@@ -18,6 +18,35 @@ Even state-of-the-art language models like Claude Sonnet 4.5 can exhibit fascina
 
 **What should have been a 2-minute fix** turned into a 30-minute saga of increasingly complex and incorrect solutions.
 
+I was already frustrated. I'd been staring at these rainbow-colored docstrings for days—green quotes, blue keywords inside, yellow strings nested in the middle—it looked like a syntax highlighter had a seizure. "Just make them gray," I thought. "Like every other code editor on the planet."
+
+I asked Claude for help. Big mistake.
+
+### The Descent into Madness
+
+Claude's first response came back instantly, with that characteristic AI confidence that makes you think it actually knows what it's talking about:
+
+"Ah yes, you'll want to target the `.token.docstring` class! Here's the CSS..."
+
+I pasted it in. Nothing changed. The docstrings mocked me with their technicolor chaos.
+
+"Hmm, that's weird," I muttered, checking the browser inspector. Wait. There's no `.token.docstring` class. There's just `.token.string`. 
+
+I went back to Claude. "That didn't work."
+
+"Oh! Try this more specific selector targeting triple-quoted strings..."
+
+More CSS. More nothing. I refreshed the page three times like that would somehow make fake CSS selectors start working.
+
+At this point, I should have stopped and actually looked at the HTML. But no—I was now personally invested in proving that CSS could solve this. Claude kept generating increasingly baroque selectors, each one more confident than the last:
+
+```css
+.token.string.docstring * { ... }  /* targeting children that don't exist */
+pre.language-python .token.docstring .token { ... }  /* nesting that isn't there */
+```
+
+I tried them all. Copy, paste, save, refresh, swear, repeat. It became a ritual. The docstrings remained defiantly rainbow-colored, as if they could sense my growing desperation.
+
 ## The Hallucination Cascade
 
 ### Initial Approach: Inventing Non-Existent CSS Classes
