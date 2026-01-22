@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+---
+
+<BaseLayout 
+  title="Thank You - BenchTheBots" 
+  description="Your submission has been received"
+>
+  <Nav />
+  
+  <div class="max-w-2xl mx-auto text-center py-16">
+    <div class="mb-8">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand/20 mb-6">
+        <svg class="w-10 h-10 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+      
+      <h1 class="text-4xl font-bold mb-4">Thanks for reaching out!</h1>
+      <p class="text-xl text-slate-300 mb-8">
+        We've received your submission and will get back to you soon.
+      </p>
+    </div>
+
+    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 mb-8">
+      <h2 class="text-lg font-semibold mb-2">What happens next?</h2>
+      <ul class="text-slate-300 space-y-2 text-left max-w-md mx-auto">
+        <li class="flex items-start gap-2">
+          <span class="text-brand mt-1">→</span>
+          <span>We'll review your submission within 1-2 business days</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-brand mt-1">→</span>
+          <span>You'll receive a response at the email you provided</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-brand mt-1">→</span>
+          <span>For review requests, we'll discuss next steps and timeline</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a 
+        href="/" 
+        class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-lg font-semibold transition-colors"
+      >
+        Back to Home
+      </a>
+      <a 
+        href="/reviews" 
+        class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-semibold transition-colors"
+      >
+        Browse Reviews
+      </a>
+    </div>
+  </div>
+</BaseLayout>
