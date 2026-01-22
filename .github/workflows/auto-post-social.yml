@@ -7,6 +7,12 @@ on:
       - 'src/content/reviews/**'
       - 'src/content/technical/**'
   workflow_dispatch:
+    inputs:
+      should_post:
+        description: 'Create social media posts?'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   post-to-social:
@@ -29,10 +35,24 @@ jobs:
       - name: Check for new content
         id: check_new
         run: |
-          # Skip check on manual trigger - always run
+          # Check commit message for skip flags
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          if [[ "$COMMIT_MSG" =~ \[skip\ post\]|\[no\ post\] ]]; then
+            echo "new_content=false" >> $GITHUB_OUTPUT
+            echo "⏭️ Skipping post - commit message contains [skip post] or [no post]"
+            exit 0
+          fi
+          
+          # Skip check on manual trigger - respect the input parameter
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "new_content=true" >> $GITHUB_OUTPUT
-            echo "✅ Manual trigger - running script"
+            SHOULD_POST="${{ github.event.inputs.should_post }}"
+            if [ "$SHOULD_POST" = "true" ]; then
+              echo "new_content=true" >> $GITHUB_OUTPUT
+              echo "✅ Manual trigger - posting enabled"
+            else
+              echo "new_content=false" >> $GITHUB_OUTPUT
+              echo "⏭️ Manual trigger - posting disabled"
+            fi
             exit 0
           fi
           
@@ -42,12 +62,9 @@ jobs:
           
           NEW_FILES=$(git diff --name-only HEAD~1 HEAD | grep -E 'src/content/(reviews|technical)/.*\.mdx?$' || echo "")
           
-          echo "Files found: $NEW_FILES"
-          
           if [ -n "$NEW_FILES" ]; then
             echo "new_content=true" >> $GITHUB_OUTPUT
-            echo "files=$NEW_FILES" >> $GITHUB_OUTPUT
-            echo "✅ New content detected!"
+            echo "✅ New content detected: $NEW_FILES"
           else
             echo "new_content=false" >> $GITHUB_OUTPUT
             echo "ℹ️ No new content files found"
