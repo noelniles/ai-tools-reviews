@@ -79,53 +79,62 @@ function parseFrontmatter(filePath) {
  */
 function createPostText(frontmatter, slug, type = 'review', platform = 'twitter') {
   const title = frontmatter.title;
-  const tool = frontmatter.tool || title;
+  const tool = frontmatter.tool || title.split(':')[0].trim();
   const rating = frontmatter.rating;
   const url = `${SITE_URL}/${type === 'technical' ? 'technical' : 'reviews'}/${slug}`;
   
   if (type === 'technical') {
     // Technical article post
+    const shortTitle = title.length > 60 ? title.substring(0, 57) + '...' : title;
+    
     if (platform === 'bluesky') {
-      // Bluesky: Keep it short (300 char limit)
-      return `New: ${title}
+      return `📊 New deep-dive: ${shortTitle}
+
+${url}
+
+#AI #TechDeepDive`;
+    } else {
+      return `📊 New technical deep-dive:
+
+${title}
+
+Worth the read if you're into the nerdy details.
 
 ${url}
 
 #AI #MachineLearning`;
-    } else {
-      // Twitter: More detail allowed
-      return `New technical deep-dive: ${title}
-
-🔬 ${frontmatter.description || 'Breaking down the tech behind AI tools'}
-
-Read the full analysis: ${url}
-
-#AI #MachineLearning #TechDeepDive`;
     }
   } else {
     // Review post
     const ratingEmoji = rating >= 8.5 ? '🔥' : rating >= 7 ? '👍' : rating >= 5 ? '🤔' : '👎';
+    const verdict = rating >= 8.5 ? 'Highly recommend' : 
+                    rating >= 7 ? 'Worth trying' : 
+                    rating >= 5 ? 'Meh' : 
+                    'Skip it';
+    
+    // Extract clean tool name (remove "Review 2026:" etc)
+    const cleanTool = tool.replace(/Review \d{4}:/gi, '').replace(/:\s*Run.*$/i, '').trim();
     
     if (platform === 'bluesky') {
-      // Bluesky: Concise format
-      return `${tool} Review ${ratingEmoji}
+      return `${cleanTool} ${ratingEmoji}
 
-Rating: ${rating}/10
+${rating}/10 - ${verdict}
 
-${url}
-
-#AITools`;
+${url}`;
     } else {
-      // Twitter: Full format
-      return `New Review: ${tool} ${ratingEmoji}
+      // Twitter: More personality
+      const hook = rating >= 8.5 ? `${cleanTool} lives up to the hype.` :
+                   rating >= 7 ? `${cleanTool} is solid.` :
+                   rating >= 5 ? `${cleanTool} is... fine.` :
+                   `${cleanTool} disappointed me.`;
+      
+      return `${hook}
 
 Rating: ${rating}/10
 
-${frontmatter.description || 'Is it worth your money?'}
+${verdict}. Full breakdown:
 
-Full review: ${url}
-
-#AITools #${tool.replace(/\s+/g, '')}`;
+${url}`;
     }
   }
 }
