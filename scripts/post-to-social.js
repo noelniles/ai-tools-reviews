@@ -77,7 +77,7 @@ function parseFrontmatter(filePath) {
 /**
  * Create post text for social media
  */
-function createPostText(frontmatter, slug, type = 'review') {
+function createPostText(frontmatter, slug, type = 'review', platform = 'twitter') {
   const title = frontmatter.title;
   const tool = frontmatter.tool || title;
   const rating = frontmatter.rating;
@@ -85,18 +85,39 @@ function createPostText(frontmatter, slug, type = 'review') {
   
   if (type === 'technical') {
     // Technical article post
-    return `New technical deep-dive: ${title}
+    if (platform === 'bluesky') {
+      // Bluesky: Keep it short (300 char limit)
+      return `New: ${title}
+
+${url}
+
+#AI #MachineLearning`;
+    } else {
+      // Twitter: More detail allowed
+      return `New technical deep-dive: ${title}
 
 🔬 ${frontmatter.description || 'Breaking down the tech behind AI tools'}
 
 Read the full analysis: ${url}
 
 #AI #MachineLearning #TechDeepDive`;
+    }
   } else {
     // Review post
     const ratingEmoji = rating >= 8.5 ? '🔥' : rating >= 7 ? '👍' : rating >= 5 ? '🤔' : '👎';
     
-    return `New Review: ${tool} ${ratingEmoji}
+    if (platform === 'bluesky') {
+      // Bluesky: Concise format
+      return `${tool} Review ${ratingEmoji}
+
+Rating: ${rating}/10
+
+${url}
+
+#AITools`;
+    } else {
+      // Twitter: Full format
+      return `New Review: ${tool} ${ratingEmoji}
 
 Rating: ${rating}/10
 
@@ -105,6 +126,7 @@ ${frontmatter.description || 'Is it worth your money?'}
 Full review: ${url}
 
 #AITools #${tool.replace(/\s+/g, '')}`;
+    }
   }
 }
 
@@ -217,11 +239,18 @@ async function main() {
 
     const slug = path.basename(file, path.extname(file));
     const type = file.includes('/technical/') ? 'technical' : 'review';
-    const postText = createPostText(frontmatter, slug, type);
+    const twitterText = createPostText(frontmatter, slug, type, 'twitter');
+    const blueskyText = createPostText(frontmatter, slug, type, 'bluesky');
 
-    console.log('\n📱 Post text:');
+    console.log('\n📱 Post text (Twitter):');
     console.log('─'.repeat(50));
-    console.log(postText);
+    console.log(twitterText);
+    console.log('─'.repeat(50));
+
+    console.log('\n📱 Post text (Bluesky):');
+    console.log('─'.repeat(50));
+    console.log(blueskyText);
+    console.log(`(${blueskyText.length} characters)`);
     console.log('─'.repeat(50));
 
     // Skip Twitter API (too expensive), output for manual posting
@@ -229,7 +258,7 @@ async function main() {
     console.log('📋 Tweet text copied above\n');
 
     // Post to Bluesky only
-    const blueskySuccess = await postToBluesky(postText);
+    const blueskySuccess = await postToBluesky(blueskyText);
     
     if (blueskySuccess) {
       console.log('✅ Automation complete!');
