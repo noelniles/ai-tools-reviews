@@ -4,6 +4,8 @@ import Nav from '../components/Nav.astro';
 import { getCollection } from 'astro:content';
 
 const allReviews = await getCollection('reviews');
+const allTechnical = await getCollection('technical');
+const allContent = [...allReviews, ...allTechnical];
 ---
 
 <BaseLayout 
@@ -14,9 +16,9 @@ const allReviews = await getCollection('reviews');
   
   <div class="max-w-4xl mx-auto px-4">
     <header class="mb-12">
-      <h1 class="text-4xl font-bold mb-4">Search Reviews</h1>
+      <h1 class="text-4xl font-bold mb-4">Search</h1>
       <p class="text-xl text-slate-400">
-        Find reviews, comparisons, and insights on AI tools
+        Find reviews, technical articles, and insights on AI tools
       </p>
     </header>
 
@@ -35,24 +37,28 @@ const allReviews = await getCollection('reviews');
         </svg>
       </div>
       <p class="text-sm text-slate-500 mt-2">
-        <span id="result-count">{allReviews.length} reviews</span> available
+        <span id="result-count">{allReviews.length} reviews + {allTechnical.length} articles</span> available
       </p>
     </div>
 
     <!-- Search Results -->
     <div id="search-results" class="space-y-4">
-      <!-- Initially show all reviews -->
+      <!-- Reviews -->
       {allReviews.map((review) => (
         <a 
           href={`/reviews/${review.slug}`}
-          class="review-card block bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors"
+          class="content-card block bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors"
+          data-type="review"
           data-title={review.data.title.toLowerCase()}
           data-description={review.data.description.toLowerCase()}
           data-tags={review.data.tags?.join(' ').toLowerCase() || ''}
         >
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
-              <h3 class="font-bold text-xl text-slate-100 mb-2">{review.data.title}</h3>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded font-semibold">REVIEW</span>
+                <h3 class="font-bold text-xl text-slate-100">{review.data.title}</h3>
+              </div>
               <p class="text-sm text-slate-400 mb-3">{review.data.description}</p>
               <div class="flex flex-wrap gap-2">
                 {review.data.tags?.map((tag) => (
@@ -70,6 +76,38 @@ const allReviews = await getCollection('reviews');
                 <span class="font-semibold text-slate-200">{review.data.rating.overall}/10</span>
               </div>
               <span class="text-xs text-slate-500">{new Date(review.data.date).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </a>
+      ))}
+      
+      <!-- Technical Articles -->
+      {allTechnical.map((article) => (
+        <a 
+          href={`/technical/${article.slug}`}
+          class="content-card block bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-purple-500/50 transition-colors"
+          data-type="technical"
+          data-title={article.data.title.toLowerCase()}
+          data-description={article.data.description.toLowerCase()}
+          data-tags={article.data.tags?.join(' ').toLowerCase() || ''}
+        >
+          <div class="flex items-start gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded font-semibold">TECHNICAL</span>
+                <h3 class="font-bold text-xl text-slate-100">{article.data.title}</h3>
+              </div>
+              <p class="text-sm text-slate-400 mb-3">{article.data.description}</p>
+              <div class="flex flex-wrap gap-2">
+                {article.data.tags?.map((tag) => (
+                  <span class="text-xs px-2 py-1 bg-slate-800 text-slate-300 rounded">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+              <span class="text-xs text-slate-500">{new Date(article.data.date).toLocaleDateString()}</span>
             </div>
           </div>
         </a>
@@ -147,7 +185,7 @@ const allReviews = await getCollection('reviews');
   const searchResults = document.getElementById('search-results');
   const noResults = document.getElementById('no-results');
   const resultCount = document.getElementById('result-count');
-  const reviewCards = document.querySelectorAll('.review-card');
+  const contentCards = document.querySelectorAll('.content-card');
   const searchTermDisplay = document.getElementById('search-term-display');
   const suggestedToolInput = document.getElementById('suggested-tool') as HTMLInputElement;
   const suggestionForm = document.getElementById('suggestion-form');
@@ -156,19 +194,19 @@ const allReviews = await getCollection('reviews');
     const lowerQuery = query.toLowerCase().trim();
     
     if (!lowerQuery) {
-      // Show all reviews
-      reviewCards.forEach(card => {
+      // Show all content
+      contentCards.forEach(card => {
         (card as HTMLElement).classList.remove('hidden');
       });
       searchResults?.classList.remove('hidden');
       noResults?.classList.add('hidden');
-      resultCount!.textContent = `${reviewCards.length} reviews`;
+      resultCount!.textContent = `${contentCards.length} items`;
       return;
     }
 
     let visibleCount = 0;
     
-    reviewCards.forEach(card => {
+    contentCards.forEach(card => {
       const element = card as HTMLElement;
       const title = element.dataset.title || '';
       const description = element.dataset.description || '';
@@ -195,7 +233,7 @@ const allReviews = await getCollection('reviews');
     } else {
       searchResults?.classList.remove('hidden');
       noResults?.classList.add('hidden');
-      resultCount!.textContent = `${visibleCount} ${visibleCount === 1 ? 'review' : 'reviews'}`;
+      resultCount!.textContent = `${visibleCount} ${visibleCount === 1 ? 'result' : 'results'}`;
     }
   }
 
