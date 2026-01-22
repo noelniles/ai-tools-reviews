@@ -29,6 +29,13 @@ jobs:
       - name: Check for new content
         id: check_new
         run: |
+          # Skip check on manual trigger - always run
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "new_content=true" >> $GITHUB_OUTPUT
+            echo "✅ Manual trigger - running script"
+            exit 0
+          fi
+          
           # Get newly added or modified content files
           echo "Checking git diff for changes..."
           git diff --name-only HEAD~1 HEAD
