@@ -18,7 +18,18 @@ import Icon from '../components/Icon.astro';
 
     <!-- Review Submission Form -->
     <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-8">
-      <form id="review-form" class="space-y-6">
+      <form 
+        id="review-form" 
+        name="user-review"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        class="space-y-6"
+      >
+        <input type="hidden" name="form-name" value="user-review" />
+        <p class="hidden">
+          <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+        </p>
         
         <!-- Tool Selection -->
         <div>

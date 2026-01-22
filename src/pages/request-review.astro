@@ -1,0 +1,341 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+---
+
+<BaseLayout 
+  title="Request a Review - BenchTheBots" 
+  description="Submit your AI tool for an independent, technical review by our team"
+>
+  <Nav />
+  
+  <article class="max-w-3xl mx-auto">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold mb-4">Request a Review</h1>
+      <p class="text-xl text-slate-300 mb-6">
+        We review AI tools with rigorous testing and honest analysis. No pay-to-play, no fluff—just real benchmarks and technical insights.
+      </p>
+      
+      <div class="bg-brand/10 border border-brand/30 rounded-xl p-6 mb-8">
+        <h3 class="text-lg font-semibold mb-3">What to Expect</h3>
+        <ul class="space-y-2 text-slate-300">
+          <li class="flex items-start gap-2">
+            <span class="text-brand mt-1">✓</span>
+            <span><strong>Independent Testing:</strong> We test with real use cases, not marketing materials</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand mt-1">✓</span>
+            <span><strong>Honest Ratings:</strong> Good and bad—we don't sugarcoat</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand mt-1">✓</span>
+            <span><strong>Technical Depth:</strong> Performance metrics, edge cases, and comparison benchmarks</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand mt-1">✓</span>
+            <span><strong>2-4 Week Timeline:</strong> Thorough testing takes time</span>
+          </li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-8">
+      <form 
+        name="review-request"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        class="space-y-6"
+      >
+        <input type="hidden" name="form-name" value="review-request" />
+        <p class="hidden">
+          <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+        </p>
+
+        <!-- Company/Individual Info -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label for="contact-name" class="block text-sm font-medium mb-2">
+              Your Name <span class="text-red-400">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="contact-name"
+              name="contactName"
+              required
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium mb-2">
+              Email <span class="text-red-400">*</span>
+            </label>
+            <input 
+              type="email" 
+              id="email"
+              name="email"
+              required
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="company" class="block text-sm font-medium mb-2">
+            Company/Organization
+          </label>
+          <input 
+            type="text" 
+            id="company"
+            name="company"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+          />
+        </div>
+
+        <!-- Tool Information -->
+        <div class="border-t border-slate-800 pt-6">
+          <h3 class="text-lg font-semibold mb-4">About Your AI Tool</h3>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="tool-name" class="block text-sm font-medium mb-2">
+                Tool Name <span class="text-red-400">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="tool-name"
+                name="toolName"
+                required
+                placeholder="e.g., MyAI Assistant"
+                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+              />
+            </div>
+
+            <div>
+              <label for="tool-url" class="block text-sm font-medium mb-2">
+                Website URL <span class="text-red-400">*</span>
+              </label>
+              <input 
+                type="url" 
+                id="tool-url"
+                name="toolUrl"
+                required
+                placeholder="https://yourtool.com"
+                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+              />
+            </div>
+
+            <div>
+              <label for="category" class="block text-sm font-medium mb-2">
+                Category <span class="text-red-400">*</span>
+              </label>
+              <select 
+                id="category"
+                name="category"
+                required
+                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+              >
+                <option value="">Select a category...</option>
+                <option value="llm">LLM / Chatbot</option>
+                <option value="code">Coding Assistant</option>
+                <option value="image">Image Generation</option>
+                <option value="video">Video Generation</option>
+                <option value="audio">Audio / Voice</option>
+                <option value="writing">Writing / Content</option>
+                <option value="productivity">Productivity</option>
+                <option value="data">Data / Analytics</option>
+                <option value="api">API / Infrastructure</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="description" class="block text-sm font-medium mb-2">
+                Brief Description <span class="text-red-400">*</span>
+              </label>
+              <textarea 
+                id="description"
+                name="description"
+                required
+                rows="4"
+                placeholder="What does your tool do? What problem does it solve?"
+                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand resize-none"
+              ></textarea>
+            </div>
+
+            <div>
+              <label for="unique-features" class="block text-sm font-medium mb-2">
+                What Makes It Unique?
+              </label>
+              <textarea 
+                id="unique-features"
+                name="uniqueFeatures"
+                rows="3"
+                placeholder="What sets your tool apart from competitors?"
+                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand resize-none"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing & Access -->
+        <div class="border-t border-slate-800 pt-6">
+          <h3 class="text-lg font-semibold mb-4">Pricing & Access</h3>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="pricing-model" class="block text-sm font-medium mb-2">
+                Pricing Model <span class="text-red-400">*</span>
+              </label>
+              <select 
+                id="pricing-model"
+                name="pricingModel"
+                required
+                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+              >
+                <option value="">Select pricing model...</option>
+                <option value="free">Completely Free</option>
+                <option value="freemium">Freemium (Free tier + Paid)</option>
+                <option value="subscription">Subscription Only</option>
+                <option value="pay-per-use">Pay-per-use / Credits</option>
+                <option value="one-time">One-time Purchase</option>
+                <option value="enterprise">Enterprise Only</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="starting-price" class="block text-sm font-medium mb-2">
+                Starting Price (if applicable)
+              </label>
+              <input 
+                type="text" 
+                id="starting-price"
+                name="startingPrice"
+                placeholder="e.g., $20/month, $0.002/token, Free"
+                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+              />
+            </div>
+
+            <div>
+              <label class="flex items-start gap-3">
+                <input 
+                  type="checkbox" 
+                  name="canProvideAccess"
+                  value="yes"
+                  class="mt-1 w-4 h-4 bg-slate-900 border-slate-800 rounded focus:ring-brand"
+                />
+                <span class="text-sm text-slate-300">
+                  We can provide review access (free trial, API credits, or demo account)
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="border-t border-slate-800 pt-6">
+          <label for="additional-info" class="block text-sm font-medium mb-2">
+            Anything Else We Should Know?
+          </label>
+          <textarea 
+            id="additional-info"
+            name="additionalInfo"
+            rows="4"
+            placeholder="Beta features, specific use cases to test, timeline constraints, etc."
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Partnership Interest -->
+        <div class="bg-slate-900/60 border border-slate-700 rounded-lg p-4">
+          <label class="flex items-start gap-3">
+            <input 
+              type="checkbox" 
+              name="partnershipInterest"
+              value="yes"
+              class="mt-1 w-4 h-4 bg-slate-900 border-slate-800 rounded focus:ring-brand"
+            />
+            <div class="text-sm">
+              <span class="text-slate-200 font-medium">Interested in partnership opportunities?</span>
+              <p class="text-slate-400 mt-1">
+                We occasionally work with companies on sponsored content, affiliate programs, or co-marketing. Check this if you'd like to discuss.
+              </p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button 
+            type="submit"
+            class="w-full md:w-auto px-8 py-3 bg-brand hover:bg-brand/80 rounded-lg font-semibold transition-colors"
+          >
+            Submit Review Request
+          </button>
+          <p class="text-xs text-slate-500 mt-3">
+            We review all submissions but can't guarantee coverage. We prioritize tools with unique value propositions and strong technical merit.
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="mt-12 space-y-6">
+      <h2 class="text-2xl font-bold">Frequently Asked Questions</h2>
+      
+      <div class="space-y-4">
+        <details class="bg-slate-900/40 border border-slate-800 rounded-lg p-5">
+          <summary class="font-semibold cursor-pointer">Do you charge for reviews?</summary>
+          <p class="text-slate-300 mt-3 text-sm">
+            No. Our reviews are independent and unbiased. We don't accept payment for reviews or ratings. 
+            We may use affiliate links in reviews, but this doesn't influence our testing or scores.
+          </p>
+        </details>
+
+        <details class="bg-slate-900/40 border border-slate-800 rounded-lg p-5">
+          <summary class="font-semibold cursor-pointer">How long does a review take?</summary>
+          <p class="text-slate-300 mt-3 text-sm">
+            Typically 2-4 weeks from receiving access. We do thorough testing across multiple use cases, 
+            edge cases, and comparison benchmarks. Rush reviews aren't our thing.
+          </p>
+        </details>
+
+        <details class="bg-slate-900/40 border border-slate-800 rounded-lg p-5">
+          <summary class="font-semibold cursor-pointer">Can I see the review before it's published?</summary>
+          <p class="text-slate-300 mt-3 text-sm">
+            We'll fact-check technical details with you, but we don't offer editorial approval. 
+            Our reviews reflect our honest testing and opinions.
+          </p>
+        </details>
+
+        <details class="bg-slate-900/40 border border-slate-800 rounded-lg p-5">
+          <summary class="font-semibold cursor-pointer">What if we get a bad review?</summary>
+          <p class="text-slate-300 mt-3 text-sm">
+            We're fair but honest. If there are issues, we document them with specifics. 
+            Many tools have both strengths and weaknesses—that's normal. We also update reviews 
+            as tools improve.
+          </p>
+        </details>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  details summary {
+    list-style: none;
+  }
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+  details summary::before {
+    content: '›';
+    display: inline-block;
+    margin-right: 0.5rem;
+    transition: transform 0.2s;
+  }
+  details[open] summary::before {
+    transform: rotate(90deg);
+  }
+</style>
