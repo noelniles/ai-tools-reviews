@@ -62,12 +62,37 @@ function parseFrontmatter(filePath) {
   
   const frontmatter = {};
   const lines = match[1].split('\n');
+  let currentKey = null;
+  let currentIndent = 0;
   
   for (const line of lines) {
-    const [key, ...valueParts] = line.split(':');
-    if (key && valueParts.length) {
-      const value = valueParts.join(':').trim().replace(/^["']|["']$/g, '');
-      frontmatter[key.trim()] = value;
+    // Skip empty lines
+    if (!line.trim()) continue;
+    
+    const indent = line.search(/\S/);
+    const trimmed = line.trim();
+    
+    // Top-level key
+    if (indent === 0 && trimmed.includes(':')) {
+      const [key, ...valueParts] = trimmed.split(':');
+      const value = valueParts.join(':').trim();
+      
+      if (value && value !== '') {
+        // Simple key-value
+        frontmatter[key.trim()] = value.replace(/^["']|["']$/g, '');
+        currentKey = null;
+      } else {
+        // Nested object starting
+        currentKey = key.trim();
+        frontmatter[currentKey] = {};
+        currentIndent = indent;
+      }
+    } 
+    // Nested key under current object
+    else if (currentKey && indent > currentIndent && trimmed.includes(':')) {
+      const [key, ...valueParts] = trimmed.split(':');
+      const value = valueParts.join(':').trim();
+      frontmatter[currentKey][key.trim()] = value.replace(/^["']|["']$/g, '');
     }
   }
   
@@ -80,7 +105,10 @@ function parseFrontmatter(filePath) {
 function createPostText(frontmatter, slug, type = 'review', platform = 'twitter') {
   const title = frontmatter.title;
   const tool = frontmatter.tool || title.split(':')[0].trim();
-  const rating = frontmatter.rating;
+  // Handle nested rating object or simple rating number
+  const rating = typeof frontmatter.rating === 'object' 
+    ? parseFloat(frontmatter.rating.overall) 
+    : parseFloat(frontmatter.rating);
   const url = `${SITE_URL}/${type === 'technical' ? 'technical' : 'reviews'}/${slug}`;
   
   if (type === 'technical') {
