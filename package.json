@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
+    "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.6.1",
     "@astrojs/tailwind": "^6.0.2",
     "astro": "^5.16.9",
@@ -17,5 +18,9 @@
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@atproto/api": "^0.13.20",
+    "twitter-api-v2": "^1.18.2"
   }
 }
