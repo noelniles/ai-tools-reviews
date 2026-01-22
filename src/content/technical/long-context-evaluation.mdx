@@ -14,7 +14,23 @@ Models claim 100K, 200K, or even 1M token context windows. But do they actually 
 
 ## The "Lost in the Middle" Problem
 
-Research shows LLMs struggle with information in the middle of long contexts:
+Research shows LLMs struggle with information in the middle of long contexts. This isn't a bug—it's a fundamental limitation arising from the attention mechanism's implicit positional bias.
+
+**The empirical finding**: In the landmark "Lost in the Middle" paper (Liu et al., 2023), researchers tested GPT-3.5 Turbo and GPT-4 on multi-document QA with facts placed at different positions. Results showed a U-shaped recall curve:
+
+$$P(\text{recall} | \text{position}) = \begin{cases}
+0.95 & \text{if position} \in [0, 0.1] \cup [0.9, 1.0] \\
+0.47 & \text{if position} \in [0.4, 0.6] \\
+0.75 & \text{otherwise}
+\end{cases}$$
+
+This is a **50% drop** in middle positions! Why does this happen?
+
+**Hypothesis 1: Attention entropy**. Softmax attention naturally concentrates on recent tokens (recency bias) and initial tokens (primacy bias). Middle tokens receive diluted attention.
+
+**Hypothesis 2: Training distribution**. Most training examples are short documents where relevant info tends to appear at the start (abstracts, summaries) or end (conclusions). The model learns this distribution.
+
+**Hypothesis 3: Positional encoding artifacts**. RoPE and ALiBi inject position info that may inadvertently bias attention away from middle positions at extreme distances.
 
 ```
 Context Window Performance:
@@ -249,33 +265,35 @@ Results (% accuracy at 128K context):
 
 ## Why Models Struggle
 
-### 1. Attention Dilution
+### 1. Attention Dilution: The Probability Spreading Problem
 
-<CodeBlock
-  language="python"
-  filename="attention_dilution.py"
-  code={`def analyze_attention_dilution(seq_len):
-    """
-    Longer sequences = more tokens to attend to
-    = less attention per token
-    """
-    # Attention weights sum to 1
-    # More tokens = each gets less weight
-    
-    attention_per_token = {
-        '2K context': 1.0 / 2_000,    # 0.0005
-        '32K context': 1.0 / 32_000,  # 0.00003
-        '128K context': 1.0 / 128_000 # 0.000008
-    }
-    
-    # Important tokens in middle get diluted
-    # Model may "forget" them
-    
-    return attention_per_token
+The fundamental issue: softmax attention weights must sum to 1. With longer contexts, this probability mass is spread thinner.
 
-# Solution: Sparse attention, sliding windows
-# But these have their own limitations`}
-/>
+$$\sum_{j=1}^n \alpha_{ij} = 1 \quad \text{for all positions } i$$
+
+For a uniform attention distribution over $n$ tokens:
+
+$$\alpha_{ij} = \frac{1}{n} \quad \forall j$$
+
+As $n$ grows, each token receives less attention:
+
+$$\lim_{n \to \infty} \frac{1}{n} = 0$$
+
+**Concrete example**: Suppose token $i$ needs strong signal from token $j$ (e.g., a pronoun referring to an entity). The attention weight $\alpha_{ij}$ must compete with all other $n-1$ tokens.
+
+In a 2K context with 10 relevant tokens:
+$$\text{Attention to important tokens} \approx 10 \times \frac{1}{2000} = 0.005 = 0.5\%$$
+
+In a 128K context with the same 10 important tokens:
+$$\text{Attention to important tokens} \approx 10 \times \frac{1}{128000} = 0.000078 = 0.0078\%$$
+
+The signal is **64x weaker**! This explains why models struggle to maintain focus in ultra-long contexts.
+
+**Entropy perspective**: Attention entropy increases with context length. For uniform distribution:
+
+$$H = -\sum_{j=1}^n \frac{1}{n} \log \frac{1}{n} = \log n$$
+
+Higher entropy means more uncertainty about where to attend. At 128K tokens: $H = \log_2(128000) \approx 17$ bits of uncertainty versus $H = \log_2(2000) \approx 11$ bits for 2K tokens.
 
 ### 2. Training Data Mismatch
 

@@ -21,14 +21,38 @@ import Icon from './Icon.astro'
     <div class="hidden md:flex gap-6 text-sm items-center">
       <a href="/" class="hover:text-brand transition-colors">Home</a>
       <a href="/reviews" class="hover:text-brand transition-colors">Reviews</a>
+      
+      <!-- Technical dropdown -->
+      <div class="relative group">
+        <button class="hover:text-brand transition-colors inline-flex items-center gap-1.5">
+          <Icon name="cpu" size="sm" />
+          Technical
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="absolute left-0 mt-2 w-64 bg-slate-900 border border-slate-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+          <div class="py-2">
+            <a href="/technical/attention-mechanisms" class="block px-4 py-2 hover:bg-slate-800 transition-colors">Attention Mechanisms</a>
+            <a href="/technical/transformer-architecture" class="block px-4 py-2 hover:bg-slate-800 transition-colors">Transformer Architecture</a>
+            <a href="/technical/llm-training" class="block px-4 py-2 hover:bg-slate-800 transition-colors">LLM Training</a>
+            <a href="/technical/inference-optimization" class="block px-4 py-2 hover:bg-slate-800 transition-colors">Inference Optimization</a>
+            <a href="/technical/kv-cache-optimization" class="block px-4 py-2 hover:bg-slate-800 transition-colors">KV Cache Optimization</a>
+            <a href="/technical/long-context-architecture" class="block px-4 py-2 hover:bg-slate-800 transition-colors">Long-Context Models</a>
+            <a href="/technical/long-context-evaluation" class="block px-4 py-2 hover:bg-slate-800 transition-colors">Long-Context Evaluation</a>
+            <a href="/technical/position-encodings" class="block px-4 py-2 hover:bg-slate-800 transition-colors">Position Encodings</a>
+            <a href="/technical/llm-hallucinations-case-study" class="block px-4 py-2 hover:bg-slate-800 transition-colors border-t border-slate-700 mt-1">Hallucinations Case Study</a>
+            <a href="/technical/open-source-tools" class="block px-4 py-2 hover:bg-slate-800 transition-colors border-t border-slate-700 mt-1 text-cyan-300 font-semibold">🔧 Open-Source Tools</a>
+          </div>
+        </div>
+      </div>
+      
       <a href="/search" class="hover:text-brand transition-colors inline-flex items-center gap-1.5">
         <Icon name="search" size="sm" />
         Search
       </a>
       <a href="/compare" class="hover:text-brand transition-colors">Compare</a>
-      <a href="/deals" class="hover:text-brand transition-colors flex items-center gap-1.5">
-        <Icon name="check-circle" size="sm" />
-        Deals
+      <a href="/resources" class="hover:text-brand transition-colors inline-flex items-center gap-1.5">
+        <Icon name="book-open" size="sm" />
+        Resources
       </a>
       <a href="/methodology" class="hover:text-brand transition-colors inline-flex items-center gap-1.5">
         <Icon name="beaker" size="sm" />
@@ -44,14 +68,33 @@ import Icon from './Icon.astro'
   <div id="mobile-menu" class="hidden md:hidden mt-4 flex flex-col gap-3 text-sm">
     <a href="/" class="hover:text-brand transition-colors py-2">Home</a>
     <a href="/reviews" class="hover:text-brand transition-colors py-2">All Reviews</a>
+    
+    <!-- Technical submenu -->
+    <div class="border-l-2 border-slate-700 pl-3 py-2">
+      <div class="text-slate-400 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <Icon name="cpu" size="sm" />
+        Technical Articles
+      </div>
+      <div class="flex flex-col gap-2">
+        <a href="/technical/attention-mechanisms" class="hover:text-brand transition-colors text-sm">Attention Mechanisms</a>
+        <a href="/technical/transformer-architecture" class="hover:text-brand transition-colors text-sm">Transformers</a>
+        <a href="/technical/llm-training" class="hover:text-brand transition-colors text-sm">LLM Training</a>
+        <a href="/technical/inference-optimization" class="hover:text-brand transition-colors text-sm">Inference Optimization</a>
+        <a href="/technical/kv-cache-optimization" class="hover:text-brand transition-colors text-sm">KV Cache</a>
+        <a href="/technical/long-context-architecture" class="hover:text-brand transition-colors text-sm">Long-Context Models</a>
+        <a href="/technical/position-encodings" class="hover:text-brand transition-colors text-sm">Position Encodings</a>
+        <a href="/technical/open-source-tools" class="hover:text-cyan-300 transition-colors text-sm font-semibold border-t border-slate-800 pt-2 mt-2">🔧 Open-Source Tools</a>
+      </div>
+    </div>
+    
     <a href="/search" class="hover:text-brand transition-colors inline-flex items-center gap-1.5 py-2">
       <Icon name="search" size="sm" />
       Search
     </a>
     <a href="/compare" class="hover:text-brand transition-colors py-2">Compare</a>
-    <a href="/deals" class="hover:text-brand transition-colors flex items-center gap-1.5 py-2">
-      <Icon name="check-circle" size="sm" />
-      Deals
+    <a href="/resources" class="hover:text-brand transition-colors inline-flex items-center gap-1.5 py-2">
+      <Icon name="book-open" size="sm" />
+      Resources
     </a>
     <a href="/methodology" class="hover:text-brand transition-colors inline-flex items-center gap-1.5 py-2">
       <Icon name="beaker" size="sm" />

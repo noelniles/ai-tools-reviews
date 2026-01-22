@@ -13,9 +13,28 @@ import TechSpecs from '../../components/TechSpecs.astro'
 
 The KV cache is critical for fast LLM generation. Poor management = slow inference and out-of-memory errors.
 
-## What is KV Cache?
+During autoregressive text generation, transformers produce one token at a time. Naively, we'd recompute attention over the entire sequence for each new token—a computational disaster scaling as $O(n^2)$ where $n$ is sequence length. The KV cache elegantly solves this by storing previously computed Key and Value matrices, reducing per-token cost from $O(n)$ to $O(1)$.
 
-In autoregressive generation, we generate one token at a time. Without caching, we'd recompute attention for all previous tokens every step:
+However, this cache becomes the memory bottleneck for long-context inference. For a 70B parameter model generating 4K tokens, the KV cache alone can consume **5+ GB of memory**—more than the activation memory! Understanding and optimizing KV cache usage is essential for deploying large language models efficiently.
+
+## The Problem: Redundant Computation
+
+Recall the attention formula:
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+During generation at step $t$, we compute:
+- Query for new token: $Q_t$
+- Keys for all tokens: $K_1, K_2, ..., K_t$  
+- Values for all tokens: $V_1, V_2, ..., V_t$
+
+**The inefficiency**: At step $t+1$, we need $K_1, ..., K_t$ again! Without caching, we recompute these from the original embeddings:
+
+$$\text{Without cache}: \underbrace{O(t)}_{\text{compute } K_{1:t}} + \underbrace{O(1)}_{\text{new } K_{t+1}} = O(t) \text{ per token}$$
+
+$$\text{Total for } n \text{ tokens}: \sum_{t=1}^n O(t) = O(n^2)$$
+
+For 2048 tokens, this is **2 million** unnecessary computations!
 
 ```
 Generate "The cat sat on the mat"
@@ -76,9 +95,85 @@ This is O(n²) - extremely slow!
 # 25x speedup!`}
 />
 
-## Memory Cost of KV Cache
+## Memory Analysis: The Storage Cost
 
-The cache grows with sequence length:
+The KV cache stores two tensors per layer per attention head. For a model with:
+- $L$ layers
+- $H$ attention heads  
+- $d_h$ dimension per head
+- $n$ sequence length
+- $b$ batch size
+
+The total KV cache size is:
+
+$$\text{KV cache size} = 2 \times L \times H \times d_h \times n \times b \times \text{bytes per element}$$
+
+**Concrete example** for a 70B parameter model (LLaMA-2 70B):
+- $L = 80$ layers
+- $H = 64$ heads
+- $d_h = 128$ dimensions per head  
+- $n = 4096$ tokens (context length)
+- $b = 1$ (single user)
+- FP16 = 2 bytes
+
+$$\text{KV cache} = 2 \times 80 \times 64 \times 128 \times 4096 \times 1 \times 2 = 10.74 \text{ GB}$$
+
+That's **10.7 GB** just to store attention keys and values for a single 4K context! For comparison, the model weights themselves are 140 GB in FP16.
+
+**Batch size scaling**: With 8 concurrent users (batch size 8):
+
+$$\text{KV cache} = 10.74 \times 8 = 85.9 \text{ GB}$$
+
+This exceeds the memory of a single A100 (80GB), forcing expensive multi-GPU inference or restricting batch sizes—directly impacting throughput and cost.
+
+**The throughput killer**: Larger batch sizes amortize the model weight loading cost across multiple requests, dramatically improving tokens/second/dollar. But KV cache memory limits how large batches can grow. This is why **PagedAttention** and **vLLM** were such breakthroughs—they enable 5-10x higher batch sizes through clever memory management.
+
+**The batch size economics**: For a 70B model on an A100 (80GB):
+
+Without optimization:
+$$\text{Max batch size} = \frac{80\\text{ GB} - 140\\text{ GB weights}}{10.7\\text{ GB per request}} \\approx 0$$
+
+This is **impossible**! The weights alone exceed GPU memory. With quantization (INT8 weights = 70GB):
+
+$$\text{Max batch size} = \frac{80 - 70}{10.7} \\approx 1$$
+
+Only one request at a time. Terrible utilization!
+
+With PagedAttention + quantization + optimizations:
+$$\text{Max batch size} \\approx 8-16$$
+
+This **8-16x improvement** in batch size translates directly to cost savings. If you're serving 1M requests/day:
+
+- Batch size 1: Need 16 GPUs → \\$48K/month
+- Batch size 16: Need 1 GPU → \\$3K/month
+
+**\\$45K/month savings** from KV cache optimization alone!
+
+$$\text{Memory}_{\text{KV}} = 2 \times b \times n \times L \times h \times d_h \times \text{bytes}$$
+
+where:
+- $b$ = batch size
+- $n$ = sequence length  
+- $L$ = number of layers
+- $h$ = number of attention heads
+- $d_h$ = dimension per head
+- bytes = precision (2 for FP16, 4 for FP32)
+
+**Example: LLaMA 2 70B**
+- $L = 80$ layers
+- $h = 64$ heads
+- $d_h = 128$ dims/head
+- $n = 4096$ tokens
+- FP16 (2 bytes)
+
+$$\text{Memory} = 2 \times 1 \times 4096 \times 80 \times 64 \times 128 \times 2 = 10.7 \text{ GB}$$
+
+That's **10.7 GB** just for KV cache! Compare to:
+- Model weights: ~140 GB (FP16)
+- Activations: ~3 GB
+- **KV cache: ~11 GB** (significant!)
+
+**Scaling behavior**: Memory grows **linearly** with sequence length. Double the context → double the KV memory.
 
 <CodeBlock
   language="python"
@@ -459,14 +554,77 @@ llm = LLM(
 # - Handles 256 concurrent requests
 # - Uses PagedAttention automatically
 # - Quantizes KV cache to FP8
-# - Swaps to CPU if GPU memory full
-# Result: 20x higher throughput than naive implementation`}
+# - Swaps to CPU if GPU memory full`}
 />
 
 ---
 
-## Related Articles
+## Resources & Further Reading
 
-- [Inference Optimization →](/technical/inference-optimization)
-- [Long-Context Architecture →](/technical/long-context-architecture)
-- [Attention Mechanisms →](/technical/attention-mechanisms)
+### Foundational Papers
+
+<div class="resources-grid">
+
+**KV Cache Optimization**
+- <a href="https://arxiv.org/abs/2205.14135" target="_blank" rel="noopener noreferrer">FlashAttention: Fast and Memory-Efficient Exact Attention</a> (Dao et al., 2022)
+  - IO-aware algorithm that optimizes KV cache access patterns
+  - 2-4× speedup with exact attention
+- <a href="https://arxiv.org/abs/2307.08691" target="_blank" rel="noopener noreferrer">FlashAttention-2</a> (Dao, 2023)
+  - Further optimizations, up to 2× faster than FlashAttention-1
+
+**Memory Optimization**
+- <a href="https://arxiv.org/abs/2309.06180" target="_blank" rel="noopener noreferrer">Paged Attention (vLLM)</a> (Kwon et al., 2023)
+  - Virtual memory-inspired KV cache management
+  - Reduces memory waste from fragmentation
+- <a href="https://arxiv.org/abs/1911.02150" target="_blank" rel="noopener noreferrer">Multi-Query Attention</a> (Shazeer, 2019)
+  - Share K and V across attention heads
+  - Reduces KV cache by 8× for 8-head attention
+- <a href="https://arxiv.org/abs/2305.13245" target="_blank" rel="noopener noreferrer">Grouped-Query Attention</a> (Ainslie et al., 2023)
+  - Balance between multi-head and multi-query
+  - Used in LLaMA 2 70B
+
+**Quantization**
+- <a href="https://arxiv.org/abs/2208.07339" target="_blank" rel="noopener noreferrer">LLM.int8(): 8-bit Matrix Multiplication</a> (Dettmers et al., 2022)
+  - Quantize KV cache to INT8
+  - 2× memory savings with minimal quality loss
+
+</div>
+
+### Implementation Resources
+
+- **vLLM**: <a href="https://github.com/vllm-project/vllm" target="_blank" rel="noopener noreferrer">Production KV cache management</a>
+- **Flash Attention**: <a href="https://github.com/Dao-AILab/flash-attention" target="_blank" rel="noopener noreferrer">Optimized CUDA kernels</a>
+- **Text Generation Inference**: <a href="https://github.com/huggingface/text-generation-inference" target="_blank" rel="noopener noreferrer">Hugging Face's optimized inference</a>
+- **TensorRT-LLM**: <a href="https://github.com/NVIDIA/TensorRT-LLM" target="_blank" rel="noopener noreferrer">NVIDIA's optimized inference engine</a>
+
+### Related Technical Guides
+
+- [Attention Mechanisms →](/technical/attention-mechanisms) - Understanding attention computation
+- [Transformer Architecture →](/technical/transformer-architecture) - Complete architecture overview
+- [Inference Optimization →](/technical/inference-optimization) - General inference speedups
+- [Long-Context Architecture →](/technical/long-context-architecture) - Handling longer sequences
+
+### Educational Content
+
+**Blog Posts**
+- <a href="https://blog.vllm.ai/2023/06/20/vllm.html" target="_blank" rel="noopener noreferrer">vLLM: Easy, Fast, and Cheap LLM Serving</a>
+- <a href="https://horace.io/brrr_intro.html" target="_blank" rel="noopener noreferrer">Making Deep Learning Go Brrrr</a> - Optimization principles
+- <a href="https://gordicaleksa.medium.com/eli5-flash-attention-5c44017022ad" target="_blank" rel="noopener noreferrer">FlashAttention Explained</a>
+
+**Video Content**
+- <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY" target="_blank" rel="noopener noreferrer">Efficient LLM Inference</a> - Andrej Karpathy
+- <a href="https://www.youtube.com/watch?v=80bIUggRJf4" target="_blank" rel="noopener noreferrer">vLLM Technical Deep Dive</a>
+
+### Advanced Topics
+
+**Kernel-Level Optimization**
+- <a href="https://github.com/openai/triton" target="_blank" rel="noopener noreferrer">Triton: GPU Programming for Neural Networks</a>
+- <a href="https://github.com/NVIDIA/cutlass" target="_blank" rel="noopener noreferrer">CUTLASS: CUDA Templates for Linear Algebra</a>
+
+**System Design**
+- <a href="https://www.anyscale.com/blog/continuous-batching-llm-inference" target="_blank" rel="noopener noreferrer">Continuous Batching</a>
+- <a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="noopener noreferrer">Speculative Decoding</a> - Generate multiple tokens per step
+
+---
+
+*Last updated: September 2025*

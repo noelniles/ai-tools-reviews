@@ -6,6 +6,20 @@ body {
   @apply bg-slate-950 text-slate-100 antialiased;
 }
 
+/* Global link styling - Tron blue theme */
+@layer base {
+  a {
+    @apply text-cyan-400 hover:text-cyan-300 transition-colors duration-200;
+  }
+
+  /* Exception: buttons should keep their own styling */
+  button a,
+  .btn a,
+  [class*="btn-"] a {
+    @apply text-current;
+  }
+}
+
 /* Scientific/Research Typography */
 @layer base {
   h1, h2, h3, h4, h5, h6 {

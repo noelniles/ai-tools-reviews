@@ -13,6 +13,16 @@ import TechSpecs from '../../components/TechSpecs.astro'
 
 Training a model like GPT-4 or Claude costs millions of dollars and takes months. Understanding the training pipeline is essential for understanding why these models behave the way they do.
 
+The scale is staggering: GPT-4 was trained on approximately **13 trillion tokens** using an estimated **25,000 A100 GPUs** for 90-120 days, consuming roughly **50 gigawatt-hours** of electricity—enough to power a small city for a month. The training cost? Estimates range from **$50M to $100M** just for the compute.
+
+But why does training take so long? The bottleneck is the **gradient computation**. For each training batch, we must:
+1. Forward pass through $L$ layers (typically 80-100 for 175B models)
+2. Compute loss across $V$ vocabulary items (typically 50K-100K)
+3. Backward pass to compute $P$ parameter gradients (175 billion for GPT-4)
+4. Update parameters with optimizer state (2-3x memory overhead)
+
+With $O(n^2)$ attention complexity, processing a batch of 4M tokens (typical for large-scale training) requires computing attention over $4M \times 4M = 16$ trillion attention scores per layer. Multiply by 96 layers, and you're looking at over a **quadrillion** floating-point operations per batch.
+
 ## The Three-Stage Training Pipeline
 
 ```
@@ -94,9 +104,39 @@ Pre-training requires massive amounts of text data:
 - **Copyright**: Books, articles (legal gray area)
 - **Bias**: Overrepresentation of certain viewpoints
 
-### Pre-Training Objective
+### Pre-Training Objective: Next Token Prediction
 
-Next token prediction - simple but effective:
+The training objective is deceptively simple yet profoundly effective: **predict the next token**. Given a sequence of tokens $x_1, x_2, ..., x_{n-1}$, the model learns to predict $x_n$.
+
+Mathematically, we maximize the log-likelihood of the training data:
+
+$$\mathcal{L} = \sum_{i=1}^{N} \log P(x_i | x_1, ..., x_{i-1})$$
+
+where $N$ is the total number of tokens in the training corpus (trillions for GPT-4).
+
+The model outputs a probability distribution over the vocabulary at each position:
+
+$$P(x_i = w | x_1, ..., x_{i-1}) = \frac{\exp(z_w)}{\sum_{w' \in V} \exp(z_{w'})}$$
+
+where $z_w$ is the logit for word $w$ and $V$ is the vocabulary.
+
+**Cross-entropy loss** measures how well these predictions match the actual next tokens:
+
+$$\text{Loss} = -\frac{1}{N} \sum_{i=1}^{N} \log P(x_i | x_1, ..., x_{i-1})$$
+
+Lower loss means better predictions. GPT-4 achieves a loss around **2.0-2.5** on held-out data, meaning its predictions have roughly $e^{2.2} \approx 9$ bits of uncertainty per token—remarkably low considering the vocabulary size of 100K tokens ($\log_2(100000) \approx 16.6$ bits of maximum entropy).
+
+**Training dynamics**: Initially, the model predicts nearly uniformly across the vocabulary (loss $\approx \log(V) \approx 11.5$ for 100K vocab). Over millions of steps, the loss gradually decreases as the model learns:
+
+```
+Step 0:      Loss = 11.5  (random predictions)
+Step 10K:    Loss = 8.2   (learning common words)
+Step 100K:   Loss = 5.1   (learning syntax)
+Step 1M:     Loss = 3.4   (learning semantics)
+Step 10M:    Loss = 2.2   (near-human performance)
+```
+
+This smooth, predictable improvement is why **scaling laws** work so well for LLMs.
 
 <CodeBlock
   language="python"
@@ -286,6 +326,24 @@ training_config = {
 />
 
 ## Stage 3: RLHF (Reinforcement Learning from Human Feedback)
+
+RLHF is the secret sauce that transforms a language model into a helpful assistant. Without it, models complete text but don't follow instructions well.
+
+**The core problem**: How do you optimize for "helpfulness", "harmlessness", and "honesty" when these aren't differentiable loss functions? You can't compute gradients of "is this response helpful?"
+
+**The solution**: Train a **reward model** to predict human preferences, then use reinforcement learning to maximize expected reward.
+
+The mathematics behind RLHF is elegant. We model text generation as a **Markov Decision Process (MDP)** where:
+- **State**: The prompt and partial response so far
+- **Action**: Choosing the next token
+- **Reward**: Human preference score (from reward model)
+- **Policy**: The language model $\pi_\theta(a_t | s_t)$ that generates tokens
+
+The goal is to find policy parameters $\theta^*$ that maximize expected cumulative reward:
+
+$$\theta^* = \arg\max_\theta \mathbb{E}_{x \sim D, y \sim \pi_\theta(·|x)} \left[r(x, y)\right]$$
+
+where $r(x,y)$ is the reward for generating response $y$ to prompt $x$.
 
 ### Step 1: Train Reward Model
 

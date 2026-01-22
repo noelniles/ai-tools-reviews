@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav.astro';
+import Icon from '../components/Icon.astro';
 ---
 
 <BaseLayout 
@@ -273,17 +274,23 @@ import Nav from '../components/Nav.astro';
     <!-- Why Leave a Review? -->
     <div class="mt-12 grid md:grid-cols-3 gap-6">
       <div class="text-center">
-        <div class="text-4xl mb-3">💡</div>
+        <div class="flex justify-center mb-3">
+          <Icon name="lightbulb" size="xl" class="text-yellow-400" />
+        </div>
         <h3 class="font-semibold mb-2">Help Others</h3>
         <p class="text-sm text-slate-400">Your experience helps others make informed decisions</p>
       </div>
       <div class="text-center">
-        <div class="text-4xl mb-3">🏆</div>
+        <div class="flex justify-center mb-3">
+          <Icon name="trophy" size="xl" class="text-yellow-400" />
+        </div>
         <h3 class="font-semibold mb-2">Build Credibility</h3>
         <p class="text-sm text-slate-400">Quality reviews earn community reputation</p>
       </div>
       <div class="text-center">
-        <div class="text-4xl mb-3">🚀</div>
+        <div class="flex justify-center mb-3">
+          <Icon name="rocket" size="xl" class="text-brand" />
+        </div>
         <h3 class="font-semibold mb-2">Shape the Industry</h3>
         <p class="text-sm text-slate-400">Feedback influences product development</p>
       </div>

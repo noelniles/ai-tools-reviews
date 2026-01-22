@@ -13,6 +13,13 @@ import TechSpecs from '../../components/TechSpecs.astro'
 
 Attention is the core innovation that powers modern AI models like GPT-4, Claude, and Gemini. Understanding how it works is key to understanding why these models are so capable—and where their limitations come from.
 
+The attention mechanism solves a fundamental problem in sequence modeling: **how can a model decide which parts of the input are relevant for predicting the next token?** The answer is beautifully simple yet profoundly powerful: let the model learn to "attend" to relevant positions through a weighted sum, where the weights are computed dynamically based on the content.
+
+This dynamic, content-based routing of information is what enables transformers to:
+- Handle long-range dependencies ("The cat" and "sat" can directly interact)
+- Process sequences in parallel (no sequential bottleneck)
+- Learn rich contextual representations (each token gathers relevant info from all others)
+
 ## The Core Idea
 
 **Traditional RNNs** process sequences one token at a time, maintaining a hidden state:
@@ -44,11 +51,28 @@ mat   ●    ●    ●    ●   ●    ●
 
 Each token can directly access information from any previous token!
 
-## Self-Attention Step by Step
+## Self-Attention: The Mathematical Heart
 
-### Step 1: Create Query, Key, Value
+Self-attention computes a weighted combination of input representations, where the weights depend on the input itself. The full mechanism can be expressed in one equation:
 
-For each token, create three vectors:
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+Let's unpack this step by step.
+
+### Step 1: Create Query, Key, Value Projections
+
+For each token embedding $x_i \in \mathbb{R}^{d_{\text{model}}}$, we create three different projections:
+
+$$Q_i = x_i W^Q, \quad K_i = x_i W^K, \quad V_i = x_i W^V$$
+
+where $W^Q, W^K, W^V \in \mathbb{R}^{d_{\text{model}} \times d_k}$ are learned projection matrices.
+
+**Intuition:**
+- **Query ($Q_i$)**: "What am I looking for?" — represents the token's search query
+- **Key ($K_i$)**: "What do I offer?" — represents the token's content descriptor
+- **Value ($V_i$)**: "What information do I provide?" — the actual information to propagate
+
+Think of it like a database lookup: queries search for relevant keys, and matching keys return their associated values.
 
 <CodeBlock
   language="python"
@@ -92,9 +116,27 @@ Token: "cat"
    └──→ W_v → Value:  [0.5, 0.2, ..., 0.6]  "My meaning: feline"
 ```
 
-### Step 2: Compute Attention Scores
+### Step 2: Compute Attention Scores with Scaled Dot-Product
 
-Compare query of current token with keys of all tokens:
+We measure the compatibility between each query and all keys using dot products:
+
+$$\text{scores}_{ij} = \frac{Q_i \cdot K_j}{\sqrt{d_k}}$$
+
+The scaling factor $\frac{1}{\sqrt{d_k}}$ is crucial. Without it, for large $d_k$, the dot products grow large in magnitude, pushing the softmax into regions with extremely small gradients (saturation).
+
+**Why does this happen?** Consider the variance of a dot product. If $Q$ and $K$ have components drawn from a standard normal distribution $\mathcal{N}(0, 1)$, their dot product has variance:
+
+$$\text{Var}(Q \cdot K) = \text{Var}\left(\sum_{i=1}^{d_k} Q_i K_i\right) = \sum_{i=1}^{d_k} \text{Var}(Q_i K_i) = d_k$$
+
+As $d_k$ increases (GPT-4 uses $d_k = 128$), the dot products can reach values like $\pm 10\sqrt{d_k} \approx \pm 113$. When these extreme values hit softmax, we get probabilities like $[0.9999999, 0.0000001, ...]$—essentially one-hot vectors. The gradient of softmax in these regions is near-zero, causing the dreaded **vanishing gradient problem**.
+
+Scaling by $\sqrt{d_k}$ normalizes the variance back to 1, keeping dot products in a reasonable range (typically $\pm 3$) where softmax gradients remain healthy. This simple trick was key to making transformers trainable at scale.
+
+**Matrix form**: For a sequence of length $n$:
+
+$$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{n \times n}$$
+
+where $S_{ij}$ represents how much token $i$ should attend to token $j$.
 
 <CodeBlock
   language="python"
@@ -146,7 +188,25 @@ Key "sat": [0.5, 0.2, 0.9, ...]  → Score: 2.9 (very high)
 Result: "sat" pays most attention to itself and "cat"
 ```
 
-### Step 3: Apply Softmax
+### Step 3: Apply Softmax to Get Attention Weights
+
+We convert scores to probabilities using softmax:
+
+$$\alpha_{ij} = \frac{\exp(\text{score}_{ij})}{\sum_{k=1}^n \exp(\text{score}_{ik})}$$
+
+This ensures:
+1. All weights are positive: $\alpha_{ij} \geq 0$
+2. Weights sum to 1: $\sum_{j=1}^n \alpha_{ij} = 1$
+3. Higher scores → higher weights (exponential emphasis)
+
+**Causal masking** (for GPT-style models): We mask future positions by setting $\text{score}_{ij} = -\infty$ for $j > i$ before softmax. This prevents the model from "cheating" by looking ahead.
+
+$$
+\alpha_{ij} = \begin{cases} 
+\frac{\exp(\text{score}_{ij})}{\sum_{k=1}^i \exp(\text{score}_{ik})} & \text{if } j \leq i \\
+0 & \text{if } j > i
+\end{cases}
+$$
 
 Convert scores to probabilities:
 
@@ -198,7 +258,16 @@ sat: ███████████ (55%)
 
 ### Step 4: Weighted Sum of Values
 
-Combine value vectors using attention weights:
+The final step computes the attention output as a weighted combination of value vectors:
+
+$$\text{output}_i = \sum_{j=1}^n \alpha_{ij} V_j$$
+
+where $\alpha_{ij}$ are the attention weights from Step 3. This creates a new representation for token $i$ that incorporates information from all other tokens, weighted by their relevance.
+
+**In matrix form**:
+$$\text{Output} = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+This is the complete attention mechanism in one beautiful equation!
 
 <CodeBlock
   language="python"
@@ -256,33 +325,36 @@ output, weights = scaled_dot_product_attention(Q, K, V)
 # from all previous tokens it attended to`}
 />
 
-## Multi-Head Attention
+## Multi-Head Attention: Parallel Attention Streams
 
-Instead of one attention operation, run **multiple in parallel**:
+Single-head attention has a fundamental limitation: it can only learn one type of relationship. What if we want to simultaneously capture:
+- Syntactic dependencies ("what word modifies what")
+- Semantic relationships ("what concepts are related")  
+- Positional patterns ("what typically comes after what")
+- Coreference resolution ("what pronouns refer to what nouns")
 
-```
-Input Token Embedding (512-dim)
-         ↓
-    ┌────┴────┬────┬────┬────┬────┬────┬────┐
-    ↓         ↓    ↓    ↓    ↓    ↓    ↓    ↓
-  Head1    Head2 Head3 Head4 Head5 Head6 Head7 Head8
-  (64d)    (64d) (64d) (64d) (64d) (64d) (64d) (64d)
-    ↓         ↓    ↓    ↓    ↓    ↓    ↓    ↓
-  [Attn]  [Attn] ...                     [Attn]
-    ↓         ↓    ↓    ↓    ↓    ↓    ↓    ↓
-    └────┬────┴────┴────┴────┴────┴────┴────┘
-         ↓
-    Concatenate
-         ↓
-   Output (512-dim)
-```
+The solution: **multi-head attention** runs $h$ attention mechanisms in parallel, each learning different aspects of the relationships.
 
-Each head learns different patterns:
-- Head 1: Subject-verb relationships
-- Head 2: Adjective-noun pairs
-- Head 3: Long-range dependencies
-- Head 4: Positional patterns
-- etc.
+$$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O$$
+
+where each head is:
+$$\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$$
+
+Each head has its own $W_i^Q, W_i^K, W_i^V \in \mathbb{R}^{d_{\text{model}} \times d_k}$ projection matrices, allowing it to learn different attention patterns. The outputs are concatenated and projected through $W^O \in \mathbb{R}^{d_{\text{model}} \times d_{\text{model}}}$.
+
+**Parameter efficiency**: Instead of using full $d_{\text{model}}$ dimensions for each head, we typically split:
+
+$$d_k = d_v = \frac{d_{\text{model}}}{h}$$
+
+So 8 heads with 512-dim model use 64-dim per head. This keeps parameter count similar to single-head attention!
+
+**Why does this work?** Each head operates in a lower-dimensional subspace ($\mathbb{R}^{64}$ instead of $\mathbb{R}^{512}$) but learns specialized patterns. Head 1 might learn subject-verb agreement, Head 2 might learn entity relationships, Head 3 might track positional patterns. Together, they capture richer representations than any single head could.
+
+**Computational cost**: Multi-head attention with $h$ heads costs the same as single-head! We're trading depth ($d_k$) for breadth ($h$ heads). The matrix multiplications are:
+
+$$\text{Cost} = h \times \left(n \times d_{\text{model}} \times \frac{d_{\text{model}}}{h}\right) = n \times d_{\text{model}}^2$$
+
+Identical to single-head attention, but with richer learned patterns.
 
 <CodeBlock
   language="python"
@@ -429,8 +501,66 @@ Token 6 attends to:
 
 ---
 
-## Related Articles
+## Resources & Further Reading
 
-- [Long-Context Architecture →](/technical/long-context-architecture)
-- [Transformer Architecture Deep-Dive →](/technical/transformer-architecture)
-- [Position Encodings Explained →](/technical/position-encodings)
+### Foundational Papers
+
+<div class="resources-grid">
+
+**Original Attention Papers**
+- <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">Attention is All You Need</a> (Vaswani et al., 2017)
+  - Introduces scaled dot-product attention and multi-head attention
+  - Section 3.2 covers the attention mechanism in detail
+- <a href="https://arxiv.org/abs/1409.0473" target="_blank" rel="noopener noreferrer">Neural Machine Translation by Jointly Learning to Align and Translate</a> (Bahdanau et al., 2014)
+  - First attention mechanism for sequence-to-sequence models
+
+**Attention Variants**
+- <a href="https://arxiv.org/abs/2205.14135" target="_blank" rel="noopener noreferrer">FlashAttention: Fast and Memory-Efficient Exact Attention</a> (Dao et al., 2022)
+  - IO-aware algorithm making attention 2-4× faster
+- <a href="https://arxiv.org/abs/2004.05150" target="_blank" rel="noopener noreferrer">Longformer: The Long-Document Transformer</a> (Beltagy et al., 2020)
+  - Sparse attention patterns for long sequences
+- <a href="https://arxiv.org/abs/2007.14062" target="_blank" rel="noopener noreferrer">BigBird: Transformers for Longer Sequences</a> (Zaheer et al., 2020)
+  - Random, window, and global attention combined
+
+</div>
+
+### Implementation Resources
+
+- **PyTorch Attention Tutorial**: <a href="https://pytorch.org/tutorials/beginner/transformer_tutorial.html" target="_blank" rel="noopener noreferrer">Official implementation guide</a>
+- **Flash Attention**: <a href="https://github.com/Dao-AILab/flash-attention" target="_blank" rel="noopener noreferrer">Optimized CUDA kernels</a>
+- **xFormers**: <a href="https://github.com/facebookresearch/xformers" target="_blank" rel="noopener noreferrer">Facebook's efficient attention implementations</a>
+- **Hugging Face**: <a href="https://github.com/huggingface/transformers/tree/main/src/transformers/models" target="_blank" rel="noopener noreferrer">Attention implementations</a>
+
+### Related Technical Guides
+
+- [Transformer Architecture →](/technical/transformer-architecture) - Complete architecture overview
+- [Position Encodings →](/technical/position-encodings) - How transformers understand order
+- [Long-Context Architecture →](/technical/long-context-architecture) - Scaling to longer sequences
+- [KV Cache Optimization →](/technical/kv-cache-optimization) - Memory-efficient attention
+- [Inference Optimization →](/technical/inference-optimization) - Making attention faster
+
+### Educational Content
+
+**Visualizations**
+- <a href="http://jalammar.github.io/illustrated-transformer/" target="_blank" rel="noopener noreferrer">The Illustrated Transformer</a> - Jay Alammar's visual guide
+- <a href="https://lilianweng.github.io/posts/2018-06-24-attention/" target="_blank" rel="noopener noreferrer">Attention? Attention!</a> - Lilian Weng's comprehensive overview
+- <a href="https://poloclub.github.io/transformer-explainer/" target="_blank" rel="noopener noreferrer">Transformer Explainer</a> - Interactive tool
+
+**Video Lectures**
+- <a href="https://www.youtube.com/watch?v=5vcj8kSwBCY" target="_blank" rel="noopener noreferrer">Stanford CS224N: Attention Mechanisms</a>
+- <a href="https://www.youtube.com/watch?v=iDulhoQ2pro" target="_blank" rel="noopener noreferrer">Yannic Kilcher: Attention is All You Need</a>
+
+### Advanced Topics
+
+**Efficient Attention**
+- <a href="https://arxiv.org/abs/2006.16236" target="_blank" rel="noopener noreferrer">Linear Attention</a> - Reducing complexity to O(n)
+- <a href="https://arxiv.org/abs/2305.13245" target="_blank" rel="noopener noreferrer">Grouped Query Attention</a> - Reducing KV cache memory
+- <a href="https://arxiv.org/abs/1911.02150" target="_blank" rel="noopener noreferrer">Multi-Query Attention</a> - Sharing keys and values
+
+**Sparse Attention Patterns**
+- <a href="https://arxiv.org/abs/1904.10509" target="_blank" rel="noopener noreferrer">Sparse Transformers</a> - Factorized attention patterns
+- <a href="https://arxiv.org/abs/2001.04451" target="_blank" rel="noopener noreferrer">Reformer</a> - Locality-sensitive hashing for attention
+
+---
+
+*Last updated: December 2025*
