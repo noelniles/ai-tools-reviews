@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0  # Fetch all history for reliable diffs
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,12 +30,20 @@ jobs:
         id: check_new
         run: |
           # Get newly added or modified content files
-          NEW_FILES=$(git diff --name-only HEAD^ HEAD | grep -E 'src/content/(reviews|technical)/.*\.mdx?$' || echo "")
+          echo "Checking git diff for changes..."
+          git diff --name-only HEAD~1 HEAD
+          
+          NEW_FILES=$(git diff --name-only HEAD~1 HEAD | grep -E 'src/content/(reviews|technical)/.*\.mdx?$' || echo "")
+          
+          echo "Files found: $NEW_FILES"
+          
           if [ -n "$NEW_FILES" ]; then
             echo "new_content=true" >> $GITHUB_OUTPUT
             echo "files=$NEW_FILES" >> $GITHUB_OUTPUT
+            echo "✅ New content detected!"
           else
             echo "new_content=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No new content files found"
           fi
       
       - name: Post to X and Bluesky

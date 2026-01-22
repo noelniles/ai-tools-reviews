@@ -119,7 +119,12 @@ async function postToTwitter(text) {
     console.log('✅ Posted to X (Twitter):', tweet.data.id);
     return true;
   } catch (error) {
-    console.error('❌ Error posting to Twitter:', error.message);
+    if (error.code === 402 || error.statusCode === 402) {
+      console.log('⚠️  Twitter API requires paid plan ($100+/month). Skipping Twitter posts.');
+      console.log('💡 Consider removing Twitter or using Buffer/Hootsuite instead.');
+    } else {
+      console.error('❌ Error posting to Twitter:', error.message);
+    }
     return false;
   }
 }
@@ -130,11 +135,14 @@ async function postToTwitter(text) {
 async function postToBluesky(text) {
   if (!BLUESKY_HANDLE || !BLUESKY_PASSWORD) {
     console.log('⚠️  Bluesky credentials not configured, skipping Bluesky post');
+    console.log('💡 Set BLUESKY_HANDLE and BLUESKY_PASSWORD in GitHub Secrets');
     return false;
   }
 
   try {
     const { BskyAgent, RichText } = await import('@atproto/api');
+    
+    console.log(`🔐 Logging into Bluesky as ${BLUESKY_HANDLE}...`);
     
     const agent = new BskyAgent({ service: 'https://bsky.social' });
     await agent.login({
@@ -154,6 +162,12 @@ async function postToBluesky(text) {
     return true;
   } catch (error) {
     console.error('❌ Error posting to Bluesky:', error.message);
+    if (error.message.includes('Invalid identifier or password')) {
+      console.log('\n💡 Bluesky troubleshooting:');
+      console.log('  1. BLUESKY_HANDLE should be: zanemerrik.bsky.social (full handle)');
+      console.log('  2. BLUESKY_PASSWORD should be an App Password, not your main password');
+      console.log('  3. Generate new app password: Bluesky → Settings → App Passwords');
+    }
     return false;
   }
 }
@@ -191,11 +205,18 @@ async function main() {
     console.log(postText);
     console.log('─'.repeat(50));
 
-    // Post to both platforms
-    await Promise.all([
-      postToTwitter(postText),
-      postToBluesky(postText),
-    ]);
+    // Skip Twitter API (too expensive), output for manual posting
+    console.log('\n🐦 Twitter/X: Post manually at https://x.com/compose/tweet');
+    console.log('📋 Tweet text copied above\n');
+
+    // Post to Bluesky only
+    const blueskySuccess = await postToBluesky(postText);
+    
+    if (blueskySuccess) {
+      console.log('✅ Automation complete!');
+    } else {
+      console.log('⚠️  Check Bluesky credentials in GitHub Secrets');
+    }
   }
 
   console.log('\n✨ Done!');
