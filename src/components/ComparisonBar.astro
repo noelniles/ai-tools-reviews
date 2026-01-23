@@ -20,7 +20,7 @@ const max = Math.max(current, ...comparisons.map(c => c.value))
         <div class="space-y-1">
           <div class="flex items-center justify-between text-sm">
             <span class={isCurrent ? 'font-semibold text-brand' : 'text-slate-300'}>
-              {item.name} {isCurrent && '(This Tool)'}
+              {item.name}
             </span>
             <span class="text-slate-400">{item.value}{unit}</span>
           </div>
