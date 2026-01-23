@@ -23,7 +23,7 @@ const chartType = type
 
 <div class="chart-container my-8">
   {title && <h3 class="text-lg font-semibold mb-4 text-slate-200">{title}</h3>}
-  <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+  <div class="bg-slate-900/40 border border-slate-800 rounded-sm p-6">
     <canvas id={chartId} data-chart-type={chartType} data-chart-data={chartData} style={`max-height: ${height}px`}></canvas>
   </div>
 </div>

@@ -28,7 +28,7 @@ const related = allReviews
 ---
 
 {related.length > 0 && (
-  <div class="related-reviews my-12 p-6 rounded-xl bg-slate-900/40 border border-slate-800">
+  <div class="related-reviews my-12 p-6 rounded-sm bg-slate-900/40 border border-slate-800">
     <h3 class="text-xl font-bold mb-6 text-slate-100 flex items-center gap-2">
       <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -40,7 +40,7 @@ const related = allReviews
       {related.map(review => (
         <a 
           href={`/reviews/${review.slug}`}
-          class="group block p-4 rounded-lg bg-slate-800/40 border border-slate-700 hover:border-brand/50 transition-all hover:transform hover:scale-105"
+          class="group block p-4 rounded-sm bg-slate-800/40 border border-slate-700 hover:border-brand/50 transition-all hover:transform hover:scale-105"
         >
           <div class="space-y-3">
             <div class="flex items-start justify-between gap-2">

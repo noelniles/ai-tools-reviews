@@ -82,7 +82,7 @@ Object.keys(useCases).forEach(key => {
       {Object.entries(useCases).map(([key, useCase]) => (
         <a 
           href={`#${key}`}
-          class="block bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-all hover:scale-105"
+          class="block bg-slate-900/40 border border-slate-800 rounded-sm p-6 hover:border-brand/50 transition-all hover:scale-105"
         >
           <div class="text-4xl mb-3">{useCase.icon}</div>
           <h3 class="text-xl font-bold mb-2">{useCase.title}</h3>
@@ -108,7 +108,7 @@ Object.keys(useCases).forEach(key => {
         {recommendations[key]?.length > 0 ? (
           <div class="grid gap-4">
             {recommendations[key].map((review, idx) => (
-              <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors">
+              <div class="bg-slate-900/40 border border-slate-800 rounded-sm p-6 hover:border-brand/50 transition-colors">
                 <div class="flex justify-between items-start gap-4">
                   <div class="flex-1">
                     <div class="flex items-center gap-3 mb-2">
@@ -144,7 +144,7 @@ Object.keys(useCases).forEach(key => {
                     <div class="flex gap-3">
                       <a 
                         href={`/reviews/${review.slug}`}
-                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
+                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-sm text-sm font-semibold transition-colors"
                       >
                         Read Review
                       </a>
@@ -153,7 +153,7 @@ Object.keys(useCases).forEach(key => {
                           href={review.data.affiliateLink}
                           target="_blank"
                           rel="noopener noreferrer sponsored"
-                          class="affiliate-link px-4 py-2 bg-brand hover:bg-brand/80 rounded-lg text-sm font-semibold transition-colors"
+                          class="affiliate-link px-4 py-2 bg-brand hover:bg-brand/80 rounded-sm text-sm font-semibold transition-colors"
                           data-affiliate="true"
                           data-tool={review.data.title}
                         >
@@ -173,7 +173,7 @@ Object.keys(useCases).forEach(key => {
     ))}
 
     <!-- CTA -->
-    <div class="bg-gradient-to-r from-brand/20 to-purple-600/20 border border-brand/30 rounded-xl p-8 text-center">
+    <div class="bg-gradient-to-r from-brand/20 to-purple-600/20 border border-brand/30 rounded-sm p-8 text-center">
       <h3 class="text-2xl font-bold mb-3">Can't find what you need?</h3>
       <p class="text-slate-300 mb-6">
         Browse all {allReviews.length} reviews or compare tools side-by-side
@@ -181,13 +181,13 @@ Object.keys(useCases).forEach(key => {
       <div class="flex gap-4 justify-center">
         <a 
           href="/reviews"
-          class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-semibold transition-colors"
+          class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-sm font-semibold transition-colors"
         >
           All Reviews
         </a>
         <a 
           href="/compare"
-          class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-lg font-semibold transition-colors"
+          class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-sm font-semibold transition-colors"
         >
           Compare Tools
         </a>

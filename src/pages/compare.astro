@@ -39,7 +39,7 @@ const reviewsData = sortedReviews.map(r => ({
           <!-- Text/Writing Category -->
           <label class="category-checkbox cursor-pointer group">
             <input type="checkbox" value="text" class="category-input hidden" onchange="toggleCategory('text')">
-            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-xl p-6 text-left transition-all group-hover:border-brand">
+            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-sm p-6 text-left transition-all group-hover:border-brand">
               <div class="flex items-start justify-between mb-4">
                 <Icon name="file-text" size="xl" class="text-brand" />
                 <div class="checkbox-indicator w-6 h-6 border-2 border-slate-600 rounded flex items-center justify-center">
@@ -54,7 +54,7 @@ const reviewsData = sortedReviews.map(r => ({
           <!-- Code Category -->
           <label class="category-checkbox cursor-pointer group">
             <input type="checkbox" value="code" class="category-input hidden" onchange="toggleCategory('code')">
-            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-xl p-6 text-left transition-all group-hover:border-purple-500">
+            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-sm p-6 text-left transition-all group-hover:border-purple-500">
               <div class="flex items-start justify-between mb-4">
                 <Icon name="terminal" size="xl" class="text-purple-400" />
                 <div class="checkbox-indicator w-6 h-6 border-2 border-slate-600 rounded flex items-center justify-center">
@@ -69,7 +69,7 @@ const reviewsData = sortedReviews.map(r => ({
           <!-- Image Category -->
           <label class="category-checkbox cursor-pointer group">
             <input type="checkbox" value="image" class="category-input hidden" onchange="toggleCategory('image')">
-            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-xl p-6 text-left transition-all group-hover:border-pink-500">
+            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-sm p-6 text-left transition-all group-hover:border-pink-500">
               <div class="flex items-start justify-between mb-4">
                 <Icon name="beaker" size="xl" class="text-pink-400" />
                 <div class="checkbox-indicator w-6 h-6 border-2 border-slate-600 rounded flex items-center justify-center">
@@ -84,7 +84,7 @@ const reviewsData = sortedReviews.map(r => ({
           <!-- Video Category -->
           <label class="category-checkbox cursor-pointer group">
             <input type="checkbox" value="video" class="category-input hidden" onchange="toggleCategory('video')">
-            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-xl p-6 text-left transition-all group-hover:border-orange-500">
+            <div class="bg-slate-800/50 border-2 border-slate-700 rounded-sm p-6 text-left transition-all group-hover:border-orange-500">
               <div class="flex items-start justify-between mb-4">
                 <Icon name="video" size="xl" class="text-orange-400" />
                 <div class="checkbox-indicator w-6 h-6 border-2 border-slate-600 rounded flex items-center justify-center">
@@ -101,19 +101,19 @@ const reviewsData = sortedReviews.map(r => ({
         <div class="mt-8 pt-8 border-t border-slate-700">
           <h3 class="text-lg font-semibold mb-4 text-center">What's your budget?</h3>
           <div class="flex flex-wrap gap-4 justify-center">
-            <button onclick="filterBudget('free')" class="budget-btn px-6 py-3 rounded-lg border-2 border-slate-700 hover:border-green-500 hover:bg-green-500/10 transition-all flex items-center gap-2">
+            <button onclick="filterBudget('free')" class="budget-btn px-6 py-3 rounded-sm border-2 border-slate-700 hover:border-green-500 hover:bg-green-500/10 transition-all flex items-center gap-2">
               <Icon name="check-circle" size="sm" class="text-green-400" />
               Free Tier
             </button>
-            <button onclick="filterBudget('budget')" class="budget-btn px-6 py-3 rounded-lg border-2 border-slate-700 hover:border-blue-500 hover:bg-blue-500/10 transition-all flex items-center gap-2">
+            <button onclick="filterBudget('budget')" class="budget-btn px-6 py-3 rounded-sm border-2 border-slate-700 hover:border-blue-500 hover:bg-blue-500/10 transition-all flex items-center gap-2">
               <Icon name="trending-up" size="sm" class="text-blue-400" />
               Budget ($0-20/mo)
             </button>
-            <button onclick="filterBudget('pro')" class="budget-btn px-6 py-3 rounded-lg border-2 border-slate-700 hover:border-purple-500 hover:bg-purple-500/10 transition-all flex items-center gap-2">
+            <button onclick="filterBudget('pro')" class="budget-btn px-6 py-3 rounded-sm border-2 border-slate-700 hover:border-purple-500 hover:bg-purple-500/10 transition-all flex items-center gap-2">
               <Icon name="star" size="sm" class="text-purple-400" />
               Pro ($20-100/mo)
             </button>
-            <button onclick="filterBudget('enterprise')" class="budget-btn px-6 py-3 rounded-lg border-2 border-slate-700 hover:border-orange-500 hover:bg-orange-500/10 transition-all flex items-center gap-2">
+            <button onclick="filterBudget('enterprise')" class="budget-btn px-6 py-3 rounded-sm border-2 border-slate-700 hover:border-orange-500 hover:bg-orange-500/10 transition-all flex items-center gap-2">
               <Icon name="lightning" size="sm" class="text-orange-400" />
               Enterprise ($100+/mo)
             </button>
@@ -149,7 +149,7 @@ const reviewsData = sortedReviews.map(r => ({
     <section class="mb-16">
       <h2 class="text-3xl font-bold mb-8">Quick Comparison Table</h2>
       
-      <div class="overflow-x-auto bg-slate-900/40 border border-slate-800 rounded-xl">
+      <div class="overflow-x-auto bg-slate-900/40 border border-slate-800 rounded-sm">
         <table class="w-full">
           <thead>
             <tr class="border-b border-slate-800">
@@ -197,7 +197,7 @@ const reviewsData = sortedReviews.map(r => ({
                 <td class="p-4 text-center">
                   <a 
                     href={`/reviews/${review.slug}`}
-                    class="inline-block px-4 py-2 bg-slate-800 hover:bg-brand text-sm rounded-lg transition-colors"
+                    class="inline-block px-4 py-2 bg-slate-800 hover:bg-brand text-sm rounded-sm transition-colors"
                   >
                     Review →
                   </a>
@@ -215,7 +215,7 @@ const reviewsData = sortedReviews.map(r => ({
       
       <div class="grid md:grid-cols-2 gap-6">
         <!-- Best for Writing -->
-        <div class="bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/30 rounded-xl p-6">
+        <div class="bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/30 rounded-sm p-6">
           <div class="flex items-center gap-3 mb-4">
             <Icon name="file-text" size="lg" class="text-brand" />
             <h3 class="text-xl font-bold">Best for Writing</h3>
@@ -223,7 +223,7 @@ const reviewsData = sortedReviews.map(r => ({
           <p class="text-slate-400 text-sm mb-4">Top AI writing assistants for content creation</p>
           <div class="space-y-2">
             {sortedReviews.filter(r => r.data.tags?.some(t => ['writing', 'text', 'content'].includes(t.toLowerCase()))).slice(0, 3).map(r => (
-              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-lg hover:bg-slate-800/60 transition-colors">
+              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-sm hover:bg-slate-800/60 transition-colors">
                 <div class="flex items-center justify-between">
                   <span class="font-semibold">{r.data.title.replace(' Review', '')}</span>
                   <span class="text-sm text-brand">{r.data.rating.overall}/10</span>
@@ -234,7 +234,7 @@ const reviewsData = sortedReviews.map(r => ({
         </div>
 
         <!-- Best for Code -->
-        <div class="bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/30 rounded-xl p-6">
+        <div class="bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/30 rounded-sm p-6">
           <div class="flex items-center gap-3 mb-4">
             <Icon name="terminal" size="lg" class="text-purple-400" />
             <h3 class="text-xl font-bold">Best for Coding</h3>
@@ -242,7 +242,7 @@ const reviewsData = sortedReviews.map(r => ({
           <p class="text-slate-400 text-sm mb-4">Top AI coding assistants and development tools</p>
           <div class="space-y-2">
             {sortedReviews.filter(r => r.data.tags?.some(t => ['code', 'development', 'programming'].includes(t.toLowerCase()))).slice(0, 3).map(r => (
-              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-lg hover:bg-slate-800/60 transition-colors">
+              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-sm hover:bg-slate-800/60 transition-colors">
                 <div class="flex items-center justify-between">
                   <span class="font-semibold">{r.data.title.replace(' Review', '')}</span>
                   <span class="text-sm text-brand">{r.data.rating.overall}/10</span>
@@ -253,7 +253,7 @@ const reviewsData = sortedReviews.map(r => ({
         </div>
 
         <!-- Best for Images -->
-        <div class="bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/30 rounded-xl p-6">
+        <div class="bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/30 rounded-sm p-6">
           <div class="flex items-center gap-3 mb-4">
             <Icon name="beaker" size="lg" class="text-pink-400" />
             <h3 class="text-xl font-bold">Best for Images</h3>
@@ -261,7 +261,7 @@ const reviewsData = sortedReviews.map(r => ({
           <p class="text-slate-400 text-sm mb-4">Top AI image generators and art tools</p>
           <div class="space-y-2">
             {sortedReviews.filter(r => r.data.tags?.some(t => ['image', 'art', 'design'].includes(t.toLowerCase()))).slice(0, 3).map(r => (
-              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-lg hover:bg-slate-800/60 transition-colors">
+              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-sm hover:bg-slate-800/60 transition-colors">
                 <div class="flex items-center justify-between">
                   <span class="font-semibold">{r.data.title.replace(' Review', '')}</span>
                   <span class="text-sm text-brand">{r.data.rating.overall}/10</span>
@@ -272,7 +272,7 @@ const reviewsData = sortedReviews.map(r => ({
         </div>
 
         <!-- Best for Video -->
-        <div class="bg-gradient-to-br from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl p-6">
+        <div class="bg-gradient-to-br from-orange-500/10 to-transparent border border-orange-500/30 rounded-sm p-6">
           <div class="flex items-center gap-3 mb-4">
             <Icon name="video" size="lg" class="text-orange-400" />
             <h3 class="text-xl font-bold">Best for Video</h3>
@@ -280,7 +280,7 @@ const reviewsData = sortedReviews.map(r => ({
           <p class="text-slate-400 text-sm mb-4">Top AI video generation and editing tools</p>
           <div class="space-y-2">
             {sortedReviews.filter(r => r.data.tags?.some(t => ['video', 'animation'].includes(t.toLowerCase()))).slice(0, 3).map(r => (
-              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-lg hover:bg-slate-800/60 transition-colors">
+              <a href={`/reviews/${r.slug}`} class="block p-3 bg-slate-900/40 rounded-sm hover:bg-slate-800/60 transition-colors">
                 <div class="flex items-center justify-between">
                   <span class="font-semibold">{r.data.title.replace(' Review', '')}</span>
                   <span class="text-sm text-brand">{r.data.rating.overall}/10</span>

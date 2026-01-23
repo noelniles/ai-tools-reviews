@@ -35,11 +35,11 @@ const { variant = 'default' } = Astro.props;
             name="email"
             placeholder="your@email.com" 
             required
-            class="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+            class="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
           />
           <button 
             type="submit"
-            class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-lg font-semibold transition-colors whitespace-nowrap"
+            class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-sm font-semibold transition-colors whitespace-nowrap"
           >
             Get Weekly Reviews
           </button>
@@ -52,7 +52,7 @@ const { variant = 'default' } = Astro.props;
   )}
 
   {variant === 'compact' && (
-    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+    <div class="bg-slate-900/40 border border-slate-800 rounded-sm p-6">
       <h3 class="text-lg font-semibold mb-3">Get Weekly AI Tool Reviews</h3>
       <p class="text-slate-300 mb-4 text-sm">
         Every Tuesday: honest reviews, no BS. Join 2,847 readers who stopped wasting money on bad tools.
@@ -80,7 +80,7 @@ const { variant = 'default' } = Astro.props;
   )}
 
   {variant === 'sidebar' && (
-    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-xl p-6 sticky top-24">
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-sm p-6 sticky top-24">
       <div class="text-4xl mb-4">📬</div>
       <h3 class="text-xl font-bold mb-2">Weekly AI Tool Reviews</h3>
       <p class="text-slate-400 mb-4 text-sm">

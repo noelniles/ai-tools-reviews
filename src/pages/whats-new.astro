@@ -32,7 +32,7 @@ const recentlyAdded = allReviews.slice(0, 6);
 
       <div class="space-y-4">
         <!-- Update 1 -->
-        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <div class="bg-slate-900/40 border border-slate-800 rounded-sm p-6">
           <div class="flex items-start gap-4">
             <div class="text-3xl">🎉</div>
             <div class="flex-1">
@@ -51,7 +51,7 @@ const recentlyAdded = allReviews.slice(0, 6);
         </div>
 
         <!-- Update 2 -->
-        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <div class="bg-slate-900/40 border border-slate-800 rounded-sm p-6">
           <div class="flex items-start gap-4">
             <div class="text-3xl">🚀</div>
             <div class="flex-1">
@@ -70,7 +70,7 @@ const recentlyAdded = allReviews.slice(0, 6);
         </div>
 
         <!-- Update 3 -->
-        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <div class="bg-slate-900/40 border border-slate-800 rounded-sm p-6">
           <div class="flex items-start gap-4">
             <div class="text-3xl">💰</div>
             <div class="flex-1">
@@ -98,7 +98,7 @@ const recentlyAdded = allReviews.slice(0, 6);
         {recentlyAdded.map((review) => (
           <a 
             href={`/reviews/${review.slug}`}
-            class="block bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors"
+            class="block bg-slate-900/40 border border-slate-800 rounded-sm p-6 hover:border-brand/50 transition-colors"
           >
             <div class="flex items-start justify-between mb-3">
               <h3 class="font-bold text-lg">{review.data.title}</h3>
@@ -116,7 +116,7 @@ const recentlyAdded = allReviews.slice(0, 6);
     </section>
 
     <!-- Subscribe CTA -->
-    <div class="bg-gradient-to-r from-brand/20 to-purple-600/20 border border-brand/30 rounded-xl p-8 text-center">
+    <div class="bg-gradient-to-r from-brand/20 to-purple-600/20 border border-brand/30 rounded-sm p-8 text-center">
       <h3 class="text-2xl font-bold mb-3">📬 Never Miss an Update</h3>
       <p class="text-slate-300 mb-6">
         Get weekly AI tool updates, new reviews, and exclusive deals
@@ -131,11 +131,11 @@ const recentlyAdded = allReviews.slice(0, 6);
           name="email"
           placeholder="your@email.com" 
           required
-          class="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-lg focus:outline-none focus:border-brand"
+          class="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-sm focus:outline-none focus:border-brand"
         />
         <button 
           type="submit"
-          class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-lg font-semibold transition-colors"
+          class="px-6 py-3 bg-brand hover:bg-brand/80 rounded-sm font-semibold transition-colors"
         >
           Subscribe
         </button>

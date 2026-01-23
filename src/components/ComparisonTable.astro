@@ -89,7 +89,7 @@ const { tools, features, title = "Feature Comparison" } = Astro.props;
                 href={tool.affiliate}
                 target="_blank"
                 rel="noopener noreferrer sponsored"
-                class="inline-block w-full px-4 py-2.5 bg-brand hover:bg-brand/80 text-white font-semibold rounded-lg transition-colors"
+                class="inline-block w-full px-4 py-2.5 bg-brand hover:bg-brand/80 text-white font-semibold rounded-sm transition-colors"
                 data-affiliate="true"
                 data-tool={tool.name}
                 data-link-type="comparison"
@@ -99,7 +99,7 @@ const { tools, features, title = "Feature Comparison" } = Astro.props;
             ) : (
               <a
                 href={`/reviews/${tool.slug}`}
-                class="inline-block w-full px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+                class="inline-block w-full px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-sm transition-colors"
               >
                 Read Review →
               </a>

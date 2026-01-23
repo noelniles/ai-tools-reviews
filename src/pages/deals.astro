@@ -31,13 +31,13 @@ const lastUpdated = new Date().toLocaleDateString('en-US', {
 
     <!-- Quick Filter -->
     <div class="mb-8 flex gap-3 flex-wrap">
-      <button onclick="filterDeals('all')" class="px-4 py-2 bg-brand/20 hover:bg-brand/30 rounded-lg text-sm font-semibold transition-colors">
+      <button onclick="filterDeals('all')" class="px-4 py-2 bg-brand/20 hover:bg-brand/30 rounded-sm text-sm font-semibold transition-colors">
         All Tools
       </button>
-      <button onclick="filterDeals('free')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors">
+      <button onclick="filterDeals('free')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-sm text-sm transition-colors">
         Free Tier Available
       </button>
-      <button onclick="filterDeals('paid')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors">
+      <button onclick="filterDeals('paid')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-sm text-sm transition-colors">
         Paid Only
       </button>
     </div>
@@ -59,7 +59,7 @@ const lastUpdated = new Date().toLocaleDateString('en-US', {
           const priceCategory = hasFree ? 'free' : 'paid';
           
           return (
-            <div class={`deal-card pricing-card bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:border-brand/50 transition-colors`} data-category={priceCategory}>
+            <div class={`deal-card pricing-card bg-slate-900/40 border border-slate-800 rounded-sm p-6 hover:border-brand/50 transition-colors`} data-category={priceCategory}>
               <div class="flex justify-between items-start gap-4">
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-2">
@@ -97,7 +97,7 @@ const lastUpdated = new Date().toLocaleDateString('en-US', {
                   <div class="flex gap-3">
                     <a 
                       href={`/reviews/${review.slug}`}
-                      class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
+                      class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-sm text-sm font-semibold transition-colors"
                     >
                       Read Review
                     </a>
@@ -106,7 +106,7 @@ const lastUpdated = new Date().toLocaleDateString('en-US', {
                         href={review.data.affiliate_links.primary}
                         target="_blank"
                         rel="noopener noreferrer sponsored"
-                        class="affiliate-link px-4 py-2 bg-brand hover:bg-brand/80 rounded-lg text-sm font-semibold transition-colors"
+                        class="affiliate-link px-4 py-2 bg-brand hover:bg-brand/80 rounded-sm text-sm font-semibold transition-colors"
                         data-affiliate="true"
                         data-tool={review.data.title}
                       >
@@ -190,7 +190,7 @@ const lastUpdated = new Date().toLocaleDateString('en-US', {
     </section>
 
     <!-- Disclosure -->
-    <div class="mt-12 bg-slate-800/30 border border-slate-700 rounded-xl p-6 text-sm text-slate-400">
+    <div class="mt-12 bg-slate-800/30 border border-slate-700 rounded-sm p-6 text-sm text-slate-400">
       <p class="mb-2">
         <strong class="text-slate-300">Note:</strong> Prices shown are starting prices and may vary. 
         Some tools offer multiple tiers with additional features at higher price points.
@@ -209,8 +209,8 @@ const lastUpdated = new Date().toLocaleDateString('en-US', {
       // Update button styles
       buttons.forEach(btn => {
         btn.className = btn.onclick.toString().includes(`'${category}'`)
-          ? 'px-4 py-2 bg-brand/20 hover:bg-brand/30 rounded-lg text-sm font-semibold transition-colors'
-          : 'px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors';
+          ? 'px-4 py-2 bg-brand/20 hover:bg-brand/30 rounded-sm text-sm font-semibold transition-colors'
+          : 'px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-sm text-sm transition-colors';
       });
       
       // Filter cards

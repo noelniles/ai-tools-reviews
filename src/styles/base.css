@@ -1,9 +1,12 @@
+/* Import modern fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  @apply bg-slate-950 text-slate-100 antialiased font-sans;
 }
 
 /* Global link styling - Tron blue theme */
@@ -27,58 +30,103 @@ body {
     letter-spacing: -0.02em;
   }
 
+  h1 {
+    @apply text-4xl md:text-5xl font-extrabold mb-6 mt-12;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl font-bold mb-6 mt-16;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl font-bold mb-5 mt-12;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl font-semibold mb-4 mt-10;
+  }
+
+  p {
+    @apply text-base md:text-lg leading-relaxed mb-6;
+  }
+
   /* Monospace for data and metrics */
   .metric, .data-value {
     @apply font-mono;
   }
 
-  /* Academic-style prose */
+  /* Academic-style prose with improved readability */
   .prose-research {
     @apply text-slate-300 leading-relaxed;
+    font-size: 1.125rem;
+    line-height: 1.8;
   }
 
   .prose-research h2 {
-    @apply text-2xl font-bold mt-12 mb-4 pb-3 border-b border-slate-800 text-slate-100;
+    @apply text-3xl font-bold mt-16 mb-6 pb-4 border-b-2 border-slate-700/60 text-slate-50;
+    letter-spacing: -0.025em;
   }
 
   .prose-research h3 {
-    @apply text-xl font-bold mt-8 mb-3 text-slate-100;
+    @apply text-2xl font-bold mt-12 mb-5 text-slate-100;
+    letter-spacing: -0.02em;
+  }
+
+  .prose-research h4 {
+    @apply text-xl font-semibold mt-10 mb-4 text-slate-200;
   }
 
   .prose-research p {
-    @apply mb-4 text-slate-300;
+    @apply mb-6 text-slate-300 leading-relaxed;
+    font-size: 1.125rem;
+    line-height: 1.8;
   }
 
   .prose-research ul, .prose-research ol {
-    @apply my-4 space-y-2;
+    @apply my-6 space-y-3 pl-6;
+  }
+
+  .prose-research ul {
+    @apply list-disc;
+  }
+
+  .prose-research ol {
+    @apply list-decimal;
   }
 
   .prose-research li {
-    @apply text-slate-300;
+    @apply text-slate-300 leading-relaxed pl-2;
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+
+  .prose-research li::marker {
+    @apply text-brand font-bold;
   }
 
   .prose-research code {
-    @apply bg-slate-900 px-1.5 py-0.5 rounded text-sm font-mono text-brand;
+    @apply bg-slate-900 px-2 py-1 rounded text-sm font-mono text-brand border border-slate-800;
   }
 
   .prose-research pre {
-    @apply bg-slate-900 border border-slate-800 rounded-lg p-4 overflow-x-auto;
+    @apply bg-slate-900 border border-slate-800 rounded-lg p-5 overflow-x-auto my-8;
   }
 
   .prose-research blockquote {
-    @apply border-l-4 border-brand pl-4 italic text-slate-400;
+    @apply border-l-4 border-brand pl-6 py-2 italic text-slate-400 my-8;
+    font-size: 1.125rem;
   }
 
   .prose-research table {
-    @apply w-full border-collapse text-sm;
+    @apply w-full border-collapse text-sm my-8;
   }
 
   .prose-research th {
-    @apply bg-slate-900 border border-slate-800 px-4 py-2 text-left font-semibold text-slate-200;
+    @apply bg-slate-900 border border-slate-800 px-4 py-3 text-left font-semibold text-slate-200;
   }
 
   .prose-research td {
-    @apply border border-slate-800 px-4 py-2 text-slate-300;
+    @apply border border-slate-800 px-4 py-3 text-slate-300;
   }
 
   /* Confidence indicators */

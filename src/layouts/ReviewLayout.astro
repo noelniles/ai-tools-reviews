@@ -80,7 +80,7 @@ const toolName = title.split(' Review')[0];
 
       <!-- Affiliate CTA -->
       {affiliate_links?.primary && (
-        <div class="mt-6 p-4 rounded-xl bg-gradient-to-r from-brand/20 to-purple-500/20 border border-brand/30">
+        <div class="mt-6 p-4 rounded-sm bg-gradient-to-r from-brand/20 to-purple-500/20 border border-brand/30">
           <div class="flex items-center justify-between gap-4">
             <div>
               <p class="font-semibold text-white mb-1">Try {toolName}</p>
@@ -90,7 +90,7 @@ const toolName = title.split(' Review')[0];
               href={affiliate_links.primary}
               target="_blank"
               rel="noopener noreferrer sponsored"
-              class="affiliate-link px-6 py-2.5 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors whitespace-nowrap"
+              class="affiliate-link px-6 py-2.5 bg-brand hover:bg-brand/80 text-white rounded-sm font-semibold transition-colors whitespace-nowrap"
               data-affiliate="true"
               data-tool={toolName}
             >
@@ -103,7 +103,7 @@ const toolName = title.split(' Review')[0];
 
     <!-- Rating Breakdown -->
     {(rating.usability || rating.quality || rating.pricing) && (
-      <div class="mb-8 p-6 rounded-xl bg-slate-900/40 border border-slate-800">
+      <div class="mb-8 p-6 rounded-sm bg-slate-900/40 border border-slate-800">
         <h3 class="text-sm font-semibold mb-4 text-slate-400 uppercase tracking-wide">Rating Breakdown</h3>
         <div class="grid gap-3">
           {rating.usability && (
@@ -138,9 +138,9 @@ const toolName = title.split(' Review')[0];
     )}
 
     <!-- Technical Deep-Dive Callout -->
-    <div class="mb-8 p-6 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl">
+    <div class="mb-8 p-6 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-sm">
       <div class="flex items-start gap-4">
-        <div class="p-3 bg-purple-500/20 rounded-lg">
+        <div class="p-3 bg-purple-500/20 rounded-sm">
           <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
           </svg>
@@ -151,21 +151,21 @@ const toolName = title.split(' Review')[0];
             Dive into the technical architecture, algorithms, and implementation details behind {toolName}.
           </p>
           <div class="flex flex-wrap gap-3">
-            <a href="/technical/transformer-architecture" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-lg text-sm font-semibold transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="/technical/transformer-architecture" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-sm text-sm font-semibold transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
               </svg>
               Transformer Architecture
             </a>
-            <a href="/technical/attention-mechanisms" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-lg text-sm font-semibold transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="/technical/attention-mechanisms" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-sm text-sm font-semibold transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
               </svg>
               Attention Mechanisms
             </a>
-            <a href="/technical/long-context-architecture" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-lg text-sm font-semibold transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="/technical/long-context-architecture" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 rounded-sm text-sm font-semibold transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
               </svg>
               Long-Context Models
@@ -177,35 +177,35 @@ const toolName = title.split(' Review')[0];
 
     <!-- Content -->
     <div class="prose prose-invert prose-slate max-w-none
-                prose-headings:font-bold prose-headings:text-slate-100
-                prose-h1:text-3xl prose-h1:mb-6
-                prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:border-b prose-h2:border-slate-700/50 prose-h2:pb-2
-                prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-slate-200
-                prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3 prose-h4:text-slate-300
-                prose-p:text-slate-300 prose-p:leading-7 prose-p:mb-5
-                prose-a:text-brand prose-a:no-underline hover:prose-a:underline
+                prose-headings:font-bold prose-headings:text-slate-50
+                prose-h1:text-4xl md:prose-h1:text-5xl prose-h1:mb-8 prose-h1:mt-12 prose-h1:tracking-tight prose-h1:font-extrabold
+                prose-h2:text-3xl md:prose-h2:text-4xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:border-b-2 prose-h2:border-slate-700/60 prose-h2:pb-4 prose-h2:tracking-tight prose-h2:font-bold
+                prose-h3:text-2xl md:prose-h3:text-3xl prose-h3:mt-12 prose-h3:mb-5 prose-h3:text-slate-100 prose-h3:tracking-tight prose-h3:font-bold
+                prose-h4:text-xl md:prose-h4:text-2xl prose-h4:mt-10 prose-h4:mb-4 prose-h4:text-slate-200 prose-h4:font-semibold
+                prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-6 prose-p:text-base md:prose-p:text-lg
+                prose-a:text-brand prose-a:no-underline hover:prose-a:underline prose-a:transition-colors
                 prose-strong:text-slate-100 prose-strong:font-semibold
-                prose-code:text-purple-400 prose-code:bg-slate-900/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
-                prose-pre:bg-slate-900/80 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-lg prose-pre:my-5 prose-pre:p-4
-                prose-ul:text-slate-300 prose-ul:my-5 prose-ul:pl-6 prose-ul:space-y-2
-                prose-ol:text-slate-300 prose-ol:my-5 prose-ol:space-y-2
-                prose-li:text-slate-300 prose-li:leading-7 prose-li:pl-1
-                prose-li:marker:text-brand
-                prose-blockquote:border-brand prose-blockquote:text-slate-300 prose-blockquote:my-5 prose-blockquote:py-1
-                prose-img:rounded-xl prose-img:border prose-img:border-slate-800 prose-img:my-6
-                prose-hr:border-slate-700 prose-hr:my-10">
+                prose-code:text-purple-400 prose-code:bg-slate-900/50 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:border prose-code:border-slate-800
+                prose-pre:bg-slate-900/80 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-sm prose-pre:my-8 prose-pre:p-5
+                prose-ul:my-6 prose-ul:space-y-3 prose-ul:pl-6 prose-ul:list-disc
+                prose-ol:my-6 prose-ol:space-y-3 prose-ol:pl-6 prose-ol:list-decimal
+                prose-li:text-slate-300 prose-li:leading-relaxed prose-li:pl-2 prose-li:text-base md:prose-li:text-lg
+                prose-li:marker:text-brand prose-li:marker:font-bold
+                prose-blockquote:border-l-4 prose-blockquote:border-brand prose-blockquote:text-slate-400 prose-blockquote:my-8 prose-blockquote:py-2 prose-blockquote:pl-6 prose-blockquote:italic
+                prose-img:rounded-sm prose-img:border prose-img:border-slate-800 prose-img:my-8
+                prose-hr:border-slate-700 prose-hr:my-12">
       <Content />
     </div>
 
     <!-- Bottom Affiliate CTA -->
     {affiliate_links?.primary && (
-      <div class="mt-12 p-6 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+      <div class="mt-12 p-6 rounded-sm bg-slate-900/60 border border-slate-800 text-center">
         <p class="text-lg font-semibold mb-3">Ready to try {toolName}?</p>
         <a 
           href={affiliate_links.primary}
           target="_blank"
           rel="noopener noreferrer sponsored"
-          class="affiliate-link inline-block px-8 py-3 bg-brand hover:bg-brand/80 text-white rounded-lg font-semibold transition-colors"
+          class="affiliate-link inline-block px-8 py-3 bg-brand hover:bg-brand/80 text-white rounded-sm font-semibold transition-colors"
           data-affiliate="true"
           data-tool={toolName}
         >
