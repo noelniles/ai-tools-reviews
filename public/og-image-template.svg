@@ -1,63 +1,100 @@
 <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background Gradient -->
   <defs>
+    <!-- Dark background -->
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#020617;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
+    
+    <!-- Cyan neon glow -->
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
     </linearGradient>
+    
+    <!-- Filters for glow effects -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="strongGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
   
   <!-- Background -->
   <rect width="1200" height="630" fill="url(#bgGradient)"/>
   
-  <!-- Decorative Grid Pattern -->
-  <g opacity="0.1">
-    <line x1="0" y1="100" x2="1200" y2="100" stroke="#64748b" stroke-width="1"/>
-    <line x1="0" y1="200" x2="1200" y2="200" stroke="#64748b" stroke-width="1"/>
-    <line x1="0" y1="300" x2="1200" y2="300" stroke="#64748b" stroke-width="1"/>
-    <line x1="0" y1="400" x2="1200" y2="400" stroke="#64748b" stroke-width="1"/>
-    <line x1="0" y1="500" x2="1200" y2="500" stroke="#64748b" stroke-width="1"/>
-    <line x1="100" y1="0" x2="100" y2="630" stroke="#64748b" stroke-width="1"/>
-    <line x1="300" y1="0" x2="300" y2="630" stroke="#64748b" stroke-width="1"/>
-    <line x1="500" y1="0" x2="500" y2="630" stroke="#64748b" stroke-width="1"/>
-    <line x1="700" y1="0" x2="700" y2="630" stroke="#64748b" stroke-width="1"/>
-    <line x1="900" y1="0" x2="900" y2="630" stroke="#64748b" stroke-width="1"/>
-    <line x1="1100" y1="0" x2="1100" y2="630" stroke="#64748b" stroke-width="1"/>
+  <!-- Tron-style geometric lines -->
+  <g opacity="0.3" stroke="#0ea5e9" stroke-width="1" fill="none" filter="url(#glow)">
+    <!-- Horizontal lines -->
+    <line x1="0" y1="150" x2="1200" y2="150"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="480" x2="1200" y2="480"/>
+    
+    <!-- Vertical accent lines -->
+    <line x1="60" y1="0" x2="60" y2="630"/>
+    <line x1="1140" y1="0" x2="1140" y2="630"/>
+    
+    <!-- Diagonal accent -->
+    <line x1="800" y1="0" x2="1200" y2="400"/>
   </g>
   
-  <!-- Accent Circle -->
-  <circle cx="1050" cy="150" r="200" fill="url(#accentGradient)" opacity="0.2"/>
+  <!-- Corner brackets (tron-style) -->
+  <g stroke="#0ea5e9" stroke-width="3" fill="none" filter="url(#glow)">
+    <!-- Top left -->
+    <path d="M 80,100 L 80,60 L 120,60"/>
+    <!-- Top right -->
+    <path d="M 1080,60 L 1120,60 L 1120,100"/>
+    <!-- Bottom left -->
+    <path d="M 120,570 L 80,570 L 80,530"/>
+    <!-- Bottom right -->
+    <path d="M 1120,530 L 1120,570 L 1080,570"/>
+  </g>
   
-  <!-- Logo/Icon Area (Top Left) -->
-  <g transform="translate(80, 80)">
-    <rect x="0" y="0" width="80" height="80" rx="16" fill="url(#accentGradient)"/>
-    <text x="40" y="56" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white" text-anchor="middle">AI</text>
+  <!-- Neon accent shape -->
+  <g opacity="0.15" filter="url(#strongGlow)">
+    <polygon points="900,0 1200,300 1200,0" fill="#0ea5e9"/>
+    <circle cx="950" cy="200" r="120" fill="#06b6d4"/>
+  </g>
+  
+  <!-- Logo mark -->
+  <g transform="translate(80, 200)">
+    <rect x="0" y="0" width="60" height="60" rx="8" fill="none" stroke="#0ea5e9" stroke-width="2" filter="url(#glow)"/>
+    <text x="30" y="44" font-family="'Courier New', monospace" font-size="32" font-weight="bold" fill="#0ea5e9" text-anchor="middle">AI</text>
   </g>
   
   <!-- Main Title -->
-  <text x="80" y="280" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#f1f5f9">
-    AI Tools Reviews
+  <text x="160" y="235" font-family="'Courier New', monospace" font-size="56" font-weight="bold" fill="#f1f5f9" letter-spacing="2">
+    BENCH THE BOTS
   </text>
   
+  <!-- Accent line under title -->
+  <rect x="160" y="250" width="400" height="2" fill="url(#cyanGlow)" filter="url(#glow)"/>
+  
   <!-- Subtitle -->
-  <text x="80" y="350" font-family="Arial, sans-serif" font-size="36" fill="#cbd5e1">
-    Expert Reviews &amp; Comparisons
+  <text x="160" y="310" font-family="'Courier New', monospace" font-size="28" fill="#94a3b8">
+    EXPERT AI TOOL REVIEWS
   </text>
   
   <!-- Description -->
-  <text x="80" y="430" font-family="Arial, sans-serif" font-size="28" fill="#94a3b8">
-    Independent, honest reviews of ChatGPT, Claude,
+  <text x="160" y="380" font-family="'Courier New', monospace" font-size="20" fill="#64748b">
+    &gt; Independent benchmarks and analysis
   </text>
-  <text x="80" y="470" font-family="Arial, sans-serif" font-size="28" fill="#94a3b8">
-    Midjourney, and more AI tools
+  <text x="160" y="420" font-family="'Courier New', monospace" font-size="20" fill="#64748b">
+    &gt; Real-world testing, no BS
   </text>
   
-  <!-- URL/Brand at Bottom -->
-  <text x="80" y="570" font-family="Arial, sans-serif" font-size="24" font-weight="600" fill="url(#accentGradient)">
-    aitoolsreviews.com
+  <!-- URL with subtle glow -->
+  <text x="160" y="540" font-family="'Courier New', monospace" font-size="26" font-weight="600" fill="#0ea5e9">
+    benchthebots.ai
   </text>
 </svg>

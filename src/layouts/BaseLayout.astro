@@ -14,12 +14,12 @@ interface Props {
 }
 
 const { 
-  title = 'AI Tools Reviews - Expert Reviews & Comparisons',
+  title = 'Bench The Bots - Expert AI Tool Reviews & Comparisons',
   description = 'Independent, expert reviews and benchmarks of AI tools. Compare ChatGPT, Claude, Midjourney, and more. Honest ratings, pricing, and recommendations.',
   image = '/og-image.png',
   type = 'website',
   publishedTime,
-  author = 'AI Tools Reviews Team',
+  author = 'Bench The Bots Team',
   keywords = ['AI tools', 'AI reviews', 'ChatGPT review', 'Claude review', 'AI comparison', 'LLM reviews']
 } = Astro.props as Props;
 
@@ -47,7 +47,7 @@ const ogImageURL = new URL(image, Astro.site || 'https://benchthebots.ai').href;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageURL} />
-    <meta property="og:site_name" content="AI Tools Reviews" />
+    <meta property="og:site_name" content="Bench The Bots" />
     
     <!-- KaTeX CSS for LaTeX math rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous" />
@@ -119,7 +119,7 @@ const ogImageURL = new URL(image, Astro.site || 'https://benchthebots.ai').href;
             <div class="w-10 h-10 bg-gradient-to-br from-brand to-purple-500 rounded-sm flex items-center justify-center">
               <span class="text-white font-bold text-lg">AI</span>
             </div>
-            <h3 class="font-bold text-xl text-slate-100">AI Tools Reviews</h3>
+            <h3 class="font-bold text-xl text-slate-100">Bench The Bots</h3>
           </div>
           <p class="text-sm text-slate-400 mb-4 max-w-sm">
             Independent, expert reviews and comparisons of AI tools. We test, benchmark, and evaluate so you can make informed decisions.
@@ -236,7 +236,7 @@ const ogImageURL = new URL(image, Astro.site || 'https://benchthebots.ai').href;
       <div class="pt-8 border-t border-slate-800">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div class="text-sm text-slate-500">
-            <p>© {new Date().getFullYear()} AI Tools Reviews. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Bench The Bots. All rights reserved.</p>
           </div>
           
           <div class="flex flex-wrap gap-6 text-sm text-slate-500">

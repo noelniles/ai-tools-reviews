@@ -12,7 +12,7 @@ export async function GET(context: APIContext) {
   );
 
   return rss({
-    title: 'BenchTheBots - AI Tools Reviews',
+    title: 'Bench The Bots - Expert AI Tool Reviews',
     description: 'Independent, expert reviews and benchmarks of AI tools. Honest ratings, pricing, and recommendations.',
     site: context.site || 'https://benchthebots.ai',
     items: allPosts.map((post) => ({

@@ -67,7 +67,7 @@ export function generateReviewStructuredData(data: {
     },
     "author": {
       "@type": "Organization",
-      "name": "AI Tools Reviews",
+      "name": "Bench The Bots",
       "url": "https://benchthebots.ai"
     },
     "datePublished": data.date,
