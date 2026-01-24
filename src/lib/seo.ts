@@ -68,7 +68,7 @@ export function generateReviewStructuredData(data: {
     "author": {
       "@type": "Organization",
       "name": "AI Tools Reviews",
-      "url": "https://aitoolsreviews.com"
+      "url": "https://benchthebots.ai"
     },
     "datePublished": data.date,
     "reviewRating": {
@@ -178,7 +178,7 @@ export function optimizeDescription(description: string, maxLength = 160): strin
 /**
  * Generate canonical URL
  */
-export function getCanonicalURL(path: string, baseURL = 'https://aitoolsreviews.com'): string {
+export function getCanonicalURL(path: string, baseURL = 'https://benchthebots.ai'): string {
   // Remove trailing slash
   const cleanPath = path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path;
   return `${baseURL}${cleanPath}`;
