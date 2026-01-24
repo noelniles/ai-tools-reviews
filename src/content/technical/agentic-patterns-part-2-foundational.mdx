@@ -3,7 +3,7 @@ title: "Agentic Design Patterns Part 2: Foundational Patterns with Working Code"
 description: "Deep dive into prompt chaining, routing, parallelization, reflection, tool use, planning, and multi-agent collaboration. Real Python code you can run and modify."
 date: "2026-01-24"
 tags: ['AI', 'agents', 'technical', 'LLM', 'design-patterns', 'python', 'code']
-author: "Zane Merrick"
+author: "Zane Merrik"
 ---
 
 import CodeBlock from '../../components/CodeBlock.astro'
@@ -32,7 +32,7 @@ Now I chain it: outline first, then intro based on that outline, then each secti
 
 <CodeBlock 
   language="python"
-  filename="part-1-foundational/01_prompt_chaining.py"
+  filename="part_1_foundational/prompt_chaining.py"
   code={`def prompt_chaining_blog_post(topic: str) -> dict:
     # Step 1: Generate outline
     outline = call_llm(f"Create outline for: {topic}")
@@ -56,7 +56,7 @@ Each prompt has one job. The LLM isn't trying to remember seventeen things at on
 
 Yes, it's more API calls—usually 3-7 instead of one. But the quality improvement is worth every penny. I'd rather spend $0.08 on a good blog post than $0.02 on garbage I have to rewrite manually.
 
-<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/01_prompt_chaining.py" target="_blank" rel="noopener noreferrer">View full code →</a>
+<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/prompt_chaining.py" target="_blank" rel="noopener noreferrer">View full code →</a>
 
 ## Pattern 2: Routing
 
@@ -72,7 +72,7 @@ Most platforms skip this entirely and just throw everything at GPT-4. That's lik
 
 <CodeBlock 
   language="python"
-  filename="part-1-foundational/02_routing.py"
+  filename="part_1_foundational/routing.py"
   code={`def route_and_handle(query: str) -> dict:
     # Classify query type
     query_type = classify_query(query)  # LLM classifies intent
@@ -93,7 +93,7 @@ Different query types need different expertise and different models. Classificat
 
 The savings are real. I cut my customer support agent costs by 60% just by adding smart routing. Same quality for users, way less spend on API calls. Turns out most support queries don't actually need the most powerful model.
 
-<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/02_routing.py" target="_blank" rel="noopener noreferrer">View full code →</a>
+<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/routing.py" target="_blank" rel="noopener noreferrer">View full code →</a>
 
 ## Pattern 3: Parallelization
 
@@ -109,7 +109,7 @@ The catch is that "independent" part. You can only parallelize tasks that don't 
 
 <CodeBlock 
   language="python"
-  filename="part-1-foundational/03_parallelization.py"
+  filename="part_1_foundational/parallelization.py"
   code={`import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
@@ -139,7 +139,7 @@ Cost is the same—you're making the same number of API calls, just faster. The 
 
 This is probably the easiest pattern to add for immediate gains. If your tasks are independent, parallelize them. Free speed.
 
-<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/03_parallelization.py" target="_blank" rel="noopener noreferrer">View full code →</a>
+<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/parallelization.py" target="_blank" rel="noopener noreferrer">View full code →</a>
 
 ## Pattern 4: Reflection
 
@@ -157,7 +157,7 @@ I use this for any code generation, any content that needs to be accurate, anyth
 
 <CodeBlock 
   language="python"
-  filename="part-1-foundational/04_reflection.py"
+  filename="part_1_foundational/reflection.py"
   code={`def reflection_loop(task: str, max_iterations: int = 3) -> dict:
     # Initial generation (producer)
     code = generate_code(task)
@@ -183,7 +183,7 @@ Important: **set max iterations**. I use 3. Without a limit, reflection loops ca
 
 For code generation, reflection is non-negotiable. For blog posts or marketing copy, maybe not worth the 3-5x cost increase. Use it where quality matters and mistakes are expensive.
 
-<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/04_reflection.py" target="_blank" rel="noopener noreferrer">View full code →</a>
+<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/reflection.py" target="_blank" rel="noopener noreferrer">View full code →</a>
 
 <Chart 
   type="bar"
@@ -214,7 +214,7 @@ Every production agent I've built uses tools. It's the difference between a demo
 
 <CodeBlock 
   language="python"
-  filename="part-1-foundational/05_tool_use.py"
+  filename="part_1_foundational/tool_use.py"
   code={`def weather_agent(query: str) -> str:
     # Define available tools
     tools = [
@@ -266,7 +266,7 @@ The key details:
 
 **Safety matters here**. Never give tools unrestricted access. Read-only database queries? Fine. DELETE operations? Hell no, not without guardrails or human approval. I learned this when a test agent tried to drop a table because it "wasn't returning the right results." Guardrails saved me from explaining that one to my team.
 
-<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/05_tool_use.py" target="_blank" rel="noopener noreferrer">View full code →</a>
+<a href="https://github.com/ai-tools-reviews/agentic-design-patterns/blob/main/part_1_foundational/tool_use.py" target="_blank" rel="noopener noreferrer">View full code →</a>
 
 ## Patterns 6 & 7: Planning and Multi-Agent (Coming Soon)
 
