@@ -106,13 +106,82 @@ Implemented async CSS loading for non-critical KaTeX stylesheet:
    - Inline critical CSS in `<head>`
    - Defer non-critical stylesheets
 
+## Phase 2 Optimizations (Targeting 95+ Scores)
+
+### 4. Fixed Accessibility Issues (Priority: High)
+**Files Modified**: 
+- `src/components/ROICalculator.astro`
+- `src/components/ReviewCard.astro`
+
+**Changes**:
+
+#### Color Contrast Improvements
+Changed `text-slate-500` to `text-slate-400` for better contrast ratio:
+- **Before**: 4.06:1 (failing WCAG AA)
+- **After**: 5.14:1 (passing WCAG AA)
+
+#### Form Accessibility
+Added aria-labels to all range inputs:
+```html
+<input type="range" id="team-size" aria-label="Team size slider from 1 to 100 people" ... />
+<input type="range" id="current-spend" aria-label="Current monthly AI tool spend from $0 to $10,000" ... />
+<input type="range" id="tools-count" aria-label="Number of AI tools currently using from 1 to 20" ... />
+```
+
+**Expected Impact**: Accessibility score 84 → 95+
+
+### 5. Deferred Google Analytics (Priority: High)
+**File**: `src/layouts/BaseLayout.astro`
+
+**Changes**:
+Deferred GA loading by 2 seconds after page load to eliminate blocking JavaScript:
+```javascript
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+    document.head.appendChild(script);
+    // ... GA config
+  }, 2000);
+});
+```
+
+**Expected Impact**: 
+- Reduces unused JavaScript from 57KB (39%)
+- Performance score 89 → 95+
+- FCP improvement of additional 200-300ms
+
+## Combined Expected Results
+
+| Category | Phase 1 | Phase 2 Target | Improvement |
+|----------|---------|----------------|-------------|
+| **Performance** | 89/100 | 95+/100 | +6 points |
+| **Accessibility** | 84/100 | 95+/100 | +11 points |
+| **Best Practices** | 96/100 | 96/100 | - |
+| **SEO** | 100/100 | 100/100 | ✓ |
+
 ## Deployment
 
 Changes are ready to deploy. Run:
 ```bash
 git add .
-git commit -m "perf: Lighthouse optimizations - preconnect, defer CSS, optimize fonts"
+git commit -m "perf: Lighthouse optimizations Phase 2 - accessibility & analytics defer"
 git push
 ```
 
 Netlify will automatically rebuild and deploy the optimized site.
+
+## Testing After Deployment
+
+Wait ~2 minutes for deployment, then run:
+```bash
+npx lighthouse https://benchthebots.ai --view
+```
+
+Expected metrics:
+- **Performance**: 95+ (from 75)
+- **Accessibility**: 95+ (from 84)
+- **FCP**: < 2.5s (from 3.6s)
+- **LCP**: < 2.5s (from 3.6s)
+- **TBT**: < 50ms (from 220ms)
